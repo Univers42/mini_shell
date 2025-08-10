@@ -1,0 +1,6 @@
+[submodule "FrameWork_test"]
+	path = FrameWork_test
+	url = git@github.com:Univers42/FrameWork_test.git
+[submodule "minilibx-linux"]
+	path = minilibx-linux
+	url = https://github.com/42paris/minilibx-linux.git

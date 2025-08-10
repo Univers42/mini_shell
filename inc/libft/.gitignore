@@ -1,0 +1,8 @@
+.o
+*/*.o
+*/*/*.o
+*.ds_store
+*.swp
+*.swo
+*.swm
+*.a
