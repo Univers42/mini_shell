@@ -31,4 +31,30 @@ builtin	unset(char **args, int flags, t_env *env);
 builtin env(char **args, int flags, t_env *env);
 builtin	exit(char **args, int flags, t_env *env);
 
+t_builtin       gbuiltin()                 {
+        static t_builtin a[] =
+        {
+                {"echo", echo, ECHO_N};
+                {"cd", cd};
+                {"pwd", pwd, 0};
+                {"export", export, 0};
+                {"unset", unset, };
+                {"exit", exit, 0};
+                {NULL, NULL, 0};
+        };
+
+        return (&a);
+}
+
+typedef enum e_cmd_idx
+{
+	BIN_ECHO = 0,
+	BIN_CD,
+	BIN_PWD,
+	BIN_EXPORT,
+	BIN_UNSET,
+	BIN_ENV,
+	BIN_EXIT,
+	BIN_COUNT
+}	t_cmd_idx;
 #endif
