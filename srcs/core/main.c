@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/12 13:47:41 by syzygy            #+#    #+#             */
+/*   Updated: 2025/08/12 14:27:49 by syzygy           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
@@ -5,55 +17,62 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <stdlib.h>
+#include "libft.h"
 #include "builtins.h"
+#include "minishell.h"
 
-int main(int argc, char **argv, char **envp)
+static void	print_parse_error(const char *cmd, t_parse_err err)
 {
-    (void)argc;
-    (void)argv;
-    (void)envp;
-    bool run = true;
-    char *input;
+	if (err == PARSE_NOT_BUILTIN)
+		printf("Unknown command: %s\n", cmd);
+	else if (err == PARSE_INVALID_FLAG)
+		printf("Unknown command: %s\n", cmd);
+}
 
-    while (run)
-    {
-        input = readline("minishell> ");
-	/**
-	 * GNU readline trick `CTRL + D` is recognized because
-	 * readline() returns NULL when it gets an EOF from standard input
-	 * readline reads input characters until it hits a newline
-	 * ctrl+D sends the `end-of-file (EOF)` signal to the terminal input stream if 
-	 * the line buffer is empty
-	 * that means: no character typed, press CTRL+D->EOF
-	 * readline()  sees EOF and returns NULL instead of a string
-	 * */
-        if (!input)
-        {
-            printf("exit\n");
-            break;
-        }
-        if (strlen(input) > 0)
-        {
-            // Check for builtins
-            int idx = -1;
-            t_builtins *bins = access_builtins();
-            for (int i = 0; bins[i].name != NULL; ++i) {
-                if (strcmp(input, bins[i].name) == 0) {
-                    idx = i;
-                    break;
-                }
-            }
-            if (idx >= 0) {
-                // Call builtin (dummy args/flags/env for now)
-                bins[idx].builtin(NULL, 0, NULL);
-            } else if (strcmp(input, "quit") == 0) {
-                run = false;
-            } else {
-                printf("Unknown command: %s\n", input);
-            }
-        }
-        free(input); // Important: readline mallocs the string
-    }
-    rl_clear_history();
-    return (0);
+static void	dispatch_command(t_cmdline *cmd)
+{
+	t_builtins	*bins;
+
+	bins = access_builtins();
+	bins[cmd->bin_idx].builtin(cmd->argv, cmd->flags, NULL);
+}
+
+static int	run_minishell(bool run)
+{
+	t_string	input;
+	t_cmdline	cmd;
+	t_parse_err	err;
+
+	while (run)
+	{
+		input = readline("minishell> ");
+		if (!input)
+			return (printf("exit\n"), rl_clear_history(), 0);
+		if (*input)
+		{
+			err = ms_parse_line(input, &cmd);
+			if (err == PARSE_OK)
+				dispatch_command(&cmd);
+			else if (err == PARSE_NOT_BUILTIN && ft_strcmp(input, "quit") == 0)
+				run = false;
+			else
+				print_parse_error(input, err);
+			ms_cmdline_free(&cmd);
+		}
+		free(input);
+	}
+	rl_clear_history();
+	return (0);
+}
+
+int	main(int argc, char **argv, char **envp)
+{
+	(void)argc;
+	(void)argv;
+	(void)envp;
+	bool	run;
+
+	run = true;
+	run_minishell(run);
+	return (0);
 }

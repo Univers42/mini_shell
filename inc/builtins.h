@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:10:55 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/12 13:32:36 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/12 14:09:19 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,23 @@
 // here we would use bit masks
 typedef enum e_builtin_flags
 {
-	ECHO_N = 1 << 0,
-	EXPORT_P = 1 << 1,
-	UNSET_V = 1 << 2,
-	UNSET_F = 1 << 3,
-	CD_L = 1 << 4,
-	CD_P = 1 << 5,
-	FLAG_COUNT = 6
+	FLAG_N = 1 << 0, // -n
+	FLAG_P = 1 << 1, // -p
+	FLAG_V = 1 << 2, // -v
+	FLAG_F = 1 << 3, // -f
+	FLAG_L = 1 << 4  // -l
 }	t_builtin_flags;
+
+/* Small helper to map a flag character to its bit */
+static inline int	flag_from_char(char c)
+{
+	if (c == 'n') return FLAG_N;
+	if (c == 'p') return FLAG_P;
+	if (c == 'v') return FLAG_V;
+	if (c == 'f') return FLAG_F;
+	if (c == 'l') return FLAG_L;
+	return 0;
+}
 
 typedef char	t_env;
 typedef int		(*t_builtin)(char **args, int flags, t_env *env);
@@ -50,11 +59,11 @@ int	bin_exit(char **args, int flags, t_env *env);
 static inline t_builtins	*access_builtins(void)
 {
 	static t_builtins	bins[] = {
-	{"echo", bin_echo, ECHO_N},
-	{"cd", bin_cd, CD_L | CD_P},
+	{"echo", bin_echo, FLAG_N},
+	{"cd", bin_cd, FLAG_L | FLAG_P},
 	{"pwd", bin_pwd, 0},
-	{"export", bin_export, EXPORT_P},
-	{"unset", bin_unset, UNSET_V | UNSET_F},
+	{"export", bin_export, FLAG_P},
+	{"unset", bin_unset, FLAG_V | FLAG_F},
 	{"env", bin_env, 0},
 	{"exit", bin_exit, 0},
 	{NULL, NULL, 0}
@@ -65,7 +74,8 @@ static inline t_builtins	*access_builtins(void)
 
 typedef enum e_cmd_idx
 {
-	BIN_ECHO = 0,
+	BIN_NOT_FOUND = -1,
+	BIN_ECHO,
 	BIN_CD,
 	BIN_PWD,
 	BIN_EXPORT,
@@ -74,7 +84,5 @@ typedef enum e_cmd_idx
 	BIN_EXIT,
 	BIN_COUNT
 }	t_cmd_idx;
-
-# define BUILTIN_NOT_FOUND -1
 
 #endif
