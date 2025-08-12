@@ -27,7 +27,7 @@ LIBFT_A = $(LIBFT_DIR)/libft.a
 
 OBJ_DIR= $(PROJECT_DIR)/object
 
-HEADER_DIRS := $(shell find $(INCLUDE_DIR) -type f -name "*.h" -exec dirname {} \; sort -u)
+HEADER_DIRS := $(shell find $(INCLUDE_DIR) -type f -name "*.h" -exec dirname {} \; | sort -u)
 INCLUDE_FLAGS := $(foreach dir, $(HEADER_DIRS),-I$(dir))
 
 all: $(NAME)
@@ -37,7 +37,7 @@ $(NAME): $(LIBFT_A) $(OBJS)
 
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDE_FLAGS) -c $< -o $@
 
 $(LIBFT_A):
 	$(MAKE) -C $(LIBFT_DIR) all

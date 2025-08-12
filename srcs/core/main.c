@@ -5,6 +5,8 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <stdlib.h>
+#include "builtins.h"
+
 int main(int argc, char **argv, char **envp)
 {
     (void)argc;
@@ -31,9 +33,25 @@ int main(int argc, char **argv, char **envp)
             break;
         }
         if (strlen(input) > 0)
-        if (strcmp(input, "quit") == 0)
-            run = false;
-
+        {
+            // Check for builtins
+            int idx = -1;
+            t_builtins *bins = access_builtins();
+            for (int i = 0; bins[i].name != NULL; ++i) {
+                if (strcmp(input, bins[i].name) == 0) {
+                    idx = i;
+                    break;
+                }
+            }
+            if (idx >= 0) {
+                // Call builtin (dummy args/flags/env for now)
+                bins[idx].builtin(NULL, 0, NULL);
+            } else if (strcmp(input, "quit") == 0) {
+                run = false;
+            } else {
+                printf("Unknown command: %s\n", input);
+            }
+        }
         free(input); // Important: readline mallocs the string
     }
     rl_clear_history();
