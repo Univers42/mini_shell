@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:10:55 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/12 14:49:42 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/12 16:54:35 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ static inline t_builtins	*access_builtins(void)
 	{"cd", bin_cd, FLAG_L | FLAG_P},
 	{"pwd", bin_pwd, 0},
 	{"export", bin_export, FLAG_P},
-	{"unset", bin_unset, FLAG_V | FLAG_F},
+	{"unset", bin_unset, FLAG_V | FLAG_F | FLAG_P},
 	{"env", bin_env, 0},
 	{"exit", bin_exit, 0},
 	{NULL, NULL, 0}
