@@ -1,11 +1,25 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   pwd.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/12 21:01:21 by danielm3          #+#    #+#             */
+/*   Updated: 2025/08/12 21:01:24 by danielm3         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "builtins.h"
 
-static char *extract_env_value(const char *name, char **envp)
+static char	*extract_env_value(const char *name, char **envp)
 {
-	size_t len = ft_strlen(name);
-	size_t i = 0;
-	char   *eq;
+	size_t	len;
+	size_t	i;
+	char	*eq;
 
+	len = ft_strlen(name);
+	i = 0;
 	while (envp[i])
 	{
 		eq = ft_strchr(envp[i], '=');
@@ -16,7 +30,6 @@ static char *extract_env_value(const char *name, char **envp)
 	}
 	return (NULL);
 }
-
 
 int	bin_pwd(char **args, int flags, t_env *env)
 {
