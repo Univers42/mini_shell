@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_string.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/28 23:33:14 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/08 01:14:31 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/12 14:19:20 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,4 +56,5 @@ int		extract_hex(t_addr *ptr, t_addr result);
 void	advance_ptr(t_addr *ptr, char delimiter);
 int		parse_sign(t_addr *ptr);
 int		parse_int(t_addr *ptr);
+void	ft_super_trim(t_addr *ptr, int flags);
 #endif
