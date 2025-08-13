@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:55 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/12 14:18:39 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/13 10:01:35 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,5 +54,8 @@ void	ms_free_tokens(char **tokens);
 /* Parser API */
 t_parse_err	ms_parse_line(const char *line, t_cmdline *out);
 void		ms_cmdline_free(t_cmdline *cmd);
+
+/* Debug/Signals */
+void		ms_install_segv_handler(void);
 
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:10:55 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/12 18:24:10 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/13 10:54:57 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,8 @@ static inline int	flag_from_char(char c)
 	return 0;
 }
 
-typedef struct s_env {
-	char	**envp;
-}	t_env;
+typedef void	t_env;
+
 typedef int		(*t_builtin)(char **args, int flags, t_env *env);
 
 // Builtin struct
