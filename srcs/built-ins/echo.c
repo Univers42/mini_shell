@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 01:16:28 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 01:16:30 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 01:18:53 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #include <stdlib.h>
 #include "builtins.h"
 
-/* --- small helpers --- */
 static size_t	str_len(const char *s)
 {
 	size_t i = 0;
@@ -48,7 +47,6 @@ static int	is_flag_set(int flags, int bit)
 	return ((flags & bit) != 0);
 }
 
-/* Map a character to a flag bit (accepts upper/lower where relevant) */
 static int	ms_flag_bit(char ch)
 {
 	int	bit;
@@ -83,8 +81,6 @@ static size_t	echo_args_start(char **args, int valid_flags)
 	}
 	return (i);
 }
-
-/* --- handlers --- */
 
 /* Transform C-like escapes in processed_args[i], in place via replace buffer */
 static void	handle_escapes(char **args, char **processed_args)
@@ -164,8 +160,6 @@ static const t_echo_rule	*echo_rules(void)
 	return (rules);
 }
 
-/* --- pipeline --- */
-
 /* duplicate argv but exclude leading flag tokens; keep index 0 as command */
 static char	**dup_args_vector_from(char **args, size_t start)
 {
@@ -183,7 +177,6 @@ static char	**dup_args_vector_from(char **args, size_t start)
 	out = (char **)malloc(sizeof(char *) * (outc + 1));
 	if (!out)
 		return (NULL);
-	/* keep command name at index 0 to preserve handler/output logic */
 	out[0] = dup_cstr(args[0]);
 	if (!out[0])
 		return (free(out), NULL);
@@ -220,7 +213,6 @@ static void	apply_handlers(char **args, char **processed, int flags)
 	const t_echo_rule	*rules;
 	size_t				i;
 
-	/* Skip escapes if -E is present, even if -e is set */
 	rules = echo_rules();
 	i = 0;
 	while (rules[i].handler)
@@ -240,7 +232,6 @@ static void	echo_output(char **processed, int flags)
 {
 	size_t	i;
 
-	/* print from arg[1] to end */
 	i = 1;
 	while (processed && processed[i])
 	{
@@ -262,7 +253,6 @@ int	bin_echo(char **args, int flags, t_env *env)
 	(void)env;
 	if (!args || !args[0])
 		return (0);
-	/* Echo valid flags (must match builtins table): -n -e -E -u */
 	valid = FLAG_N | FLAG_E | FLAG_E_DISABLE | FLAG_U;
 	start = echo_args_start(args, valid);
 	processed = dup_args_vector_from(args, start);
