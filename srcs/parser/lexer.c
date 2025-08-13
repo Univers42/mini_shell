@@ -6,12 +6,13 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:28 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/12 14:36:14 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/13 10:43:43 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 #include "ft_stdlib.h"
+#include "libft.h"
 
 static char *ms_trim_copy(const char *line)
 {
