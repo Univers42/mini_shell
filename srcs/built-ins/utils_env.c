@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 19:45:24 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/13 21:08:21 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/13 21:47:21 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,11 +66,11 @@ static int	set_env(char ***penv, char **envp, char *entry)
 	while (envp[++n])
 		;
 	if (!ft_realloc((void **)penv, sizeof(char *), n + 1, n + 2))
-		return (free(entry), 1);
+		return (free(entry), 0);
 	envp = *penv;
 	envp[n] = entry;
 	envp[n + 1] = NULL;
-	return (0);
+	return (1);
 }
 
 /*
