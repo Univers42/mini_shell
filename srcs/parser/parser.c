@@ -6,12 +6,16 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:31 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/12 14:26:46 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/13 23:53:36 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+/**
+applies the expansion rules (tilde, command substitution), removes
+teh quote characters bu preserves grouping
+*/
 static int	find_builtin_idx(const char *cmd)
 {
 	int			i;
