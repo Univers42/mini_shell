@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/12 13:10:55 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/13 20:12:18 by syzygy           ###   ########.fr       */
+/*   Created: 2025/08/14 01:16:18 by syzygy            #+#    #+#             */
+/*   Updated: 2025/08/14 01:16:21 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,10 @@ typedef enum e_builtin_flags
 	FLAG_P = 1 << 1, // -p
 	FLAG_V = 1 << 2, // -v
 	FLAG_F = 1 << 3, // -f
-	FLAG_L = 1 << 4  // -l
+	FLAG_L = 1 << 4, // -l
+	FLAG_E = 1 << 5, // -e
+	FLAG_E_DISABLE = 1 << 6,
+	FLAG_U = 1 << 7 
 }	t_builtin_flags;
 
 /* Small helper to map a flag character to its bit */
@@ -32,6 +35,9 @@ static inline int	flag_from_char(char c)
 	if (c == 'v') return FLAG_V;
 	if (c == 'f') return FLAG_F;
 	if (c == 'l') return FLAG_L;
+	if (c == 'e') return FLAG_E;
+	if (c == 'E') return FLAG_E_DISABLE;
+	if (c == 'u' || c == 'U') return FLAG_U;
 	return 0;
 }
 
@@ -60,7 +66,7 @@ int	bin_exit(char **args, int flags, t_env *env);
 static inline t_builtins	*access_builtins(void)
 {
 	static t_builtins	bins[] = {
-	{"echo", bin_echo, FLAG_N},
+	{"echo", bin_echo, FLAG_N | FLAG_E | FLAG_E_DISABLE | FLAG_U},
 	{"cd", bin_cd, FLAG_L | FLAG_P},
 	{"pwd", bin_pwd, 0},
 	{"export", bin_export, FLAG_P},
@@ -86,6 +92,18 @@ typedef enum e_cmd_idx
 	BIN_COUNT
 }	t_cmd_idx;
 
+/* Handler signature: mutate processed_args in place */
+typedef void (*t_echo_handler)(char **args, char **processed_args);
+
+/* Handler descriptor */
+typedef struct s_echo_rule
+{
+	int				flag;
+	int				priority;
+	t_echo_handler	handler;
+}	t_echo_rule;
+
+/* Env utils already provided elsewhere */
 char	*fetch_env_value(char **envp, const char *key);
 int		find_var_index(char **envp, const char *key, size_t klen);
 char	*join_kv(const char *key, const char *val);
