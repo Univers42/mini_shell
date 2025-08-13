@@ -1,35 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   bin_ctrl.c                                         :+:      :+:    :+:   */
+/*   fetch.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/12 13:15:25 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/13 18:52:32 by syzygy           ###   ########.fr       */
+/*   Created: 2025/08/13 19:45:19 by syzygy            #+#    #+#             */
+/*   Updated: 2025/08/13 21:09:52 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "builtins.h"
 
-int	builtin_hash(char *cmd)
+// Fetch the value of an environment variable from envp
+char	*fetch_env_value(char **envp, const char *key)
 {
-	int			i;
-	t_builtins	*bins;
+	size_t	len;
+	size_t	i;
+	char	*eq;
 
-	if (!cmd || !*cmd)
-		return (BIN_NOT_FOUND);
+	if (!envp || !key)
+		return (NULL);
+	len = ft_strlen(key);
 	i = 0;
-	bins = access_builtins();
-	while (bins[i].name != NULL) {
-		if (ft_strcmp(cmd, bins[i].name) == 0)
-			return (i);
+	while (envp[i])
+	{
+		eq = ft_strchr(envp[i], '=');
+		if (eq && (size_t)(eq - envp[i]) == len
+			&& ft_strncmp(envp[i], key, len) == 0)
+			return (eq + 1);
 		i++;
 	}
-	return (BIN_NOT_FOUND);
-}
-
-int	is_builtin(char *cmd)
-{
-	return (builtin_hash(cmd) != BIN_NOT_FOUND);
+	return (NULL);
 }

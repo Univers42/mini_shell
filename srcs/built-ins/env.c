@@ -6,13 +6,13 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 21:41:39 by danielm3          #+#    #+#             */
-/*   Updated: 2025/08/13 10:14:22 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/13 20:55:59 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "builtins.h"
 
-static void	free_env_partial(char **env, size_t count)
+void	free_env_partial(char **env, size_t count)
 {
 	size_t	i;
 
@@ -100,5 +100,5 @@ static int	builtin_env(char **argv, char **envp)
 int	bin_env(char **args, int flags, t_env *env)
 {
 	(void)flags;
-	return (builtin_env(args, (char **)env));
+	return (builtin_env(args, *(char ***)env));
 }
