@@ -6,14 +6,14 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 19:45:19 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/13 19:45:20 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/13 21:09:52 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "builtins.h"
 
 // Fetch the value of an environment variable from envp
-char *fetch_env_value(char **envp, const char *key)
+char	*fetch_env_value(char **envp, const char *key)
 {
 	size_t	len;
 	size_t	i;
