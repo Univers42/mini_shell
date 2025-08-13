@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:10:55 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/13 10:54:57 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/13 20:12:18 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,4 +86,9 @@ typedef enum e_cmd_idx
 	BIN_COUNT
 }	t_cmd_idx;
 
+char	*fetch_env_value(char **envp, const char *key);
+int		find_var_index(char **envp, const char *key, size_t klen);
+char	*join_kv(const char *key, const char *val);
+int		set_env_var(char ***penv, const char *key, const char *val);
+void	free_env_partial(char **env, size_t count);
 #endif

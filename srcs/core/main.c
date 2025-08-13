@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:47:41 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/13 11:15:19 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/13 19:09:51 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,14 +65,47 @@ static int	run_minishell(bool run, t_env *env)
 	return (0);
 }
 
+static char	**ms_dup_env(char **envp)
+{
+	size_t	n;
+	size_t	i;
+	char	**copy;
+
+	n = 0;
+	while (envp && envp[n])
+		n++;
+	copy = (char **)malloc((n + 1) * sizeof(char *));
+	if (!copy)
+		return (NULL);
+	i = 0;
+	while (i < n)
+	{
+		copy[i] = ft_strdup(envp[i]);
+		if (!copy[i])
+		{
+			while (i > 0)
+				free(copy[--i]);
+			free(copy);
+			return (NULL);
+		}
+		i++;
+	}
+	copy[n] = NULL;
+	return (copy);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	(void)argc;
 	(void)argv;
 	bool	run;
+	char	**g_env;
 
 	ms_install_segv_handler();
+	g_env = ms_dup_env(envp);
+	if (!g_env)
+		return (1);
 	run = true;
-	run_minishell(run, envp);
+	run_minishell(run, (t_env *)&g_env);
 	return (0);
 }
