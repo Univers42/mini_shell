@@ -38,7 +38,7 @@ int	bin_pwd(char **args, int flags, t_env *env)
 
 	(void)args;
 	(void)flags;
-	pwd = extract_env_value("PWD", env->envp);
+	pwd = extract_env_value("PWD", (char **)env);
 	if (pwd)
 	{
 		ft_putendl_fd(pwd, 1);

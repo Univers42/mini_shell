@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:47:41 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/13 10:56:11 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/13 11:15:19 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,10 +70,9 @@ int	main(int argc, char **argv, char **envp)
 	(void)argc;
 	(void)argv;
 	bool	run;
-	t_env	env;
 
 	ms_install_segv_handler();
 	run = true;
-	run_minishell(run, (t_env *)envp);
+	run_minishell(run, envp);
 	return (0);
 }
