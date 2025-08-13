@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:47:41 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/12 14:27:49 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/13 10:06:56 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,15 +29,15 @@ static void	print_parse_error(const char *cmd, t_parse_err err)
 		printf("Unknown command: %s\n", cmd);
 }
 
-static void	dispatch_command(t_cmdline *cmd)
+static void	dispatch_command(t_cmdline *cmd, t_env *env)
 {
 	t_builtins	*bins;
 
 	bins = access_builtins();
-	bins[cmd->bin_idx].builtin(cmd->argv, cmd->flags, NULL);
+	bins[cmd->bin_idx].builtin(cmd->argv, cmd->flags, env);
 }
 
-static int	run_minishell(bool run)
+static int	run_minishell(bool run, t_env *env)
 {
 	t_string	input;
 	t_cmdline	cmd;
@@ -52,7 +52,7 @@ static int	run_minishell(bool run)
 		{
 			err = ms_parse_line(input, &cmd);
 			if (err == PARSE_OK)
-				dispatch_command(&cmd);
+				dispatch_command(&cmd, env);
 			else if (err == PARSE_NOT_BUILTIN && ft_strcmp(input, "quit") == 0)
 				run = false;
 			else
@@ -69,10 +69,10 @@ int	main(int argc, char **argv, char **envp)
 {
 	(void)argc;
 	(void)argv;
-	(void)envp;
 	bool	run;
 
+	ms_install_segv_handler();
 	run = true;
-	run_minishell(run);
+	run_minishell(run, (t_env *)envp);
 	return (0);
 }

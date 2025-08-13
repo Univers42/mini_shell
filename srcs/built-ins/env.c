@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   env.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 21:41:39 by danielm3          #+#    #+#             */
-/*   Updated: 2025/08/12 21:42:02 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/13 10:14:22 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "builtins.h"
 
-void	free_env_partial(char **env, size_t count)
+static void	free_env_partial(char **env, size_t count)
 {
 	size_t	i;
 
@@ -25,7 +25,7 @@ void	free_env_partial(char **env, size_t count)
 	free(env);
 }
 
-char	**dup_env(char **envp)
+static char	**dup_env(char **envp)
 {
 	char	**env_copy;
 	size_t	n;
@@ -74,7 +74,7 @@ static int	print_env(char **env)
 	return (fail);
 }
 
-int	builtin_env(char **argv, char **envp)
+static int	builtin_env(char **argv, char **envp)
 {
 	char	**envp_copy;
 	size_t	count;
