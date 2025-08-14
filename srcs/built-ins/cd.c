@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 20:54:37 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/13 20:55:27 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 23:18:06 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,12 @@ int	bin_cd(char **args, int flags, t_env *env)
 
 	(void)flags;
 	penv = (char ***)env;
+	if (!penv || !*penv)
+		return (ft_fprintf(2, "cd: no environment\n"), 1);
+	if (!args[1])
+		return (ft_fprintf(2, "cd: missing argument\n"), 1);
+	if (args[2])
+		return (ft_fprintf(2, "cd: too many arguments\n"), 1);
 	target = cd_resolve_target(args, *penv, &print_old);
 	if (!target)
 		return (ft_fprintf(2, "cd: path not found\n"), 1);
