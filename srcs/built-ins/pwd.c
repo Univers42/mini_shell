@@ -6,55 +6,72 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 19:45:30 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 16:16:41 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 16:40:12 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <unistd.h>
 #include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include "builtins.h" // if you have ft_strlen etc.
+#include "builtins.h"
 
-char *get_cwd(void)
+static char	*build_tilde_path(const char *cwd, const char *home)
 {
-    char *cwd = getcwd(NULL, 0);
-    if (!cwd)
-        return strdup("~"); // fallback if getcwd fails
+	size_t	home_len;
+	size_t	rel_len;
+	char	*out;
 
-    char *home = getenv("HOME");
-    if (home && strncmp(cwd, home, strlen(home)) == 0)
-    {
-        // Allocate space for "~" + rest of path + null terminator
-        size_t relative_len = strlen(cwd) - strlen(home);
-        char *relative = malloc(relative_len + 2); // "~" + rest + '\0'
-        if (!relative)
-        {
-            free(cwd);
-            return NULL;
-        }
-        // Build string: "~" + (cwd after home)
-        sprintf(relative, "~%s", cwd + strlen(home));
-        free(cwd);
-        return relative;
-    }
-    return cwd; // just return full path if not in HOME
+	home_len = ft_strlen(home);
+	if (ft_strncmp(cwd, home, home_len) != 0)
+		return (NULL);
+	if (cwd[home_len] != '/' && cwd[home_len] != '\0')
+		return (NULL);
+	rel_len = ft_strlen(cwd + home_len);
+	out = (char *)malloc(rel_len + 2);
+	if (!out)
+		return (NULL);
+	if (!ft_snprintf(out, rel_len + 2, "~%s", cwd + home_len))
+		ft_putendl_fd(STDERR_FILENO, "buffer of snprintf empty");
+	return (out);
 }
 
-
-int bin_pwd(char **args, int flags, t_env *env)
+char	*get_cwd_pretty(void)
 {
-    char *cwd;
+	char	*cwd;
+	char	*home;
+	char	*pretty;
 
-    (void)args;
-    (void)flags;
-    (void)env;
+	cwd = getcwd(NULL, 0);
+	if (!cwd)
+		return (NULL);
+	home = getenv("HOME");
+	if (home)
+	{
+		pretty = build_tilde_path(cwd, home);
+		if (pretty)
+			return (free(cwd), pretty);
+	}
+	return (cwd);
+}
 
-    cwd = get_cwd(); // use the new helper here
-    if (!cwd)
-        return 1;
+static char *get_cwd(void)
+{
+	char 	*cwd;
 
-    ft_putendl_fd(cwd, 1); // print it with newline
-    free(cwd);
-    return 0;
+	cwd = getcwd(NULL, 0);
+	if (!cwd)
+		return (NULL);
+	return (cwd);
+}
+
+int	bin_pwd(char **args, int flags, t_env *env)
+{
+	char	*cwd;
+
+	(void)args;
+	(void)flags;
+	(void)env;
+	cwd = get_cwd();
+	if (!cwd)
+		return (1);
+	return (ft_putendl_fd(cwd, STDOUT_FILENO), free(cwd), 0);
 }
