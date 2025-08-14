@@ -1,22 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   echo.c                                             :+:      :+:    :+:   */
+/*   upper_case.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/13 19:45:01 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/13 21:09:46 by syzygy           ###   ########.fr       */
+/*   Created: 2025/08/14 14:58:07 by syzygy            #+#    #+#             */
+/*   Updated: 2025/08/14 15:14:28 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "builtins.h"
+#include <stdlib.h>
+#include <stdio.h>
 
-int	bin_echo(char **args, int flags, t_env *env)
+/* Uppercase all processed_args characters */
+void	handle_uppercase(char **args, char **processed_args)
 {
+	size_t	i;
+	size_t	j;
+	char	c;
+
 	(void)args;
-	(void)flags;
-	(void)env;
-	printf("echo builtin called\n");
-	return (0);
+	i = 0;
+	while (processed_args && processed_args[++i])
+	{
+		j = -1;
+		while (processed_args[i][++j])
+		{
+			c = processed_args[i][j];
+			if (c >= 'a' && c <= 'z')
+				processed_args[i][j] = (char)(c - ('a' - 'A'));
+		}
+	}
 }

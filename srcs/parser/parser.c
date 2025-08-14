@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:31 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/12 14:26:46 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 01:12:58 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,23 @@ static int	find_builtin_idx(const char *cmd)
 	return (BIN_NOT_FOUND);
 }
 
+/* accept both lower and upper when mapped; reuse builtin mapper */
+static int	ms_flag_bit(char ch)
+{
+	int	bit;
+
+	bit = flag_from_char(ch);
+	if (bit)
+		return (bit);
+	// Be lenient if future uppercase variants appear
+	if (ch >= 'A' && ch <= 'Z')
+	{
+		char lower = (char)(ch - 'A' + 'a');
+		return flag_from_char(lower);
+	}
+	return (0);
+}
+
 static int	parse_dash_flags(const char *tok, int valid, int *flags)
 {
 	int	j;
@@ -38,7 +55,7 @@ static int	parse_dash_flags(const char *tok, int valid, int *flags)
 	j = 1;
 	while (tok[j])
 	{
-		bit = flag_from_char(tok[j]);
+		bit = ms_flag_bit(tok[j]);
 		if (!bit || !(valid & bit))
 			return (0);
 		*flags |= bit;
@@ -57,7 +74,7 @@ static int	parse_bare_as_flags(const char *tok, int valid, int *flags)
 	j = 0;
 	while (tok[j])
 	{
-		bit = flag_from_char(tok[j]);
+		bit = ms_flag_bit(tok[j]);
 		if (!bit || !(valid & bit))
 			return (0);
 		acc |= bit;
