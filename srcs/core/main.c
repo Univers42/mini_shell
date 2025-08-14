@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:47:41 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/13 19:09:51 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 18:02:03 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,9 @@
 #include "libft.h"
 #include "builtins.h"
 #include "minishell.h"
+#include "render.h"
+
+char    *build_prompt(void);
 
 static void	print_parse_error(const char *cmd, t_parse_err err)
 {
@@ -34,7 +37,10 @@ static void	dispatch_command(t_cmdline *cmd, t_env *env)
 	t_builtins	*bins;
 
 	bins = access_builtins();
+	/* minimal: call the builtin. For a correct status, builtins should set g_last_status.
+	   Here we zero it to indicate success by default; adapt as you wire real execution. */
 	bins[cmd->bin_idx].builtin(cmd->argv, cmd->flags, env);
+	g_last_status = 0;
 }
 
 static int	run_minishell(bool run, t_env *env)
@@ -45,7 +51,7 @@ static int	run_minishell(bool run, t_env *env)
 
 	while (run)
 	{
-		input = readline("minishell> ");
+		input = readline(build_prompt());
 		if (!input)
 			return (printf("exit\n"), rl_clear_history(), 0);
 		if (*input)

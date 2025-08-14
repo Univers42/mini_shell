@@ -6,9 +6,12 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 15:44:51 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 15:48:12 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 18:02:01 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#ifndef RENDER_H
+# define RENDER_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,20 +25,19 @@
 #define MILITARY_RED "\033[38;5;196m"
 #define MATRIX_GREEN "\033[38;5;46m"
 
-typedef enum e_render_mode
-{
-    RENDER_SIMPLE;
-    RENDER_FANCY;
-    RENDER_MILITARY;
-    RENDER_MATRIX;
-    RENDER_HACKER;
-}t_render_mode;
+typedef enum e_render_mode {
+	RENDER_NONE = 0,
+	RENDER_SIMPLE,
+	RENDER_FANCY,
+	RENDER_MILITARY,
+	RENDER_MATRIX,
+	RENDER_HACKER,
+} render_mode_t;
 
-typedef struct s_congig_render
-{
-    t_render_mode   mode;
-    int             show_git;
-    int             show_time;
-    int             show_user;
-    int             animated;
-}                   t_config_render;
+/* expose globals so other modules (main, metadata) can read/update status */
+extern render_mode_t g_render_mode;
+extern int          g_last_status;
+
+char *build_prompt(void);
+
+#endif /* RENDER_H */
