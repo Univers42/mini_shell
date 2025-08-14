@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 15:50:41 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 20:25:48 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 20:46:13 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,15 @@ extern int           g_last_status; /* last command exit status */
 #endif
 #ifndef BG_DEF
 # define BG_DEF    "\x1b[49m"
+#endif
+#ifndef BG_CYAN
+# define BG_CYAN   "\x1b[46m"
+#endif
+#ifndef BG_GREEN
+# define BG_GREEN  "\x1b[42m"
+#endif
+#ifndef BG_RED
+# define BG_RED    "\x1b[41m"
 #endif
 #ifndef FG_BLACK
 # define FG_BLACK  "\x1b[30m"
@@ -202,6 +211,39 @@ static int get_git_status(void)
 	return (int)changes;
 }
 
+/* powerline segment helpers with 256-color ANSI for higher contrast */
+static void append_pl_seg(char *dst, size_t dstsz, size_t *off,
+                          int prev_bg, int bg, int fg, const char *text)
+{
+	int w;
+	if (*off >= dstsz) return;
+
+	/* If there was a previous background, draw a separator into new bg. */
+	if (prev_bg >= 0)
+	{
+		w = ft_snprintf(dst + *off, dstsz - *off,
+		                "\x1b[38;5;%dm\x1b[48;5;%dm" "", prev_bg, bg);
+		if (w > 0) *off += (size_t)w;
+	}
+	else
+	{
+		/* First segment: just set bg. */
+		w = ft_snprintf(dst + *off, dstsz - *off, "\x1b[48;5;%dm", bg);
+		if (w > 0) *off += (size_t)w;
+	}
+	/* Set fg for the segment text and write it with padding spaces. */
+	w = ft_snprintf(dst + *off, dstsz - *off, "\x1b[38;5;%dm %s ", fg, text);
+	if (w > 0) *off += (size_t)w;
+}
+
+static void append_pl_end_to_default(char *dst, size_t dstsz, size_t *off, int last_bg)
+{
+	/* Transition from last_bg to terminal default background with a separator. */
+	int w = ft_snprintf(dst + *off, dstsz - *off,
+	                    "\x1b[38;5;%dm\x1b[49m" "" "%s", last_bg, C_RESET);
+	if (w > 0) *off += (size_t)w;
+}
+
 char *build_prompt(void)
 {
 	char cwd[PATH_MAX];
@@ -212,7 +254,6 @@ char *build_prompt(void)
 	const char *user = getenv("USER");
 	time_t now;
 	struct tm *tm;
-	char pcwd[PATH_MAX]; /* pretty cwd */
 
 	/* optional: clear the screen before showing prompt if user enabled it */
 	if (getenv("MS_CLEAR_OUTPUT") && strcmp(getenv("MS_CLEAR_OUTPUT"), "1") == 0)
@@ -251,10 +292,8 @@ char *build_prompt(void)
 		return strdup(tmp);
 	}
 
-	/* Fancy two-line prompt with powerline-like segments and a colored input prefix */
+	/* Fancy two-line prompt with high-contrast powerline segments and colored input prefix */
 	{
-		const char *left_open = "╭─";
-
 		/* colored ❯ for input line */
 		char line2buf[32];
 		if (g_last_status == 0)
@@ -262,63 +301,84 @@ char *build_prompt(void)
 		else
 			ft_snprintf(line2buf, sizeof(line2buf), "%s❯ %s", C_RED, C_RESET);
 
-		/* status glyph: green check on success, red cross on failure */
-		char status_sym[32] = "";
-		if (g_last_status == 0)
-			ft_snprintf(status_sym, sizeof(status_sym), "%s✔%s", C_GREEN, C_RESET);
-		else
-			ft_snprintf(status_sym, sizeof(status_sym), "%s✘%s", C_RED, C_RESET);
-
-		/* git change count string */
-		char change_s[64] = "";
+		/* git change count (plain, merged in branch text) */
+		char change_s[32] = "";
 		if (changes > 0)
-			ft_snprintf(change_s, sizeof(change_s), " %s*%d%s", C_YELLOW, changes, C_RESET);
+			ft_snprintf(change_s, sizeof(change_s), " *%d", changes);
 
 		/* pretty cwd (with ~) */
+		char pcwd[PATH_MAX];
 		pretty_cwd_str(cwd, pcwd, sizeof(pcwd));
 
-		/* decorative middle bar (static for now) */
-		const char *bar = "▓▒░·························░▒▓";
+		/* Choose vivid 256-color palette */
+		enum {
+			CLR_USER_BG = 25,   /* deep blue */
+			CLR_USER_FG = 231,  /* bright white */
+			CLR_CWD_BG  = 31,   /* cyan */
+			CLR_CWD_FG  = 16,   /* black */
+			CLR_GIT_BG  = 90,   /* magenta */
+			CLR_GIT_FG  = 231,  /* bright white */
+			CLR_OK_BG   = 34,   /* green */
+			CLR_ERR_BG  = 160,  /* red */
+			CLR_STAT_FG = 231,  /* bright white */
+			CLR_TIME_BG = 236,  /* dark gray */
+			CLR_TIME_FG = 250   /* light gray */
+		};
 
-		/* left-side segments with backgrounds and separators:
-		   include username before cwd for a zsh-like look
-		*/
-		char leftbuf[640];
+		/* Left side: username, cwd, [git], status */
+		char leftbuf[1024];
+		size_t loff = 0;
+		int last_bg = -1;
+
+		/* small zsh-like opener */
+		int w = ft_snprintf(leftbuf + loff, sizeof(leftbuf) - loff, "╭─ ");
+		if (w > 0) loff += (size_t)w;
+
+		/* user */
+		append_pl_seg(leftbuf, sizeof(leftbuf), &loff, last_bg, CLR_USER_BG, CLR_USER_FG,
+		              user ? user : "user");
+		last_bg = CLR_USER_BG;
+
+		/* cwd */
+		append_pl_seg(leftbuf, sizeof(leftbuf), &loff, last_bg, CLR_CWD_BG, CLR_CWD_FG, pcwd);
+		last_bg = CLR_CWD_BG;
+
+		/* git (if any) */
 		if (branch)
 		{
-			ft_snprintf(leftbuf, sizeof(leftbuf),
-				"%s"                             /* ╭─ */
-				" %s "                           /* username */
-				" " BG_BLUE FG_WHITE " %s " C_RESET /* cwd segment */
-				"  on "
-				BG_MAG FG_WHITE "%s" C_RESET "%s "   /* branch + changes */
-				"%s %s",                           /* bar + status */
-				left_open,
-				C_CYAN, user ? user : "user", C_RESET,
-				pcwd,
-				branch, change_s,
-				bar, status_sym
-			);
+			char brtxt[256];
+			ft_snprintf(brtxt, sizeof(brtxt), "%s%s", branch, change_s);
+			append_pl_seg(leftbuf, sizeof(leftbuf), &loff, last_bg, CLR_GIT_BG, CLR_GIT_FG, brtxt);
+			last_bg = CLR_GIT_BG;
 			free(branch);
 		}
+
+		/* status (reflect actual exit code) */
+		char stat_text[32];
+		int  stat_bg = (g_last_status == 0) ? CLR_OK_BG : CLR_ERR_BG;
+		if (g_last_status == 0)
+			ft_snprintf(stat_text, sizeof(stat_text), "✔ OK");
+		else if (g_last_status >= 128)
+			ft_snprintf(stat_text, sizeof(stat_text), "✘ SIG(%d)", g_last_status - 128);
 		else
-		{
-			ft_snprintf(leftbuf, sizeof(leftbuf),
-				"%s %s"
-				" " BG_BLUE FG_WHITE " %s " C_RESET
-				" %s %s",
-				left_open,
-				C_CYAN, user ? user : "user", C_RESET,
-				pcwd,
-				bar, status_sym
-			);
-		}
+			ft_snprintf(stat_text, sizeof(stat_text), "✘ %d", g_last_status);
+		append_pl_seg(leftbuf, sizeof(leftbuf), &loff, last_bg, stat_bg, CLR_STAT_FG, stat_text);
+		last_bg = stat_bg;
 
-		/* right-aligned time segment: "  at HH:MM:SS " */
-		char rseg[96];
-		ft_snprintf(rseg, sizeof(rseg), "  at %s ", timebuf);
+		/* Right side: time segment (right-aligned) */
+		char rseg[256];
+		size_t roff = 0;
+		int r_last_bg = last_bg;
 
-		/* pad with dots so time is right-aligned */
+		append_pl_seg(rseg, sizeof(rseg), &roff, r_last_bg, CLR_TIME_BG, CLR_TIME_FG, "at");
+		/* add HH:MM:SS inside same time segment */
+		w = ft_snprintf(rseg + roff, sizeof(rseg) - roff, "%s %s ", "", timebuf);
+		if (w > 0) roff += (size_t)w;
+
+		/* finish time with transition to default background */
+		append_pl_end_to_default(rseg, sizeof(rseg), &roff, CLR_TIME_BG);
+
+		/* pad with spaces so time sticks to the right edge */
 		int cols = term_cols();
 		size_t lvis = visible_len(leftbuf);
 		size_t rvis = visible_len(rseg);
@@ -328,10 +388,10 @@ char *build_prompt(void)
 
 		char padbuf[256];
 		size_t i = 0, maxp = sizeof(padbuf) - 1;
-		while (i < pad && i < maxp) { padbuf[i++] = '.'; }
+		while (i < pad && i < maxp) { padbuf[i++] = ' '; }
 		padbuf[i] = '\0';
 
-		/* compose the first line, then the colored input prefix line */
+		/* compose final two-line prompt */
 		ft_snprintf(tmp, sizeof(tmp), "%s%s%s\n%s", leftbuf, padbuf, rseg, line2buf);
 	}
 
