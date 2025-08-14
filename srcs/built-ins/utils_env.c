@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils_env.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 19:45:24 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/13 21:47:21 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 11:02:06 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <stdio.h>
 
 void	update_pwd_vars(char **envp, const char *old_pwd);
+
 
 /**
 The find_var_index function searches for the index
@@ -103,4 +104,40 @@ int	set_env_var(char ***penv, const char *key, const char *val)
 				"set_env_var: failed to set %s=%s\n",
 				key, val), 1);
 	return (0);
+}
+
+/*
+** Counts the number of strings in a NULL-terminated env array.
+** Used to size allocations and loops safely.
+*/
+int	env_len(char **envp)
+{
+	int	len;
+
+	len = 0;
+	while (envp[len])
+		len++;
+	return (len);
+}
+
+/*
+** Checks if a string is a valid shell identifier (Bash-like rule):
+** - Not empty, starts with letter/underscore, rest are alnum/underscore.
+** Used by unset/export to validate variable names.
+** Returns 1 if valid, 0 otherwise.
+*/
+int	is_valid_identifier(const char *s)
+{
+	size_t	i;
+
+	if (!s || !s[0] || (!ft_isalpha(s[0]) && s[0] != '_'))
+		return (0);
+	i = 1;
+	while (s[i])
+	{
+		if (!ft_isalnum(s[i]) && s[i] != '_')
+			return (0);
+		i++;
+	}
+	return (1);
 }

@@ -91,4 +91,6 @@ int		find_var_index(char **envp, const char *key, size_t klen);
 char	*join_kv(const char *key, const char *val);
 int		set_env_var(char ***penv, const char *key, const char *val);
 void	free_env_partial(char **env, size_t count);
+int		env_len(char **envp);
+int		is_valid_identifier(const char *s);
 #endif
