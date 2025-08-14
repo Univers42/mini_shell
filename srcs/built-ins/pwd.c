@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 19:45:30 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 16:43:55 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 16:45:06 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ char	*get_cwd_pretty(void)
 	return (cwd);
 }
 
-static char *get_cwd(void)
+char *get_cwd(void)
 {
 	char 	*cwd;
 
@@ -70,7 +70,7 @@ int	bin_pwd(char **args, int flags, t_env *env)
 	(void)args;
 	(void)flags;
 	(void)env;
-	cwd = get_cwd();
+	cwd = get_cwd_pretty();
 	if (!cwd)
 		return (1);
 	return (ft_putendl_fd(cwd, STDOUT_FILENO), free(cwd), 0);
