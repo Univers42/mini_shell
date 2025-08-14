@@ -6,13 +6,13 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:31 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 01:12:58 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 16:18:03 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int	find_builtin_idx(const char *cmd)
+int	find_builtin_idx(const char *cmd)
 {
 	int			i;
 	t_builtins	*bins;
@@ -30,22 +30,6 @@ static int	find_builtin_idx(const char *cmd)
 	return (BIN_NOT_FOUND);
 }
 
-/* accept both lower and upper when mapped; reuse builtin mapper */
-static int	ms_flag_bit(char ch)
-{
-	int	bit;
-
-	bit = flag_from_char(ch);
-	if (bit)
-		return (bit);
-	// Be lenient if future uppercase variants appear
-	if (ch >= 'A' && ch <= 'Z')
-	{
-		char lower = (char)(ch - 'A' + 'a');
-		return flag_from_char(lower);
-	}
-	return (0);
-}
 
 static int	parse_dash_flags(const char *tok, int valid, int *flags)
 {
