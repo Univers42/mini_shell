@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils_env.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 19:45:24 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 11:02:06 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/14 22:51:33 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,6 +107,7 @@ int	set_env_var(char ***penv, const char *key, const char *val)
 }
 
 /*
+<<<<<<< HEAD
 ** Counts the number of strings in a NULL-terminated env array.
 ** Used to size allocations and loops safely.
 */
@@ -123,6 +124,10 @@ int	env_len(char **envp)
 /*
 ** Checks if a string is a valid shell identifier (Bash-like rule):
 ** - Not empty, starts with letter/underscore, rest are alnum/underscore.
+** is_valid_identifier
+** ------------------
+** Check if a string is a valid shell variable identifier.
+** Must start with letter/underscore, followed by letters/digits/underscores.
 ** Used by unset/export to validate variable names.
 ** Returns 1 if valid, 0 otherwise.
 */
@@ -140,4 +145,8 @@ int	is_valid_identifier(const char *s)
 		i++;
 	}
 	return (1);
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> feature/bin_export
