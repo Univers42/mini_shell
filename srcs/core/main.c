@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:47:41 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 20:46:13 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 20:50:35 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ static char *expand_basic(const char *in)
 	{
 		if (in[i] == '$' && in[i + 1] == '?')
 		{
-			/* up to 3 digits typical, reserve 16 */
 			extra += 16;
 			++i;
 		}

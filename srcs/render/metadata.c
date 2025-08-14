@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 15:50:41 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 20:46:13 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 20:50:10 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,6 @@ extern int           g_last_status; /* last command exit status */
 # define FG_WHITE  "\x1b[97m"
 #endif
 
-/* helpers to improve zsh-like rendering */
 static int term_cols(void)
 {
 	struct winsize ws;
@@ -93,7 +92,6 @@ static size_t visible_len(const char *s)
 	while (*s)
 	{
 		if ((unsigned char)*s == 0x1b) {
-			/* skip CSI sequence: ESC '[' ... 'm' (best-effort) */
 			s++;
 			if (*s == '[') {
 				s++;
@@ -188,14 +186,12 @@ static int get_git_status(void)
 	}
 	if (pid == 0)
 	{
-		/* child */
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[0]);
 		close(pipefd[1]);
 		execve("/bin/sh", argv, environ);
 		_exit(EXIT_FAILURE);
 	}
-	/* parent */
 	close(pipefd[1]);
 	n = read(pipefd[0], buf, sizeof(buf) - 1);
 	close(pipefd[0]);
@@ -217,8 +213,6 @@ static void append_pl_seg(char *dst, size_t dstsz, size_t *off,
 {
 	int w;
 	if (*off >= dstsz) return;
-
-	/* If there was a previous background, draw a separator into new bg. */
 	if (prev_bg >= 0)
 	{
 		w = ft_snprintf(dst + *off, dstsz - *off,
@@ -227,18 +221,16 @@ static void append_pl_seg(char *dst, size_t dstsz, size_t *off,
 	}
 	else
 	{
-		/* First segment: just set bg. */
 		w = ft_snprintf(dst + *off, dstsz - *off, "\x1b[48;5;%dm", bg);
 		if (w > 0) *off += (size_t)w;
 	}
-	/* Set fg for the segment text and write it with padding spaces. */
 	w = ft_snprintf(dst + *off, dstsz - *off, "\x1b[38;5;%dm %s ", fg, text);
 	if (w > 0) *off += (size_t)w;
 }
 
+/* Transition from last_bg to terminal default background with a separator. */
 static void append_pl_end_to_default(char *dst, size_t dstsz, size_t *off, int last_bg)
 {
-	/* Transition from last_bg to terminal default background with a separator. */
 	int w = ft_snprintf(dst + *off, dstsz - *off,
 	                    "\x1b[38;5;%dm\x1b[49m" "" "%s", last_bg, C_RESET);
 	if (w > 0) *off += (size_t)w;
@@ -255,15 +247,12 @@ char *build_prompt(void)
 	time_t now;
 	struct tm *tm;
 
-	/* optional: clear the screen before showing prompt if user enabled it */
 	if (getenv("MS_CLEAR_OUTPUT") && strcmp(getenv("MS_CLEAR_OUTPUT"), "1") == 0)
 	{
-		/* clear screen and move cursor to top-left using write() to avoid stdio buffering */
 		ssize_t wr = write(STDOUT_FILENO, "\x1b[2J\x1b[H", sizeof("\x1b[2J\x1b[H") - 1);
 		(void)wr;
 	}
 
-	/* gather data */
 	branch = get_git_branch();
 	changes = get_git_status();
 	if (!getcwd(cwd, sizeof(cwd)))
@@ -275,8 +264,6 @@ char *build_prompt(void)
 		strftime(timebuf, sizeof(timebuf), "%H:%M:%S", tm);
 	else
 		ft_snprintf(timebuf, sizeof(timebuf), "--:--:--");
-
-	/* If simple mode or any helper failed, fallback to compact prompt */
 	if (g_render_mode != RENDER_FANCY)
 	{
 		if (branch)
