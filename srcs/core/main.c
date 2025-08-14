@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:47:41 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 20:50:35 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 23:09:21 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <stdlib.h>
+#include <locale.h>
 #include "libft.h"
 #include "builtins.h"
 #include "minishell.h"
@@ -192,6 +193,9 @@ int	main(int argc, char **argv, char **envp)
 	(void)argv;
 	bool	run;
 	char	**g_env;
+
+	/* make Readline aware of the current locale (UTF-8 widths, etc.) */
+	setlocale(LC_ALL, "");
 
 	ms_install_segv_handler();
 	g_env = ms_dup_env(envp);

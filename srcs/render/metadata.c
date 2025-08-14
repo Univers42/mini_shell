@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 15:50:41 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 20:50:10 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 23:09:20 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,30 +51,12 @@ extern int           g_last_status; /* last command exit status */
 # define C_RED    "\x1b[31m"
 #endif
 
-/* background/foreground helpers (basic 8-color ANSI) */
-#ifndef BG_BLUE
-# define BG_BLUE   "\x1b[44m"
+/* Readline ignore markers for non-printing sequences */
+#ifndef RL_IGN_START
+# define RL_IGN_START "\001"
 #endif
-#ifndef BG_MAG
-# define BG_MAG    "\x1b[45m"
-#endif
-#ifndef BG_DEF
-# define BG_DEF    "\x1b[49m"
-#endif
-#ifndef BG_CYAN
-# define BG_CYAN   "\x1b[46m"
-#endif
-#ifndef BG_GREEN
-# define BG_GREEN  "\x1b[42m"
-#endif
-#ifndef BG_RED
-# define BG_RED    "\x1b[41m"
-#endif
-#ifndef FG_BLACK
-# define FG_BLACK  "\x1b[30m"
-#endif
-#ifndef FG_WHITE
-# define FG_WHITE  "\x1b[97m"
+#ifndef RL_IGN_END
+# define RL_IGN_END   "\002"
 #endif
 
 static int term_cols(void)
@@ -85,13 +67,14 @@ static int term_cols(void)
 	return 0;
 }
 
-/* compute visible length ignoring ANSI escape sequences */
+/* compute visible length ignoring ANSI escape sequences and RL markers */
 static size_t visible_len(const char *s)
 {
 	size_t n = 0;
 	while (*s)
 	{
 		if ((unsigned char)*s == 0x1b) {
+			/* skip CSI: ESC '[' ... 'm' */
 			s++;
 			if (*s == '[') {
 				s++;
@@ -102,13 +85,17 @@ static size_t visible_len(const char *s)
 			}
 			continue;
 		}
+		/* skip Readline ignore markers */
+		if (*s == '\001' || *s == '\002') {
+			s++;
+			continue;
+		}
 		n++;
 		s++;
 	}
 	return n;
 }
 
-/* replace $HOME prefix with ~ for prettier cwd */
 static void pretty_cwd_str(const char *cwd, char *out, size_t outsz)
 {
 	const char *home = getenv("HOME");
@@ -213,18 +200,27 @@ static void append_pl_seg(char *dst, size_t dstsz, size_t *off,
 {
 	int w;
 	if (*off >= dstsz) return;
+
 	if (prev_bg >= 0)
 	{
+		/* separator colored with prev_bg -> new bg */
 		w = ft_snprintf(dst + *off, dstsz - *off,
-		                "\x1b[38;5;%dm\x1b[48;5;%dm" "", prev_bg, bg);
+		                RL_IGN_START "\x1b[38;5;%dm" RL_IGN_END
+		                RL_IGN_START "\x1b[48;5;%dm" RL_IGN_END
+		                "",
+		                prev_bg, bg);
 		if (w > 0) *off += (size_t)w;
 	}
 	else
 	{
-		w = ft_snprintf(dst + *off, dstsz - *off, "\x1b[48;5;%dm", bg);
+		/* first segment: just set bg */
+		w = ft_snprintf(dst + *off, dstsz - *off,
+		                RL_IGN_START "\x1b[48;5;%dm" RL_IGN_END, bg);
 		if (w > 0) *off += (size_t)w;
 	}
-	w = ft_snprintf(dst + *off, dstsz - *off, "\x1b[38;5;%dm %s ", fg, text);
+	/* segment foreground + padded text */
+	w = ft_snprintf(dst + *off, dstsz - *off,
+	                RL_IGN_START "\x1b[38;5;%dm" RL_IGN_END " %s ", fg, text);
 	if (w > 0) *off += (size_t)w;
 }
 
@@ -232,7 +228,11 @@ static void append_pl_seg(char *dst, size_t dstsz, size_t *off,
 static void append_pl_end_to_default(char *dst, size_t dstsz, size_t *off, int last_bg)
 {
 	int w = ft_snprintf(dst + *off, dstsz - *off,
-	                    "\x1b[38;5;%dm\x1b[49m" "" "%s", last_bg, C_RESET);
+	                    RL_IGN_START "\x1b[38;5;%dm" RL_IGN_END
+	                    RL_IGN_START "\x1b[49m" RL_IGN_END
+	                    ""
+	                    RL_IGN_START "\x1b[0m" RL_IGN_END,
+	                    last_bg);
 	if (w > 0) *off += (size_t)w;
 }
 
@@ -281,12 +281,14 @@ char *build_prompt(void)
 
 	/* Fancy two-line prompt with high-contrast powerline segments and colored input prefix */
 	{
-		/* colored ❯ for input line */
-		char line2buf[32];
+		/* colored input line (use ASCII to avoid ambiguous width) */
+		char line2buf[64];
 		if (g_last_status == 0)
-			ft_snprintf(line2buf, sizeof(line2buf), "%s❯ %s", C_GREEN, C_RESET);
+			ft_snprintf(line2buf, sizeof(line2buf),
+			            "%s", RL_IGN_START C_GREEN RL_IGN_END "> " RL_IGN_START C_RESET RL_IGN_END);
 		else
-			ft_snprintf(line2buf, sizeof(line2buf), "%s❯ %s", C_RED, C_RESET);
+			ft_snprintf(line2buf, sizeof(line2buf),
+			            "%s", RL_IGN_START C_RED RL_IGN_END "> " RL_IGN_START C_RESET RL_IGN_END);
 
 		/* git change count (plain, merged in branch text) */
 		char change_s[32] = "";
