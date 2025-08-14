@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:47:41 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 18:02:03 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 20:24:17 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,12 +53,22 @@ static int	run_minishell(bool run, t_env *env)
 	{
 		input = readline(build_prompt());
 		if (!input)
-			return (printf("exit\n"), rl_clear_history(), 0);
+			return (ft_printf("exit\n"), rl_clear_history(), 0);
 		if (*input)
 		{
 			err = ms_parse_line(input, &cmd);
 			if (err == PARSE_OK)
+			{
+				/* Clear only the metadata (first) line; keep the input line visible. */
+				if (g_render_mode == RENDER_FANCY)
+				{
+					/* Move up 2 lines, clear the first line, then go back down. */
+					const char *clr_seq = "\x1b[2A\x1b[2K\x1b[2B";
+					ssize_t wr = write(STDOUT_FILENO, clr_seq, sizeof("\x1b[2A\x1b[2K\x1b[2B") - 1);
+					(void)wr;
+				}
 				dispatch_command(&cmd, env);
+			}
 			else if (err == PARSE_NOT_BUILTIN && ft_strcmp(input, "quit") == 0)
 				run = false;
 			else
