@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 19:45:30 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 16:40:12 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 16:43:55 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ static char	*build_tilde_path(const char *cwd, const char *home)
 	if (!out)
 		return (NULL);
 	if (!ft_snprintf(out, rel_len + 2, "~%s", cwd + home_len))
-		ft_putendl_fd(STDERR_FILENO, "buffer of snprintf empty");
+		ft_putendl_fd("buffer of snprintf empty", 2);
 	return (out);
 }
 
