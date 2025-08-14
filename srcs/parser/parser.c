@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:31 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 16:18:03 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 22:10:24 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ int	find_builtin_idx(const char *cmd)
 	}
 	return (BIN_NOT_FOUND);
 }
-
 
 static int	parse_dash_flags(const char *tok, int valid, int *flags)
 {

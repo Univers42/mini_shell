@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 01:16:18 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 15:37:33 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 22:05:41 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ int	bin_export(char **args, int flags, t_env *env);
 int	bin_unset(char **args, int flags, t_env *env);
 int	bin_env(char **args, int flags, t_env *env);
 int	bin_exit(char **args, int flags, t_env *env);
+int	bin_clear(char **args, int flags, t_env *env);
 
 // Builtins global accessor
 static inline t_builtins	*access_builtins(void)
@@ -73,6 +74,7 @@ static inline t_builtins	*access_builtins(void)
 	{"unset", bin_unset, FLAG_V | FLAG_F | FLAG_P},
 	{"env", bin_env, 0},
 	{"exit", bin_exit, 0},
+	{"clear", bin_clear, 0},
 	{NULL, NULL, 0}
 	};
 
