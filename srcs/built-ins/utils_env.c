@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 19:45:24 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 22:51:33 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 22:59:13 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,8 +145,5 @@ int	is_valid_identifier(const char *s)
 		i++;
 	}
 	return (1);
-<<<<<<< HEAD
+
 }
-=======
-}
->>>>>>> feature/bin_export

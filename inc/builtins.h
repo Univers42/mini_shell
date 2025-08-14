@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 01:16:18 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 22:05:41 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/14 22:58:56 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,6 @@ int		find_var_index(char **envp, const char *key, size_t klen);
 char	*join_kv(const char *key, const char *val);
 int		set_env_var(char ***penv, const char *key, const char *val);
 void	free_env_partial(char **env, size_t count);
-<<<<<<< HEAD
 int		env_len(char **envp);
 int		is_valid_identifier(const char *s);
 int		bin_echo(char **args, int flags, t_env *env);
@@ -125,7 +124,5 @@ void	apply_handlers(char **args, char **processed, int flags);
 int		ms_flag_bit(char ch);
 int		is_flag_set(int flags, int bit);
 void	handle_uppercase(char **args, char **processed_args);
-=======
 int		is_valid_identifier(const char *s);
->>>>>>> feature/bin_export
 #endif
