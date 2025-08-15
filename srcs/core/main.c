@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:47:41 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 23:09:21 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/15 20:02:37 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <signal.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <stdlib.h>
@@ -22,6 +23,18 @@
 #include "builtins.h"
 #include "minishell.h"
 #include "render.h"
+
+/* Function to check signal flag during readline processing */
+static int check_signal_flag(void)
+{
+	if (g_sigint_received)
+	{
+		/* Signal was received, tell readline to abort current line */
+		rl_done = 1;
+		return (0);
+	}
+	return (0);
+}
 
 char    *build_prompt(void);
 
@@ -109,11 +122,30 @@ static int	run_minishell(bool run, t_env *env)
 	t_cmdline	cmd;
 	t_parse_err	err;
 
+	/* Setup signal handling for interactive mode */
+	ms_setup_signals();
+
 	while (run)
 	{
+		/* Reset signal flag before each prompt */
+		g_sigint_received = 0;
+		
 		input = readline(build_prompt());
+		
+		/* Handle Ctrl+C that occurred during readline */
+		if (g_sigint_received)
+		{
+			g_sigint_received = 0;  /* Reset the flag */
+			if (input)
+				free(input);
+			continue;  /* Start new prompt cycle */
+		}
+		
+		/* Handle Ctrl+D (EOF) */
 		if (!input)
+		{
 			return (ft_printf("exit\n"), rl_clear_history(), 0);
+		}
 		if (*input)
 		{
 			/* light expansion before parsing */
@@ -198,6 +230,14 @@ int	main(int argc, char **argv, char **envp)
 	setlocale(LC_ALL, "");
 
 	ms_install_segv_handler();
+	
+	/* Disable readline's signal handling so we can control it ourselves */
+	rl_catch_signals = 0;
+	rl_catch_sigwinch = 0;
+	
+	/* Set up event hook to check for our signal flag */
+	rl_event_hook = check_signal_flag;
+	
 	g_env = ms_dup_env(envp);
 	if (!g_env)
 		return (1);
