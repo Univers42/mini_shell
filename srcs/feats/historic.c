@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 12:44:31 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/16 16:28:27 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/16 16:47:58 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,17 +22,18 @@
 
 /* --------------------- Internal singleton "class" ---------------------- */
 
-typedef struct s_history_state {
-	t_doubly_list *list;
-	bool           persist;
-	int            histsize;
-	char           histfile[PATH_MAX];
-	bool           initialized;
-} t_history_state;
-
-static t_history_state *S(void)
+typedef struct s_history_state
 {
-	static t_history_state *inst = NULL;
+	t_doubly_list	*list;
+	bool			persist;
+	int				histsize;
+	char			histfile[PATH_MAX];
+	bool			initialized;
+}					t_history_state;
+
+static t_history_state	*S(void)
+{
+	static t_history_state	*inst = NULL;
 
 	if (!inst)
 	{
@@ -47,15 +48,18 @@ static t_history_state *S(void)
 		inst->histfile[0] = '\0';
 		inst->initialized = false;
 	}
-	return inst;
+	return (inst);
+
 }
 
-/* ------------------------ Small utilities ----------------------------- */
+//HELPERS
 
-const char *expand_hist_path(const char *name, char *out, size_t outsz)
+//HELPERS
+
+const char	*expand_hist_path(const char *name, char *out, size_t outsz)
 {
-	const char *home;
-	size_t      len;
+	const char	*home;
+	size_t		len;
 
 	if (!name || !out || outsz == 0)
 		return NULL;
@@ -65,8 +69,8 @@ const char *expand_hist_path(const char *name, char *out, size_t outsz)
 		if (name[1] == '/' || name[1] == '\0')
 		{
 			if (ft_snprintf(out, outsz, "%s/%s", home, name + 1) <= 0)
-				return NULL;
-			return out;
+				return (NULL);
+			return (out);
 		}
 	}
 	len = ft_strclen(name, '\0');
@@ -74,40 +78,43 @@ const char *expand_hist_path(const char *name, char *out, size_t outsz)
 		len = outsz - 1;
 	ft_strlcpy(out, name, outsz);
 	out[len] = '\0';
-	return out;
+	return (out);
 }
 
 static void dll_push_tail_line(const char *line)
 {
-	t_history_state *st = S();
-	char *dup;
+	t_history_state	*st;
+	char			*dup;
+	char			*last;
+	char			*old;
 
+	st = S();
 	if (!st || !st->list || !line || !*line)
-		return;
-	/* adjacent dedup like bash HISTCONTROL=ignoredups */
+		return ;
 	if (st->list->size > 0)
 	{
-		char *last = (char *)ft_dll_back(st->list);
+		last = (char *)ft_dll_back(st->list);
 		if (last && ft_strcmp(last, line) == 0)
-			return;
+			return ;
 	}
 	dup = ft_strdup(line);
 	if (!dup)
-		return;
+		return ;
 	if (!ft_dll_push_back(st->list, dup))
 		free(dup);
 	else if (st->histsize > 0 && st->list->size > (size_t)st->histsize)
 	{
-		char *old = (char *)ft_dll_pop_front(st->list);
-		free(old);
+		old = (char *)ft_dll_pop_front(st->list);
+		free(old) ;
 	}
 }
 
 static void dll_clear_all(void)
 {
-	t_history_state *st = S();
-	char *s;
+	t_history_state		*st;
+	char				*s;
 
+	st = S();
 	if (!st || !st->list)
 		return;
 	while (!ft_dll_is_empty(st->list))
@@ -119,27 +126,22 @@ static void dll_clear_all(void)
 
 /* -------------------------- API methods ------------------------------- */
 
-static int api_init(const t_history_opts *opts, char **envp)
+static int	api_init(const t_history_opts *opts, char **envp)
 {
-	t_history_state *st = S();
-	const char *env_hist;
-	const char *env_size;
-	long       v;
+	t_history_state		*st;
+	const char			*env_hist;
+	const char			*env_size;
+	long				v;
 
+	st = S();
 	(void)envp;
 	if (!st)
-		return 1;
-
-	/* defaults */
+		return (1);
 	st->persist = true;
 	st->histsize = DEFAULT_HISTSIZE;
 	st->histfile[0] = '\0';
-
-	/* env overrides */
 	env_hist = getenv("MS_HISTORY");
 	env_size = getenv("MS_HISTSIZE");
-
-	/* apply opts first (if any) */
 	if (opts)
 	{
 		st->persist = opts->persist;
@@ -148,135 +150,137 @@ static int api_init(const t_history_opts *opts, char **envp)
 		if (opts->histfile && *opts->histfile)
 			expand_hist_path(opts->histfile, st->histfile, sizeof(st->histfile));
 	}
-
-	/* environment can override file and size if present */
 	if (env_hist && *env_hist)
 		expand_hist_path(env_hist, st->histfile, sizeof(st->histfile));
 	if (st->histfile[0] == '\0')
 		expand_hist_path("~/" DEFAULT_HISTFILE, st->histfile, sizeof(st->histfile));
-
 	if (env_size && *env_size)
 	{
 		v = ft_atol(env_size);
 		if (v > 0 && v <= INT_MAX)
 			st->histsize = (int)v;
 	}
-
-	/* configure readline cap */
 	if (st->histsize > 0)
 		stifle_history(st->histsize);
 	else
 		unstifle_history();
-
 	st->initialized = true;
-	return 0;
+	return (0);
 }
 
-static void api_load(void)
+static void	api_load(void)
 {
-	t_history_state *st = S();
+	t_history_state	*st;
+	HIST_ENTRY		**arr; // <-- fix type: pointer to array
+	int				n;
+	int				i;
 
+	st = S();
 	if (!st || !st->initialized)
-		return;
+		return ;
 	if (!st->persist || st->histfile[0] == '\0')
-		return;
-
-	/* load into readline */
+		return ;
 	(void)read_history(st->histfile);
-
-	/* mirror into our dll */
 	{
-		HIST_ENTRY **arr = history_list();
-		int         n = history_length;
-		int         i;
-
-		for (i = 0; arr && i < n; ++i)
+		arr = history_list();
+		n = history_length;
+		i = 0;
+		while (arr && i < n)
 		{
 			if (arr[i] && arr[i]->line)
 				dll_push_tail_line(arr[i]->line);
+			i++;
 		}
 	}
 }
 
 static void api_add(const char *line)
 {
-	t_history_state *st = S();
+	t_history_state	*st;
+	const	char *p;
 
+	st = S();
 	if (!st || !st->initialized || !line || !*line)
 		return;
-	/* ignore pure whitespace lines (bash-like) */
 	{
-		const char *p = line;
-		while (*p && ft_isspace((unsigned char)*p)) p++;
+		p = line;
+		while (*p && ft_isspace((unsigned char)*p))
+			p++;
 		if (*p == '\0')
-			return;
+			return ;
 	}
-
-	/* adjacent dedup + dll */
 	dll_push_tail_line(line);
-
-	/* readline side (dedup adjacent on our own already) */
 	add_history(line);
 	if (st->histsize > 0)
 		stifle_history(st->histsize);
 }
 
-static void api_save(void)
+static void	api_save(void)
 {
-	t_history_state *st = S();
+	t_history_state	*st;
 
+	st = S();
 	if (!st || !st->initialized)
-		return;
+		return ;
 	if (!st->persist || st->histfile[0] == '\0')
-		return;
+		return ;
 	(void)write_history(st->histfile);
 }
 
-static void api_shutdown(void)
+static void	api_shutdown(void)
 {
-	t_history_state *st = S();
+	t_history_state	*st;
 
+	st = S();
 	if (!st)
-		return;
-	/* persist before freeing */
+		return ;
 	api_save();
-
-	/* clear in-memory and readline histories */
 	dll_clear_all();
 	rl_clear_history();
-
-	/* free singleton */
 	if (st->list)
 		ft_dll_destroy(st->list);
-	memset(st, 0, sizeof(*st));
-	/* keep the static storage; next S() will re-alloc */
+	ft_memset(st, 0, sizeof(*st));
 }
 
 static const char *api_file(void)
 {
-	t_history_state *st = S();
+	t_history_state *st;
+
+	st = S();
 	if (!st)
-		return NULL;
-	return st->histfile[0] ? st->histfile : NULL;
+		return (NULL);
+	if (st->histfile[0])
+		return (st->histfile);
+	return (NULL);
 }
 
 static int api_size(void)
 {
 	t_history_state *st = S();
-	return st ? st->histsize : 0;
+
+	st = S();
+	if (st)
+		return (st->histsize);
+	return (0);
 }
 
 static void api_set_persist(bool on)
 {
-	t_history_state *st = S();
-	if (!st) return;
+	t_history_state	*st;
+
+	st = S();
+	if (!st)
+		return ;
 	st->persist = on;
 }
 
 static void api_set_size(int n)
 {
-	t_history_state *st = S();
-	if (!st) return;
+	t_history_state *st;
+
+	st = S();
+	if (!st)
+		return;
 	st->histsize = n;
 	if (n > 0)
 		stifle_history(n);
@@ -295,7 +299,6 @@ static char **api_dump(void)
 	st = S();
 	if (!st || !st->list)
 		return (NULL);
-	/* use internal size field; avoid external helpers */
 	n = st->list->size;
 	out = (char **)malloc((n + 1) * sizeof(char *));
 	if (!out)
@@ -325,8 +328,10 @@ static char **api_dump(void)
 }
 
 /* -------------------------- VTable export ----------------------------- */
-
-static const t_history_api G_API = {
+/**temporary global variable just for the prototype history api
+then we will be working on refactorization */
+static const t_history_api G_API =
+{
 	.init        = api_init,
 	.load        = api_load,
 	.add         = api_add,
@@ -341,5 +346,5 @@ static const t_history_api G_API = {
 
 const t_history_api *hs(void)
 {
-	return &G_API;
+	return (&G_API);
 }
