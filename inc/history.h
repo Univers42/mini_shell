@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 12:48:43 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/16 15:50:25 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/16 16:16:04 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,9 @@ typedef struct s_history_api {
 	void  (*save)(void);
 	/* Shutdown: save (if persist), free internals, clear readline history */
 	void  (*shutdown)(void);
+
+	/* Dump history to NULL-terminated array (malloc'ed, caller frees) */
+	char **(*dump)(void);
 
 	/* Accessors / setters */
 	const char *(*file)(void);          /* expanded path or NULL */
