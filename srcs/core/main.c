@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:47:41 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/16 12:17:41 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/16 15:50:24 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include "builtins.h"
 #include "minishell.h"
 #include "render.h"
+#include "history.h"
 
 void	ms_setup_signals(void);
 /* Function to check signal flag during readline processing */
@@ -145,10 +146,14 @@ static int	run_minishell(bool run, t_env *env)
 		/* Handle Ctrl+D (EOF) */
 		if (!input)
 		{
-			return (ft_printf("exit\n"), rl_clear_history(), 0);
+			hs()->shutdown(); /* persist and cleanup history */
+			return (ft_printf("exit\n"), 0);
 		}
 		if (*input)
 		{
+			/* Record raw user input (bash-like behavior) */
+			hs()->add(input);
+
 			/* light expansion before parsing */
 			exp_input = expand_basic(input);
 
@@ -187,7 +192,8 @@ static int	run_minishell(bool run, t_env *env)
 		}
 		free(input);
 	}
-	rl_clear_history();
+	/* normal loop end (e.g., "quit") */
+	hs()->shutdown();
 	return (0);
 }
 
@@ -242,6 +248,18 @@ int	main(int argc, char **argv, char **envp)
 	g_env = ms_dup_env(envp);
 	if (!g_env)
 		return (1);
+
+	/* History singleton: constructor + load */
+	{
+		t_history_opts hopts = {
+			.persist  = true,           /* let user switch via hs()->set_persist later if needed */
+			.histfile = NULL,           /* default ~/.minishell_history or $MS_HISTORY */
+			.histsize = DEFAULT_HISTSIZE /* or $MS_HISTSIZE */
+		};
+		if (hs()->init(&hopts, envp) == 0)
+			hs()->load();
+	}
+
 	run = true;
 	run_minishell(run, (t_env *)&g_env);
 	return (0);
