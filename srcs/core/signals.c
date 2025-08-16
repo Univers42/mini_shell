@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   signals.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/15 00:00:00 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/15 20:02:34 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/16 15:11:10 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 ** - This allows signal handlers to communicate with the main program
 */
 volatile sig_atomic_t g_sigint_received = 0;
+
 
 /*
 ** Signal handler for SIGINT (Ctrl+C) when shell is in interactive mode
