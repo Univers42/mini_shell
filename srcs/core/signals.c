@@ -20,12 +20,38 @@
 #include "minishell.h"
 
 /*
-** Global variable to track if SIGINT (Ctrl+C) was received
-** - sig_atomic_t: guaranteed to be atomic (safe to modify in signal handlers)
-** - volatile: prevents compiler optimization (value can change unexpectedly)
-** - This allows signal handlers to communicate with the main program
+** Singleton pattern for signal state management
+** This replaces the global variable with controlled access functions
+** - Encapsulates the signal flag inside a function
+** - Provides controlled get/set operations
+** - Better security and maintainability than global variables
 */
-volatile sig_atomic_t g_sigint_received = 0;
+
+/*
+** Signal state management using singleton pattern
+** This function controls access to the SIGINT flag
+** 
+** @param action: GET_SIGNAL to read, SET_SIGNAL to set, RESET_SIGNAL to clear
+** @param value: new value when action is SET_SIGNAL (ignored for GET/RESET)
+** @return: current flag value
+**
+** Usage:
+** - signal_flag(GET_SIGNAL, 0) -> returns current flag state
+** - signal_flag(SET_SIGNAL, 1) -> sets flag to 1, returns previous value
+** - signal_flag(RESET_SIGNAL, 0) -> resets flag to 0, returns previous value
+*/
+int	signal_flag(t_signal_action action, int value)
+{
+	static volatile sig_atomic_t	sigint_flag = 0;
+	int								previous;
+
+	previous = sigint_flag;
+	if (action == SET_SIGNAL)
+		sigint_flag = value;
+	else if (action == RESET_SIGNAL)
+		sigint_flag = 0;
+	return (previous);
+}
 
 
 /*
@@ -46,8 +72,8 @@ void	ms_handle_sigint_interactive(int sig)
 
 	(void)sig;  /* We know it's SIGINT, but parameter is required */
 	
-	/* Set flag so main loop knows SIGINT happened */
-	g_sigint_received = 1;
+	/* Set flag using singleton pattern - more secure than global variable */
+	signal_flag(SET_SIGNAL, 1);
 	
 	/* 
 	** Display ^C without newline - the prompt will handle the newline
@@ -69,8 +95,8 @@ void	ms_handle_sigint_child(int sig)
 	
 	(void)sig;
 	
-	/* Just set the flag - the main loop will handle killing the child */
-	g_sigint_received = 1;
+	/* Set flag using singleton pattern - more secure than global variable */
+	signal_flag(SET_SIGNAL, 1);
 	
 	/* Print ^C to show the signal was received */
 	ret = write(STDOUT_FILENO, "^C\n", 3);

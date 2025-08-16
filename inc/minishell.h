@@ -36,6 +36,14 @@ typedef enum e_parse_err
 	PARSE_INVALID_FLAG
 }	t_parse_err;
 
+/* Signal action codes for singleton pattern */
+typedef enum e_signal_action
+{
+	GET_SIGNAL = 0,
+	SET_SIGNAL,
+	RESET_SIGNAL
+}	t_signal_action;
+
 /* Parsed command line */
 typedef struct s_cmdline
 {
@@ -65,7 +73,7 @@ void		ms_handle_sigint_child(int sig);
 void		ms_ignore_signals(void);
 void		ms_restore_signals(void);
 
-/* Global signal state - volatile because modified by signal handlers */
-extern volatile sig_atomic_t	g_sigint_received;
+/* Singleton pattern for signal state management */
+int			signal_flag(t_signal_action action, int value);
 
 #endif
