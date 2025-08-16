@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 12:44:31 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/16 16:16:05 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/16 16:28:27 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -286,40 +286,42 @@ static void api_set_size(int n)
 
 static char **api_dump(void)
 {
-	t_history_state *st = S();
-	size_t n;
-	size_t i;
-	char **out;
-	void *p;
+	t_history_state	*st;
+	size_t			n;
+	size_t			i;
+	char			**out;
+	t_dll_node		*node;
 
+	st = S();
 	if (!st || !st->list)
-		return NULL;
-	n = ft_dll_size(st->list);
+		return (NULL);
+	/* use internal size field; avoid external helpers */
+	n = st->list->size;
 	out = (char **)malloc((n + 1) * sizeof(char *));
 	if (!out)
-		return NULL;
+		return (NULL);
 	i = 0;
-	while (i < n)
+	node = st->list->head;
+	while (i < n && node)
 	{
-		p = ft_dll_get(st->list, i);
-		if (p)
+		if (node->data)
 		{
-			out[i] = ft_strdup((const char *)p);
+			out[i] = ft_strdup((const char *)node->data);
 			if (!out[i])
 			{
-				/* cleanup on failure */
 				while (i > 0)
 					free(out[--i]);
 				free(out);
-				return NULL;
+				return (NULL);
 			}
 		}
 		else
 			out[i] = NULL;
 		i++;
+		node = node->next;
 	}
 	out[n] = NULL;
-	return out;
+	return (out);
 }
 
 /* -------------------------- VTable export ----------------------------- */

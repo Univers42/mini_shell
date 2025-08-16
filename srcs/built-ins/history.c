@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "builtins.h"
 #include "history.h"
 
@@ -7,19 +8,20 @@
 */
 int	bin_history(char **args, int flags, t_env *env)
 {
+	char	**arr;
+	size_t	i;
+
 	(void)args;
 	(void)flags;
 	(void)env;
-	char **arr;
-	size_t i;
-
 	arr = hs()->dump();
 	if (!arr)
 		return (0);
 	i = 0;
 	while (arr[i])
 	{
-		ft_printf("%5zu  %s\n", i + 1, arr[i]);
+		/* cast to unsigned for %u to avoid %zu support issues */
+		ft_printf("%5u  %s\n", (unsigned)(i + 1), arr[i]);
 		free(arr[i]);
 		i++;
 	}
