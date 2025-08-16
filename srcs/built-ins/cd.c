@@ -80,8 +80,6 @@ int	bin_cd(char **args, int flags, t_env *env)
 	penv = (char ***)env;
 	if (!penv || !*penv)
 		return (ft_fprintf(2, "cd: no environment\n"), 1);
-	if (!args[1])
-		return (ft_fprintf(2, "cd: missing argument\n"), 1);
 	if (args[2])
 		return (ft_fprintf(2, "cd: too many arguments\n"), 1);
 	target = cd_resolve_target(args, *penv, &print_old);
