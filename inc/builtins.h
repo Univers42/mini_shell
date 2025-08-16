@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/14 01:16:18 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/16 16:17:55 by syzygy           ###   ########.fr       */
+/*   Created: 2025/08/16 16:18:43 by syzygy            #+#    #+#             */
+/*   Updated: 2025/08/16 16:18:45 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,8 @@ int	bin_unset(char **args, int flags, t_env *env);
 int	bin_env(char **args, int flags, t_env *env);
 int	bin_exit(char **args, int flags, t_env *env);
 int	bin_clear(char **args, int flags, t_env *env);
-
+int	bin_history(char **args, int flags, t_env *env); /* new */
+ 
 // Builtins global accessor
 static inline t_builtins	*access_builtins(void)
 {
@@ -75,6 +76,7 @@ static inline t_builtins	*access_builtins(void)
 	{"env", bin_env, 0},
 	{"exit", bin_exit, 0},
 	{"clear", bin_clear, 0},
+	{"history", bin_history, 0}, /* new */
 	{NULL, NULL, 0}
 	};
 

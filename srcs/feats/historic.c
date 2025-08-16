@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 12:44:31 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/16 15:53:34 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/16 16:16:05 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -284,6 +284,44 @@ static void api_set_size(int n)
 		unstifle_history();
 }
 
+static char **api_dump(void)
+{
+	t_history_state *st = S();
+	size_t n;
+	size_t i;
+	char **out;
+	void *p;
+
+	if (!st || !st->list)
+		return NULL;
+	n = ft_dll_size(st->list);
+	out = (char **)malloc((n + 1) * sizeof(char *));
+	if (!out)
+		return NULL;
+	i = 0;
+	while (i < n)
+	{
+		p = ft_dll_get(st->list, i);
+		if (p)
+		{
+			out[i] = ft_strdup((const char *)p);
+			if (!out[i])
+			{
+				/* cleanup on failure */
+				while (i > 0)
+					free(out[--i]);
+				free(out);
+				return NULL;
+			}
+		}
+		else
+			out[i] = NULL;
+		i++;
+	}
+	out[n] = NULL;
+	return out;
+}
+
 /* -------------------------- VTable export ----------------------------- */
 
 static const t_history_api G_API = {
@@ -292,6 +330,7 @@ static const t_history_api G_API = {
 	.add         = api_add,
 	.save        = api_save,
 	.shutdown    = api_shutdown,
+	.dump        = api_dump,
 	.file        = api_file,
 	.size        = api_size,
 	.set_persist = api_set_persist,
