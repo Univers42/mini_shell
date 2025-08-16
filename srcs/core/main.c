@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:47:41 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/15 20:02:37 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/16 11:56:48 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@
 #include "minishell.h"
 #include "render.h"
 
+extern int g_sigint_received;
+void	ms_setup_signals(void);
 /* Function to check signal flag during readline processing */
 static int check_signal_flag(void)
 {
