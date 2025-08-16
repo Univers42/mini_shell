@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 01:16:18 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 22:58:56 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/15 20:06:14 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,5 +124,4 @@ void	apply_handlers(char **args, char **processed, int flags);
 int		ms_flag_bit(char ch);
 int		is_flag_set(int flags, int bit);
 void	handle_uppercase(char **args, char **processed_args);
-int		is_valid_identifier(const char *s);
 #endif

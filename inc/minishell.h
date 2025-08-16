@@ -58,4 +58,14 @@ void		ms_cmdline_free(t_cmdline *cmd);
 /* Debug/Signals */
 void		ms_install_segv_handler(void);
 
+/* Signal handling for Ctrl+C (SIGINT) */
+void		ms_setup_signals(void);
+void		ms_handle_sigint_interactive(int sig);
+void		ms_handle_sigint_child(int sig);
+void		ms_ignore_signals(void);
+void		ms_restore_signals(void);
+
+/* Global signal state - volatile because modified by signal handlers */
+extern volatile sig_atomic_t	g_sigint_received;
+
 #endif
