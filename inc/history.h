@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 21:16:14 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 22:05:49 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 23:45:20 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,4 +102,15 @@ int			custom_unstifle_history(void);
 /* Custom history helpers (our own, not from readline) */
 void		cleanup_history_list(void);
 void		update_history_length(void);
+
+/* Private, non-conflicting history accessors (avoid clashing with libreadline) */
+extern int	custom_history_length;                 /* our length mirror */
+typedef struct _hist_entry HIST_ENTRY;         /* forward from readline */
+HIST_ENTRY	**custom_history_list(void);
+HIST_ENTRY	*custom_history_get(int offset);
+HIST_ENTRY	*custom_current_history(void);
+HIST_ENTRY	*custom_previous_history(void);
+int			custom_history_total_bytes(void);
+int			custom_where_history(void);
+int			custom_history_set_pos(int pos);
 #endif

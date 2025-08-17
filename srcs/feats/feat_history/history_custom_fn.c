@@ -2,18 +2,23 @@
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   history_custom_fn.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/17 23:40:28 by dlesieur          #+#    #+#             */
+/*   Updated: 2025/08/17 23:43:37 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "history.h"
 
-/* Our own authoritative history length */
-int history_length = 0;
+/* Our own authoritative history length (do not clash with libreadline) */
+int custom_history_length = 0;
 
 /* forward declaration for the static accessor */
-static t_history_list_state *get_history_list_state(void);
+static t_history_list_state *ms_get_history_list_state(void);
 
-HIST_ENTRY **history_list(void)
+HIST_ENTRY **custom_history_list(void)
 {
     t_history_state *st;
     t_history_list_state *state;
@@ -25,11 +30,11 @@ HIST_ENTRY **history_list(void)
     st = S();
     if (!st || !st->list || st->list->size == 0)
     {
-        history_length = 0;
+        custom_history_length = 0;
         return (NULL);
     }
 
-    state = get_history_list_state();
+    state = ms_get_history_list_state();
     hist_array = *(state->hist_array_ptr);
     array_size = state->array_size_ptr;
 
@@ -54,7 +59,7 @@ HIST_ENTRY **history_list(void)
         if (!hist_array)
         {
             *array_size = 0;
-            history_length = 0;
+            custom_history_length = 0;
             return (NULL);
         }
         for (i = 0; i < *array_size; i++)
@@ -74,6 +79,7 @@ HIST_ENTRY **history_list(void)
             if (!hist_array[i])
                 break;
         }
+
         hist_array[i]->line = (char *)node->data;
         hist_array[i]->timestamp = NULL;
         hist_array[i]->data = NULL;
@@ -86,13 +92,11 @@ HIST_ENTRY **history_list(void)
     if (i < *array_size)
         hist_array[i] = NULL;
 
-    history_length = (int)i;
+    custom_history_length = (int)i;
     return (hist_array);
 }
 
-/* keep history_get in get_history.c; do not duplicate here */
-
-static t_history_list_state *get_history_list_state(void)
+static t_history_list_state *ms_get_history_list_state(void)
 {
     static HIST_ENTRY **hist_array = NULL;
     static size_t array_size = 0;
@@ -106,7 +110,7 @@ void cleanup_history_list(void)
     t_history_list_state *state;
     size_t i;
 
-    state = get_history_list_state();
+    state = ms_get_history_list_state();
 
     if (*(state->hist_array_ptr))
     {
@@ -122,7 +126,7 @@ void cleanup_history_list(void)
         *(state->hist_array_ptr) = NULL;
         *(state->array_size_ptr) = 0;
     }
-    history_length = 0;
+    custom_history_length = 0;
 }
 
 void update_history_length(void)
@@ -131,7 +135,7 @@ void update_history_length(void)
 
     st = S();
     if (st && st->list)
-        history_length = (int)st->list->size;
+        custom_history_length = (int)st->list->size;
     else
-        history_length = 0;
+        custom_history_length = 0;
 }
