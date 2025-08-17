@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 16:54:41 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 17:01:13 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 19:58:01 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ int	api_init(const t_history_opts *opts, char **envp)
 	const char			*env_size;
 	long				v;
 
+	using_history();
 	st = S();
 	(void)envp;
 	if (!st)
@@ -57,7 +58,7 @@ int	api_init(const t_history_opts *opts, char **envp)
 void	api_load(void)
 {
 	t_history_state	*st;
-	HIST_ENTRY		**arr; // <-- fix type: pointer to array
+	HIST_ENTRY		**arr;
 	int				n;
 	int				i;
 

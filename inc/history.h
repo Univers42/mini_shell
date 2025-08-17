@@ -6,7 +6,11 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 12:48:43 by syzygy            #+#    #+#             */
+<<<<<<< HEAD
 /*   Updated: 2025/08/17 19:18:47 by dlesieur         ###   ########.fr       */
+=======
+/*   Updated: 2025/08/17 20:06:26 by dlesieur         ###   ########.fr       */
+>>>>>>> feature/historic
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +37,10 @@
 /* Constructor-like options */
 typedef struct s_history_opts
 {
-	bool        persist; 	/* persist to file or keep in-session only */
-	const char *histfile;	/* path or NULL for default (~/.minishell_history) */
-	int         histsize;	/* max entries; <=0 means unlimited */
-} t_history_opts;
+	bool		persist; 	/* persist to file or keep in-session only */
+	const char	*histfile;	/* path or NULL for default (~/.minishell_history) */
+	int			histsize;	/* max entries; <=0 means unlimited */
+}				t_history_opts;
 
 /* Opaque "class" */
 /**
@@ -50,7 +54,6 @@ typedef struct s_history_opts
  */
 typedef struct s_history_api
 {
-	
 	int			(*init)(const t_history_opts *opts, char **envp);
 	void		(*load)(void);
 	void		(*add)(const char *line);
@@ -63,7 +66,6 @@ typedef struct s_history_api
 	void        (*set_size)(int n);
 }				t_history_api;
 
-/* Get singleton vtable */
 inline static const t_history_api	*hs(void);
 
 typedef struct s_history_state
@@ -75,25 +77,8 @@ typedef struct s_history_state
 	bool			initialized;
 }					t_history_state;
 
-inline static t_history_state	*S(void)
-{
-	static t_history_state	*inst = NULL;
-
-	if (!inst)
-	{
-		inst = (t_history_state *)calloc(1, sizeof(*inst));
-		if (!inst)
-			return NULL;
-		inst->list = ft_dll_create();
-		if (!inst->list)
-			return (free(inst), NULL);
-		inst->persist = true;
-		inst->histsize = DEFAULT_HISTSIZE;
-		inst->histfile[0] = '\0';
-		inst->initialized = false;
-	}
-	return (inst);
-}
+/* Global singleton accessor (one definition in historic.c) */
+t_history_state	*S(void);
 
 /* Utility: expand "~" using $HOME into out buffer; returns out or NULL on error */
 const char	*expand_hist_path(const char *name, char *out, size_t outsz);
@@ -109,23 +94,5 @@ void		api_load(void);
 int			api_init(const t_history_opts *opts, char **envp);
 void		api_shutdown(void);
 char		**api_dump(void);
-
-inline static const t_history_api	*hs(void)
-{
-	static const t_history_api api = {
-	.init = api_init,
-	.load = api_load,
-	.add = api_add,
-	.save = api_save,
-	.dump = api_dump,
-	.shutdown = api_shutdown,
-	.file = api_file,
-	.size = api_size,
-	.set_persist = api_set_persist,
-	.set_size = api_set_size
-	};
-
-	return (&api);
-}
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 16:53:50 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 17:29:55 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 19:58:35 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,38 +29,74 @@ void	api_shutdown(void)
 
 char **api_dump(void)
 {
-	t_history_state	*st;
-	size_t			n;
-	size_t			i;
+	HIST_ENTRY		**harr;
+	int				n;
 	char			**out;
-	t_dll_node		*node;
+	int				i;
 
-	st = S();
-	if (!st || !st->list)
-		return (NULL);
-	n = st->list->size;
-	out = (char **)malloc((n + 1) * sizeof(char *));
-	if (!out)
-		return (NULL);
-	i = 0;
-	node = st->list->head;
-	while (i < n && node)
+	harr = history_list();
+	n = history_length;
+	if (harr && n > 0)
 	{
-		if (node->data)
+		out = (char **)malloc(((size_t)n + 1u) * sizeof(char *));
+		if (!out)
+			return (NULL);
+		i = 0;
+		while (i < n)
 		{
-			out[i] = ft_strdup((const char *)node->data);
+			if (harr[i] && harr[i]->line)
+				out[i] = ft_strdup(harr[i]->line);
+			else
+				out[i] = ft_strdup("");
 			if (!out[i])
 			{
 				while (i > 0)
 					free(out[--i]);
 				return (free(out), NULL);
 			}
+			i++;
 		}
-		else
-			out[i] = NULL;
-		i++;
-		node = node->next;
+		out[n] = NULL;
+		return (out);
 	}
-	out[n] = NULL;
-	return (out);
+
+	/* Fallback: to change */
+	{
+		t_history_state	*st;
+		size_t			m;
+		size_t			j;
+		t_dll_node		*node;
+
+		st = S();
+		if (!st || !st->list || st->list->size == 0)
+		{
+			out = (char **)malloc(sizeof(char *));
+			if (out)
+				out[0] = NULL;
+			return (out);
+		}
+		m = st->list->size;
+		out = (char **)malloc((m + 1) * sizeof(char *));
+		if (!out)
+			return (NULL);
+		j = 0;
+		node = st->list->head;
+		while (j < m && node)
+		{
+			if (node->data)
+				out[j] = ft_strdup((const char *)node->data);
+			else
+				out[j] = ft_strdup("");
+			if (!out[j])
+			{
+				while (j > 0)
+					free(out[--j]);
+				return (free(out), NULL);
+			}
+			j++;
+			node = node->next;
+		}
+		out[m] = NULL;
+		return (out);
+	}
 }
