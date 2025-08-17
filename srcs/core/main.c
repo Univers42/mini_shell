@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:47:41 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/16 15:50:24 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/17 17:45:05 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,9 +137,13 @@ static int	run_minishell(bool run, t_env *env)
 		/* Handle Ctrl+C that occurred during readline */
 		if (signal_flag(GET_SIGNAL, 0))
 		{
-			signal_flag(RESET_SIGNAL, 0);  /* Reset the flag */
+			signal_flag(RESET_SIGNAL, 0); 
+			g_last_status = 130; /* Reset the flag */
 			if (input)
+			{
+				rl_replace_line("", 0);
 				free(input);
+			}
 			continue;  /* Start new prompt cycle */
 		}
 		
