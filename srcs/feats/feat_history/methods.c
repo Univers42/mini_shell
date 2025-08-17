@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 16:53:50 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 19:58:35 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 22:05:50 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ void	api_shutdown(void)
 		return ;
 	api_save();
 	dll_clear_all();
+	/* free our custom history_list array wrappers */
+	cleanup_history_list();
 	rl_clear_history();
 	if (st->list)
 		ft_dll_destroy(st->list);

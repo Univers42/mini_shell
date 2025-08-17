@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 21:16:14 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 21:44:04 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 22:05:49 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,12 @@ typedef struct s_history_state
 	bool			initialized;
 }					t_history_state;
 
+typedef struct s_history_list_state
+{
+    HIST_ENTRY ***hist_array_ptr;
+    size_t *array_size_ptr;
+} t_history_list_state;
+
 /* Global singleton accessor (one definition in historic.c) */
 t_history_state	*S(void);
 
@@ -92,4 +98,8 @@ void		api_shutdown(void);
 char		**api_dump(void);
 int			custom_stifle_history(int max);
 int			custom_unstifle_history(void);
+
+/* Custom history helpers (our own, not from readline) */
+void		cleanup_history_list(void);
+void		update_history_length(void);
 #endif

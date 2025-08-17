@@ -2,11 +2,6 @@
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   getters.c                                          :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/17 16:54:41 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 21:44:17 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +14,6 @@ int	api_init(const t_history_opts *opts, char **envp)
 	const char			*env_size;
 	long				v;
 
-	using_history();
 	st = S();
 	(void)envp;
 	if (!st)
@@ -58,37 +52,84 @@ int	api_init(const t_history_opts *opts, char **envp)
 void	api_load(void)
 {
 	t_history_state	*st;
-	HIST_ENTRY		**arr;
-	int				n;
-	int				i;
+	FILE			*f;
+	char			buf[4096];
+	char			*line = NULL;
+	size_t			len = 0, cap = 0;
 
 	st = S();
 	if (!st || !st->initialized)
 		return ;
 	if (!st->persist || st->histfile[0] == '\0')
 		return ;
-	(void)read_history(st->histfile);
+
+	f = fopen(st->histfile, "r");
+	if (!f)
+		return;
+
+	/* Accumulate lines safely (handle >4k lines by chunking) */
+	while (fgets(buf, sizeof(buf), f))
 	{
-		arr = history_list();
-		n = history_length;
-		i = 0;
-		while (arr && i < n)
+		size_t bl = ft_strlen(buf);
+		if (len + bl + 1 > cap)
 		{
-			if (arr[i] && arr[i]->line)
-				dll_push_tail_line(arr[i]->line);
-			i++;
+			size_t ncap = (cap ? cap * 2 : 8192);
+			while (ncap < len + bl + 1)
+				ncap *= 2;
+			char *tmp = (char *)realloc(line, ncap);
+			if (!tmp) { free(line); fclose(f); return; }
+			line = tmp; cap = ncap;
+		}
+		ft_memcpy(line + len, buf, bl);
+		len += bl;
+		line[len] = '\0';
+		if (len > 0 && line[len - 1] == '\n')
+		{
+			line[len - 1] = '\0';
+			/* push to our DLL and to readline (allowed) */
+			dll_push_tail_line(line);
+			add_history(line);
+			len = 0;
 		}
 	}
+	/* last partial line without newline */
+	if (len > 0 && line)
+	{
+		dll_push_tail_line(line);
+		add_history(line);
+	}
+	free(line);
+	fclose(f);
+	update_history_length();
 }
 
 void	api_save(void)
 {
 	t_history_state	*st;
+	FILE			*f;
+	t_dll_node		*node;
 
 	st = S();
 	if (!st || !st->initialized)
 		return ;
 	if (!st->persist || st->histfile[0] == '\0')
 		return ;
-	(void)write_history(st->histfile);
+
+	f = fopen(st->histfile, "w");
+	if (!f)
+		return;
+
+	/* Write our internal list as plain lines */
+	node = st->list ? st->list->head : NULL;
+	while (node)
+	{
+		const char *s = (const char *)node->data;
+		if (s && *s)
+		{
+			fputs(s, f);
+			fputc('\n', f);
+		}
+		node = node->next;
+	}
+	fclose(f);
 }

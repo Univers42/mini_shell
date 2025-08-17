@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 16:51:50 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 16:53:07 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 22:05:48 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ void    dll_push_tail_line(const char *line)
 		old = (char *)ft_dll_pop_front(st->list);
 		free(old);
 	}
+	update_history_length();
 }
 
 void    dll_clear_all(void)
@@ -78,4 +79,5 @@ void    dll_clear_all(void)
 		s = (char *)ft_dll_pop_front(st->list);
 		free(s);
 	}
+	update_history_length();
 }

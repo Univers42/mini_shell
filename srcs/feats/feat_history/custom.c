@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 21:37:36 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 21:44:43 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 22:05:48 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,8 @@ int custom_stifle_history(int max)
     if (max == 0)
     {
         st->histsize = 0;
-        return (0);    
+        update_history_length();
+        return (0);
     }
     st->histsize = max;
     while (st->list->size > (size_t)max)
@@ -46,6 +47,7 @@ int custom_stifle_history(int max)
         if (old_entry)
             free(old_entry);
     }
+    update_history_length();
     return (0);
 }
 
@@ -59,6 +61,7 @@ int custom_unstifle_history(void)
         return (-1);
     prev_size = st->histsize;
     st->histsize = 0;
+    update_history_length();
     if (prev_size > 0)
         return (prev_size);
     return (-1);
