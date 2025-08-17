@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 12:48:43 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/17 17:01:33 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 19:11:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,8 @@ typedef struct s_history_opts
  * Dump history to NULL-terminated array (malloc'ed, caller frees)
  * Accessors / setters
  */
-typedef struct s_history_api {
+typedef struct s_history_api
+{
 	
 	int			(*init)(const t_history_opts *opts, char **envp);
 	void		(*load)(void);
@@ -63,7 +64,7 @@ typedef struct s_history_api {
 }				t_history_api;
 
 /* Get singleton vtable */
-const t_history_api *hs(void);
+const t_history_api	*hs(void);
 
 typedef struct s_history_state
 {
@@ -106,5 +107,25 @@ void		api_add(const char *line);
 void		api_save(void);
 void		api_load(void);
 int			api_init(const t_history_opts *opts, char **envp);
+void		api_shutdown(void);
+char		**api_dump(void);
+
+inline static const t_history_api	*hs(void)
+{
+	static const t_history_api api = {
+	.init = api_init,
+	.load = api_load,
+	.add = api_add,
+	.save = api_save,
+	.dump = api_dump,
+	.shutdown = api_shutdown,
+	.file = api_file,
+	.size = api_size,
+	.set_persist = api_set_persist,
+	.set_size = api_set_size
+	};
+
+	return (&api);
+}
 
 #endif
