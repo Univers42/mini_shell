@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 16:53:50 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 22:05:50 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 23:43:37 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,9 @@ char **api_dump(void)
 	char			**out;
 	int				i;
 
-	harr = history_list();
-	n = history_length;
+	/* Use our non-conflicting accessors */
+	harr = custom_history_list();
+	n = custom_history_length;
 	if (harr && n > 0)
 	{
 		out = (char **)malloc(((size_t)n + 1u) * sizeof(char *));
@@ -62,7 +63,7 @@ char **api_dump(void)
 		return (out);
 	}
 
-	/* Fallback: to change */
+	/* Fallback: internal DLL */
 	{
 		t_history_state	*st;
 		size_t			m;
