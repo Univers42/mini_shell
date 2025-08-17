@@ -6,17 +6,24 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:31 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 22:10:24 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/16 16:28:26 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+// Force-link reference to ensure the TU rebuilds with updated builtins
+static void	ms_force_link_history_ref(void)
+{
+	(void)&bin_history;
+}
 
 int	find_builtin_idx(const char *cmd)
 {
 	int			i;
 	t_builtins	*bins;
 
+	ms_force_link_history_ref();
 	if (!cmd || !*cmd)
 		return (BIN_NOT_FOUND);
 	bins = access_builtins();
