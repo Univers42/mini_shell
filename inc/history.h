@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 12:48:43 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/17 19:11:13 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 19:18:47 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ typedef struct s_history_api
 }				t_history_api;
 
 /* Get singleton vtable */
-const t_history_api	*hs(void);
+inline static const t_history_api	*hs(void);
 
 typedef struct s_history_state
 {
