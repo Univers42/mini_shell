@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 12:48:43 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/17 19:55:37 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 20:06:26 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,10 @@
 /* Constructor-like options */
 typedef struct s_history_opts
 {
-	bool        persist; 	/* persist to file or keep in-session only */
-	const char *histfile;	/* path or NULL for default (~/.minishell_history) */
-	int         histsize;	/* max entries; <=0 means unlimited */
-} t_history_opts;
+	bool		persist; 	/* persist to file or keep in-session only */
+	const char	*histfile;	/* path or NULL for default (~/.minishell_history) */
+	int			histsize;	/* max entries; <=0 means unlimited */
+}				t_history_opts;
 
 /* Opaque "class" */
 /**

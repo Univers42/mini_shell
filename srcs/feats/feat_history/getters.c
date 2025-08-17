@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 16:54:41 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 19:55:38 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 19:58:01 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,7 @@ int	api_init(const t_history_opts *opts, char **envp)
 	const char			*env_size;
 	long				v;
 
-	/* Initialize readline's history subsystem */
 	using_history();
-
 	st = S();
 	(void)envp;
 	if (!st)

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 16:53:50 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 19:55:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 19:58:35 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ void	api_shutdown(void)
 
 char **api_dump(void)
 {
-	/* Prefer readline's authoritative history */
 	HIST_ENTRY		**harr;
 	int				n;
 	char			**out;
@@ -39,7 +38,6 @@ char **api_dump(void)
 	n = history_length;
 	if (harr && n > 0)
 	{
-		/* FIX: allocate (n + 1) pointers, not n + sizeof(char*) bytes */
 		out = (char **)malloc(((size_t)n + 1u) * sizeof(char *));
 		if (!out)
 			return (NULL);
@@ -62,7 +60,7 @@ char **api_dump(void)
 		return (out);
 	}
 
-	/* Fallback: dump our internal DLL list */
+	/* Fallback: to change */
 	{
 		t_history_state	*st;
 		size_t			m;
