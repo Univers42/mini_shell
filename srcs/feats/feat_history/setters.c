@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 16:54:23 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 20:00:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 21:13:26 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,9 +67,9 @@ const char	*api_file(void)
 void	api_add(const char *line)
 {
 	t_history_state	*st;
-	const	char *p;
-	HIST_ENTRY *last;
-	int			n;
+	HIST_ENTRY		*last;
+	const char		*p;
+	int				n;
 
 	st = S();
 	if (!st || !line || !*line)
