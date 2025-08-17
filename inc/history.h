@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 21:16:14 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 21:18:15 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 21:44:04 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,5 +90,6 @@ void		api_load(void);
 int			api_init(const t_history_opts *opts, char **envp);
 void		api_shutdown(void);
 char		**api_dump(void);
-
+int			custom_stifle_history(int max);
+int			custom_unstifle_history(void);
 #endif

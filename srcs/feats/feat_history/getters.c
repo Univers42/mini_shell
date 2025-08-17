@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 16:54:41 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 19:58:01 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 21:44:17 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,9 @@ int	api_init(const t_history_opts *opts, char **envp)
 			st->histsize = (int)v;
 	}
 	if (st->histsize > 0)
-		stifle_history(st->histsize);
+		custom_stifle_history(st->histsize);
 	else
-		unstifle_history();
+		custom_unstifle_history();
 	st->initialized = true;
 	return (0);
 }

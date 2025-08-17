@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 16:54:23 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 21:13:26 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 21:46:43 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,9 @@ void	api_set_size(int n)
 		return;
 	st->histsize = n;
 	if (n > 0)
-		stifle_history(n);
+		custom_stifle_history(n);
 	else
-		unstifle_history();
+		custom_unstifle_history();
 }
 
 const char	*api_file(void)
@@ -96,5 +96,5 @@ void	api_add(const char *line)
 	dll_push_tail_line(line);
 	add_history(line);
 	if (st->histsize > 0)
-		stifle_history(st->histsize);
+		custom_stifle_history(st->histsize);
 }
