@@ -6,14 +6,14 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/15 00:00:00 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/17 17:52:21 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/17 19:06:21 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <signal.h>
+#include "minishell.h"
 #include <unistd.h>
 #include <string.h>
-#include "minishell.h"
+#include <signal.h>
 
 /*
 ** Singleton flag for SIGINT state (async-signal-safe storage).
