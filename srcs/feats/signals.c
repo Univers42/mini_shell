@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   signals.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/15 00:00:00 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/16 15:11:10 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/17 17:01:35 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,20 @@
 #include <sys/wait.h>
 #include "minishell.h"
 
+typedef struct sigaction t_sigaction;
+void signal_handler(int signal)
+{
+	
+}
+int main()
+{
+	t_sigaction	sa;
+
+	sa.sa_sigaction = signal_handler(int signal);
+	sa.mask = SA_RESTART;
+	sigaction();
+	
+}
 /*
 ** Singleton pattern for signal state management
 ** This replaces the global variable with controlled access functions
