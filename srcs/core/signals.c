@@ -6,7 +6,7 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/15 00:00:00 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/16 14:35:56 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/17 12:44:02 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@
 ** Signal state management using singleton pattern
 ** This function controls access to the SIGINT flag
 ** 
-** @param action: GET_SIGNAL to read, SET_SIGNAL to set, RESET_SIGNAL to clear
+** @param acqtion: GET_SIGNAL to read, SET_SIGNAL to set, RESET_SIGNAL to clear
 ** @param value: new value when action is SET_SIGNAL (ignored for GET/RESET)
 ** @return: current flag value
 **
