@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 16:54:23 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 16:59:32 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 19:55:38 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,15 +64,33 @@ void	api_add(const char *line)
 	const	char *p;
 
 	st = S();
-	if (!st || !st->initialized || !line || !*line)
+	if (!st || !line || !*line)
 		return;
+	/* lazy init to ensure we always record */
+	if (!st->initialized)
 	{
-		p = line;
-		while (*p && ft_isspace((unsigned char)*p))
-			p++;
-		if (*p == '\0')
-			return ;
+		if (api_init(NULL, NULL) != 0)
+			return;
 	}
+	/* skip empty/whitespace-only */
+	p = line;
+	while (*p && ft_isspace((unsigned char)*p))
+		p++;
+	if (*p == '\0')
+		return ;
+
+	/* prevent consecutive duplicates (readline side) */
+	{
+		int n = history_length;
+		if (n > 0)
+		{
+			HIST_ENTRY *last = history_get(n);
+			if (last && last->line && ft_strcmp(last->line, line) == 0)
+				return; /* do not add duplicate (keeps DLL and RL consistent) */
+		}
+	}
+
+	/* record to internal list (already dedups adjacent) and readline */
 	dll_push_tail_line(line);
 	add_history(line);
 	if (st->histsize > 0)
