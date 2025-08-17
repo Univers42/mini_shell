@@ -5,12 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/16 12:48:43 by syzygy            #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2025/08/17 19:18:47 by dlesieur         ###   ########.fr       */
-=======
-/*   Updated: 2025/08/17 20:06:26 by dlesieur         ###   ########.fr       */
->>>>>>> feature/historic
+/*   Created: 2025/08/17 21:16:14 by dlesieur          #+#    #+#             */
+/*   Updated: 2025/08/17 21:18:15 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +62,7 @@ typedef struct s_history_api
 	void        (*set_size)(int n);
 }				t_history_api;
 
-inline static const t_history_api	*hs(void);
+const t_history_api	*hs(void);
 
 typedef struct s_history_state
 {
