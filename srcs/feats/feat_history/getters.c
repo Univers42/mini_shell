@@ -2,10 +2,17 @@
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   getters.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/17 22:14:15 by dlesieur          #+#    #+#             */
+/*   Updated: 2025/08/17 22:14:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "history.h"
+
+/* --- api_init, unchanged --- */
 
 int	api_init(const t_history_opts *opts, char **envp)
 {
@@ -49,87 +56,81 @@ int	api_init(const t_history_opts *opts, char **envp)
 	return (0);
 }
 
+/* --- api_load, modified to use open/read/close --- */
+
 void	api_load(void)
 {
 	t_history_state	*st;
-	FILE			*f;
-	char			buf[4096];
-	char			*line = NULL;
-	size_t			len = 0, cap = 0;
+	int				fd;
+	char			*line;
 
 	st = S();
 	if (!st || !st->initialized)
-		return ;
+		return;
 	if (!st->persist || st->histfile[0] == '\0')
-		return ;
-
-	f = fopen(st->histfile, "r");
-	if (!f)
 		return;
 
-	/* Accumulate lines safely (handle >4k lines by chunking) */
-	while (fgets(buf, sizeof(buf), f))
+	fd = open(st->histfile, O_RDONLY);
+	if (fd < 0)
+		return;
+
+	line = get_next_line(fd);
+	while (line)
 	{
-		size_t bl = ft_strlen(buf);
-		if (len + bl + 1 > cap)
-		{
-			size_t ncap = (cap ? cap * 2 : 8192);
-			while (ncap < len + bl + 1)
-				ncap *= 2;
-			char *tmp = (char *)realloc(line, ncap);
-			if (!tmp) { free(line); fclose(f); return; }
-			line = tmp; cap = ncap;
-		}
-		ft_memcpy(line + len, buf, bl);
-		len += bl;
-		line[len] = '\0';
+		size_t len = ft_strlen(line);
 		if (len > 0 && line[len - 1] == '\n')
-		{
 			line[len - 1] = '\0';
-			/* push to our DLL and to readline (allowed) */
+		/* mirror into our DLL and readline (allowed) */
+		if (line[0] != '\0')
+		{
 			dll_push_tail_line(line);
 			add_history(line);
-			len = 0;
 		}
+		free(line);
+		line = get_next_line(fd);
 	}
-	/* last partial line without newline */
-	if (len > 0 && line)
-	{
-		dll_push_tail_line(line);
-		add_history(line);
-	}
-	free(line);
-	fclose(f);
+	close(fd);
 	update_history_length();
 }
+
+/* --- api_save, modified to use open/write/close --- */
 
 void	api_save(void)
 {
 	t_history_state	*st;
-	FILE			*f;
+	int				fd;
 	t_dll_node		*node;
 
 	st = S();
 	if (!st || !st->initialized)
-		return ;
+		return;
 	if (!st->persist || st->histfile[0] == '\0')
-		return ;
-
-	f = fopen(st->histfile, "w");
-	if (!f)
 		return;
 
-	/* Write our internal list as plain lines */
+	fd = open(st->histfile, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+	if (fd < 0)
+		return;
+
 	node = st->list ? st->list->head : NULL;
 	while (node)
 	{
 		const char *s = (const char *)node->data;
 		if (s && *s)
 		{
-			fputs(s, f);
-			fputc('\n', f);
+			size_t left = ft_strlen(s);
+			const char *p = s;
+			ssize_t wr;
+			while (left > 0)
+			{
+				wr = write(fd, p, left);
+				if (wr <= 0)
+					break;
+				p += (size_t)wr;
+				left -= (size_t)wr;
+			}
+			(void)write(fd, "\n", 1);
 		}
 		node = node->next;
 	}
-	fclose(f);
+	close(fd);
 }
