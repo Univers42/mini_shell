@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   history.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 12:48:43 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/16 16:16:04 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/17 17:01:33 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,45 +18,93 @@
 # include <limits.h>
 # include <readline/history.h>
 # include "libft.h"
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <errno.h>
+#include <stdio.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 # include "libft/data_structures/doubly_linked_list/ft_doubly_list.h"
 
 # define DEFAULT_HISTFILE ".minishell_history"
 # define DEFAULT_HISTSIZE 500
 
 /* Constructor-like options */
-typedef struct s_history_opts {
-	bool        persist;                /* persist to file or keep in-session only */
-	const char *histfile;               /* path or NULL for default (~/.minishell_history) */
-	int         histsize;               /* max entries; <=0 means unlimited */
+typedef struct s_history_opts
+{
+	bool        persist; 	/* persist to file or keep in-session only */
+	const char *histfile;	/* path or NULL for default (~/.minishell_history) */
+	int         histsize;	/* max entries; <=0 means unlimited */
 } t_history_opts;
 
 /* Opaque "class" */
+/**
+ * One-time init; envp used for HOME and env overrides (MS_HISTORY, MS_HISTSIZE)
+ * Load from file into readline and internal list (if persist enabled)
+ * Add a line (dedup adjacent, obey size, mirrors into readline)
+ * Save to file (no-op if persist disabled)
+ * Shutdown: save (if persist), free internals, clear readline history
+ * Dump history to NULL-terminated array (malloc'ed, caller frees)
+ * Accessors / setters
+ */
 typedef struct s_history_api {
-	/* One-time init; envp used for HOME and env overrides (MS_HISTORY, MS_HISTSIZE) */
-	int   (*init)(const t_history_opts *opts, char **envp);
-	/* Load from file into readline and internal list (if persist enabled) */
-	void  (*load)(void);
-	/* Add a line (dedup adjacent, obey size, mirrors into readline) */
-	void  (*add)(const char *line);
-	/* Save to file (no-op if persist disabled) */
-	void  (*save)(void);
-	/* Shutdown: save (if persist), free internals, clear readline history */
-	void  (*shutdown)(void);
-
-	/* Dump history to NULL-terminated array (malloc'ed, caller frees) */
-	char **(*dump)(void);
-
-	/* Accessors / setters */
-	const char *(*file)(void);          /* expanded path or NULL */
+	
+	int			(*init)(const t_history_opts *opts, char **envp);
+	void		(*load)(void);
+	void		(*add)(const char *line);
+	void		(*save)(void);
+	void		(*shutdown)(void);
+	char		**(*dump)(void);
+	const char	*(*file)(void);          /* expanded path or NULL */
 	int         (*size)(void);          /* current max size (readline stifle) */
 	void        (*set_persist)(bool on);
 	void        (*set_size)(int n);
-} t_history_api;
+}				t_history_api;
 
 /* Get singleton vtable */
 const t_history_api *hs(void);
 
-/* Utility: expand "~" using $HOME into out buffer; returns out or NULL on error */
-const char *expand_hist_path(const char *name, char *out, size_t outsz);
+typedef struct s_history_state
+{
+	t_doubly_list	*list;
+	bool			persist;
+	int				histsize;
+	char			histfile[PATH_MAX];
+	bool			initialized;
+}					t_history_state;
 
-#endif /* HISTORY_H */
+inline static t_history_state	*S(void)
+{
+	static t_history_state	*inst = NULL;
+
+	if (!inst)
+	{
+		inst = (t_history_state *)calloc(1, sizeof(*inst));
+		if (!inst)
+			return NULL;
+		inst->list = ft_dll_create();
+		if (!inst->list)
+			return (free(inst), NULL);
+		inst->persist = true;
+		inst->histsize = DEFAULT_HISTSIZE;
+		inst->histfile[0] = '\0';
+		inst->initialized = false;
+	}
+	return (inst);
+}
+
+/* Utility: expand "~" using $HOME into out buffer; returns out or NULL on error */
+const char	*expand_hist_path(const char *name, char *out, size_t outsz);
+void		dll_push_tail_line(const char *line);
+void		dll_clear_all(void);
+int			api_size(void);
+void		api_set_persist(bool on);
+void		api_set_size(int n);
+const char	*api_file(void);
+void		api_add(const char *line);
+void		api_save(void);
+void		api_load(void);
+int			api_init(const t_history_opts *opts, char **envp);
+
+#endif
