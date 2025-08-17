@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   getters.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 22:14:15 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 22:14:23 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/17 23:20:45 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,8 @@ void	api_save(void)
 				p += (size_t)wr;
 				left -= (size_t)wr;
 			}
-			(void)write(fd, "\n", 1);
+			wr = write(fd, "\n", 1);
+			(void)wr;  /* Acknowledge we received the return value */
 		}
 		node = node->next;
 	}
