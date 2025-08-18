@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:55 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/13 10:01:35 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/18 21:12:31 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,5 +85,5 @@ int			ms_sigquit_received(void);
 
 /* Singleton pattern for signal state management */
 int			signal_flag(t_signal_action action, int value);
-
+int exec_internal(int argc, char **argv, char **envp);
 #endif

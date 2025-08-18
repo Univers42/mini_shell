@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 19:17:14 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 19:17:16 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/18 21:25:05 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,10 +98,24 @@ static char *expand_basic(const char *in)
 	return out;
 }
 
-static void	print_parse_error(const char *cmd, t_parse_err err)
+// change signature to receive shell env (t_env*), not argc/argv/envp
+static void	print_parse_error(const char *cmd, t_parse_err err, t_env *env)
 {
 	if (err == PARSE_NOT_BUILTIN)
-		fprintf(stderr, "Unknown command: %s\n", cmd);
+	{
+		// Split the user input into tokens and run as external command
+		char **toks = ms_lex_line(cmd);
+		if (toks)
+		{
+			int targc = ms_count_tokens(toks);
+			// extract real envp from t_env* (which is a char***)
+			char ***penv = (char ***)env;
+			char **envp = (penv && *penv) ? *penv : NULL;
+			(void)exec_internal(targc, toks, envp);
+			ms_free_tokens(toks);
+		}
+		return;
+	}
 	else if (err == PARSE_INVALID_FLAG)
 		fprintf(stderr, "Unknown command: %s\n", cmd);
 }
@@ -117,8 +131,10 @@ static void	dispatch_command(t_cmdline *cmd, t_env *env)
 	g_last_status = 0;
 }
 
-static int	run_minishell(bool run, t_env *env)
+static int	run_minishell(bool run, t_env *env, int argc, char **argv)
 {
+	(void)argc;
+	(void)argv;
 	t_string	input;
 	char		*exp_input;
 	t_cmdline	cmd;
@@ -188,7 +204,8 @@ static int	run_minishell(bool run, t_env *env)
 				{
 					/* Standard shell-like statuses */
 					g_last_status = (err == PARSE_INVALID_FLAG) ? 2 : 127;
-					print_parse_error(exp_input, err);
+					// pass env (t_env*) instead of argc/argv/envp
+					print_parse_error(exp_input, err, env);
 				}
 			}
 			ms_cmdline_free(&cmd);
@@ -265,6 +282,6 @@ int	main(int argc, char **argv, char **envp)
 	}
 
 	run = true;
-	run_minishell(run, (t_env *)&g_env);
+	run_minishell(run, (t_env *)&g_env, argc, argv);
 	return (0);
 }
