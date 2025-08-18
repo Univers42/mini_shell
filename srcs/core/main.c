@@ -29,7 +29,7 @@ void	ms_setup_signals(void);
 /* Function to check signal flag during readline processing */
 static int check_signal_flag(void)
 {
-	if (signal_flag(GET_SIGNAL, 0))
+	if (ms_sigint_received())
 	{
 		/* Signal was received, tell readline to abort current line */
 		rl_done = 1;
@@ -129,16 +129,16 @@ static int	run_minishell(bool run, t_env *env)
 
 	while (run)
 	{
-		/* Reset signal flag before each prompt using singleton pattern */
+		/* Reset signal flags before each prompt using singleton pattern */
 		signal_flag(RESET_SIGNAL, 0);
 		
 		input = readline(build_prompt());
 		
 		/* Handle Ctrl+C that occurred during readline */
-		if (signal_flag(GET_SIGNAL, 0))
+		if (ms_sigint_received())
 		{
 			signal_flag(RESET_SIGNAL, 0); 
-			g_last_status = 130; /* Reset the flag */
+			g_last_status = EXIT_SIGINT; /* Set exit status for SIGINT */
 			if (input)
 			{
 				rl_replace_line("", 0);

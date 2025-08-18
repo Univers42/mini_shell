@@ -44,6 +44,10 @@ typedef enum e_signal_action
 	RESET_SIGNAL
 }	t_signal_action;
 
+/* Shell exit status codes for signals */
+# define EXIT_SIGINT	130		/* Ctrl+C (SIGINT) */
+# define EXIT_SIGQUIT	131		/* Ctrl+\ (SIGQUIT) */
+
 /* Parsed command line */
 typedef struct s_cmdline
 {
@@ -66,12 +70,18 @@ void		ms_cmdline_free(t_cmdline *cmd);
 /* Debug/Signals */
 void		ms_install_segv_handler(void);
 
-/* Signal handling for Ctrl+C (SIGINT) */
+/* Signal handling for Ctrl+C (SIGINT) and Ctrl+\ (SIGQUIT) */
 void		ms_setup_signals(void);
 void		ms_handle_sigint_interactive(int sig);
 void		ms_handle_sigint_child(int sig);
+void		ms_handle_sigquit_child(int sig);
+void		ms_setup_child_monitor_signals(void);
 void		ms_ignore_signals(void);
 void		ms_restore_signals(void);
+
+/* Signal state checking functions */
+int			ms_sigint_received(void);
+int			ms_sigquit_received(void);
 
 /* Singleton pattern for signal state management */
 int			signal_flag(t_signal_action action, int value);

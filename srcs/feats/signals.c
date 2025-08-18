@@ -6,7 +6,7 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/15 00:00:00 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/17 19:06:21 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/18 10:18:46 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,19 +16,20 @@
 #include <signal.h>
 
 /*
-** Singleton flag for SIGINT state (async-signal-safe storage).
+** Singleton flags for signal state (async-signal-safe storage).
 ** Access only through signal_flag(). Uses sig_atomic_t for safety.
+** Bit 0: SIGINT flag, Bit 1: SIGQUIT flag
 */
 int	signal_flag(t_signal_action action, int value)
 {
-	static volatile sig_atomic_t	sigint_flag = 0;
+	static volatile sig_atomic_t	signal_flags = 0;
 	int								prev;
 
-	prev = (int)sigint_flag;
+	prev = (int)signal_flags;
 	if (action == SET_SIGNAL)
-		sigint_flag = (sig_atomic_t)value;
+		signal_flags = (sig_atomic_t)value;
 	else if (action == RESET_SIGNAL)
-		sigint_flag = 0;
+		signal_flags = 0;
 	return (prev);
 }
 
@@ -39,9 +40,19 @@ int	signal_flag(t_signal_action action, int value)
 void	ms_handle_sigint_interactive(int sig)
 {
 	(void)sig;
-	signal_flag(SET_SIGNAL, 1);
+	signal_flag(SET_SIGNAL, signal_flag(GET_SIGNAL, 0) | 1);
 	/* show a clean break of the current line */
 	/* (void)write(STDOUT_FILENO, "^C", 2); */
+}
+
+/*
+** SIGQUIT handler (for child process monitoring in parent).
+** Sets bit 1 in the signal flags to indicate SIGQUIT received.
+*/
+void	ms_handle_sigquit_child(int sig)
+{
+	(void)sig;
+	signal_flag(SET_SIGNAL, signal_flag(GET_SIGNAL, 0) | 2);
 }
 
 /*
@@ -98,4 +109,30 @@ void	ms_restore_signals(void)
 {
 	ms_install_disp(SIGINT, SIG_DFL);
 	ms_install_disp(SIGQUIT, SIG_DFL);
+}
+
+/*
+** Check if SIGINT was received (bit 0).
+*/
+int	ms_sigint_received(void)
+{
+	return (signal_flag(GET_SIGNAL, 0) & 1);
+}
+
+/*
+** Check if SIGQUIT was received (bit 1).
+*/
+int	ms_sigquit_received(void)
+{
+	return (signal_flag(GET_SIGNAL, 0) & 2);
+}
+
+/*
+** Setup signals for monitoring child process execution.
+** Parent catches both SIGINT and SIGQUIT to detect when child should terminate.
+*/
+void	ms_setup_child_monitor_signals(void)
+{
+	ms_install_sa(SIGINT, ms_handle_sigint_interactive);
+	ms_install_sa(SIGQUIT, ms_handle_sigquit_child);
 }
