@@ -6,7 +6,7 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/15 00:00:00 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/18 10:23:52 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/18 10:26:35 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,19 +46,13 @@ void	ms_handle_sigint_interactive(int sig)
 }
 
 /*
-** SIGQUIT handler (TESTING VERSION - shows message when Ctrl+\ pressed).
+** SIGQUIT handler (for child process monitoring in parent).
 ** Sets bit 1 in the signal flags to indicate SIGQUIT received.
-** NOTE: This is for testing - final version should use SIG_IGN at prompt.
 */
 void	ms_handle_sigquit_child(int sig)
 {
-	ssize_t	wr;
-
 	(void)sig;
 	signal_flag(SET_SIGNAL, signal_flag(GET_SIGNAL, 0) | 2);
-	/* Print test message to show SIGQUIT was received */
-	wr = write(STDOUT_FILENO, "\n[SIGQUIT received - Ctrl+\\ works!]\n", 37);
-	(void)wr;
 }
 
 /*
@@ -90,13 +84,12 @@ static void	ms_install_disp(int signo, void (*disp)(int))
 }
 
 /*
-** Interactive shell: INT handled -> newline+flag, QUIT handled (TESTING).
-** NOTE: Final version should use SIG_IGN for SIGQUIT at prompt.
+** Interactive shell: INT handled -> newline+flag, QUIT ignored.
 */
 void	ms_setup_signals(void)
 {
 	ms_install_sa(SIGINT, ms_handle_sigint_interactive);
-	ms_install_sa(SIGQUIT, ms_handle_sigquit_child);  /* TESTING - shows message */
+	ms_install_disp(SIGQUIT, SIG_IGN);
 }
 
 /*
