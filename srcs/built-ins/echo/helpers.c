@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:55:42 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 15:28:19 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 13:03:17 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ size_t	echo_args_start(char **args, int valid_flags)
 		j = 1;
 		while (args[i][j])
 		{
-			bit = ms_flag_bit(args[i][j]);
+			bit = flag_bit(args[i][j]);
 			if (!bit || !(valid_flags & bit))
 				return (i);
 			j++;

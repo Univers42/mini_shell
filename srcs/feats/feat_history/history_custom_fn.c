@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   history_custom_fn.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 23:40:28 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 23:43:37 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/19 13:06:59 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 int custom_history_length = 0;
 
 /* forward declaration for the static accessor */
-static t_history_list_state *ms_get_history_list_state(void);
+static t_history_list_state *get_history_list_state(void);
 
 HIST_ENTRY **custom_history_list(void)
 {
@@ -34,7 +34,7 @@ HIST_ENTRY **custom_history_list(void)
         return (NULL);
     }
 
-    state = ms_get_history_list_state();
+    state = get_history_list_state();
     hist_array = *(state->hist_array_ptr);
     array_size = state->array_size_ptr;
 
@@ -96,7 +96,7 @@ HIST_ENTRY **custom_history_list(void)
     return (hist_array);
 }
 
-static t_history_list_state *ms_get_history_list_state(void)
+static t_history_list_state *get_history_list_state(void)
 {
     static HIST_ENTRY **hist_array = NULL;
     static size_t array_size = 0;
@@ -110,7 +110,7 @@ void cleanup_history_list(void)
     t_history_list_state *state;
     size_t i;
 
-    state = ms_get_history_list_state();
+    state = get_history_list_state();
 
     if (*(state->hist_array_ptr))
     {

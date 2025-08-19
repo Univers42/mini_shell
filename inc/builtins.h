@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 16:18:43 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/16 16:28:28 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 13:03:17 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ void	handle_escapes(char **args, char **processed_args);
 char	**dup_args_vector_from(char **args, size_t start);
 void	free_args_vector(char **v);
 void	apply_handlers(char **args, char **processed, int flags);
-int		ms_flag_bit(char ch);
+int		flag_bit(char ch);
 int		is_flag_set(int flags, int bit);
 void	handle_uppercase(char **args, char **processed_args);
 #endif

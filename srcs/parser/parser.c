@@ -6,14 +6,14 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:31 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 12:46:56 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 13:03:17 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 // Force-link reference to ensure the TU rebuilds with updated builtins
-static void	ms_force_link_history_ref(void)
+static void	force_link_history_ref(void)
 {
 	(void)&bin_history;
 }
@@ -23,7 +23,7 @@ int	find_builtin_idx(const char *cmd)
 	int			i;
 	t_builtins	*bins;
 
-	ms_force_link_history_ref();
+	force_link_history_ref();
 	if (!cmd || !*cmd)
 		return (BIN_NOT_FOUND);
 	bins = access_builtins();
@@ -45,7 +45,7 @@ static int	parse_dash_flags(const char *tok, int valid, int *flags)
 	j = 1;
 	while (tok[j])
 	{
-		bit = ms_flag_bit(tok[j]);
+		bit = flag_bit(tok[j]);
 		if (!bit || !(valid & bit))
 			return (0);
 		*flags |= bit;
@@ -64,7 +64,7 @@ static int	parse_bare_as_flags(const char *tok, int valid, int *flags)
 	j = 0;
 	while (tok[j])
 	{
-		bit = ms_flag_bit(tok[j]);
+		bit = flag_bit(tok[j]);
 		if (!bit || !(valid & bit))
 			return (0);
 		acc |= bit;
@@ -108,7 +108,7 @@ static t_parse_err	parse_tokens(char **toks, t_cmdline *out)
 	return (PARSE_OK);
 }
 
-t_parse_err	ms_parse_line(const char *line, t_cmdline *out)
+t_parse_err	parse_line(const char *line, t_cmdline *out)
 {
 	char	**tokens;
 	t_parse_err err;
@@ -125,7 +125,7 @@ t_parse_err	ms_parse_line(const char *line, t_cmdline *out)
 	return (err);
 }
 
-void	ms_cmdline_free(t_cmdline *cmd)
+void	cmdline_free(t_cmdline *cmd)
 {
 	if (!cmd)
 		return ;

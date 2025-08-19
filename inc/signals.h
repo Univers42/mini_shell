@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 12:32:44 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 12:38:02 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 13:05:41 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,23 +18,23 @@
 # define EXIT_SIGQUIT	131		/* Ctrl+\ (SIGQUIT) */
 
 
-void    ms_signal_init(void);
-void    ms_signal_reset(void);
-void    ms_signal_ignore(void);
-void    ms_signal_default(void);
+void    signal_init(void);
+void    signal_reset(void);
+void    signal_ignore(void);
+void    signal_default(void);
 /* Signal handling for Ctrl+C (SIGINT) and Ctrl+\ (SIGQUIT) */
-void		ms_setup_signals(void);
-void		ms_handle_sigint_interactive(int sig);
-void		ms_handle_sigint_child(int sig);
-void		ms_handle_sigquit_child(int sig);
-void		ms_setup_child_monitor_signals(void);
-void		ms_ignore_signals(void);
-void		ms_restore_signals(void);
+void		setup_signals(void);
+void		handle_sigint_interactive(int sig);
+void		handle_sigint_child(int sig);
+void		handle_sigquit_child(int sig);
+void		setup_child_monitor_signals(void);
+void		ignore_signals(void);
+void		restore_signals(void);
 /* Debug/Signals */
-void		ms_install_segv_handler(void);
+void		install_segv_handler(void);
 /* Signal state checking functions */
-int			ms_sigint_received(void);
-int			ms_sigquit_received(void);
+int			sigint_received(void);
+int			sigquit_received(void);
 /* Singleton pattern for signal state management */
 /* Signal action codes for singleton pattern */
 typedef enum e_signal_action
