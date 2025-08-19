@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 19:17:14 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/19 12:28:32 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 12:46:56 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,15 +104,15 @@ static void	print_parse_error(const char *cmd, t_parse_err err, t_env *env)
 	if (err == PARSE_NOT_BUILTIN)
 	{
 		// Split the user input into tokens and run as external command
-		char **toks = ms_lex_line(cmd);
+		char **toks = lex_line(cmd);
 		if (toks)
 		{
-			int targc = ms_count_tokens(toks);
+			int targc = count_tokens(toks);
 			// extract real envp from t_env* (which is a char***)
 			char ***penv = (char ***)env;
 			char **envp = (penv && *penv) ? *penv : NULL;
 			(void)exec_internal(targc, toks, envp);
-			ms_free_tokens(toks);
+			free_tokens(toks);
 		}
 		return;
 	}

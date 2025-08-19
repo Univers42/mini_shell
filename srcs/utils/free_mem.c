@@ -1,20 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   lexer.h                                            :+:      :+:    :+:   */
+/*   free_mem.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/19 12:42:49 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 12:46:56 by syzygy           ###   ########.fr       */
+/*   Created: 2025/08/19 12:54:34 by syzygy            #+#    #+#             */
+/*   Updated: 2025/08/19 12:55:08 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LEXER_H
-# define LEXER_H
+#include <stdlib.h>
 
-char	**lex_line(const char *line);
-int		count_tokens(char **tokens);
-void	free_tokens(char **tokens);
+void	free_tokens(char **tokens)
+{
+	int	i;
 
-# endif
+	if (!tokens)
+		return ;
+	i = 0;
+	while (tokens[i])
+		free(tokens[i++]);
+	free(tokens);
+}

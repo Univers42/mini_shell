@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:31 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/16 16:28:26 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 12:46:56 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ static t_parse_err	parse_tokens(char **toks, t_cmdline *out)
 	int				valid;
 	t_parse_state	st;
 
-	out->argc = ms_count_tokens(toks);
+	out->argc = count_tokens(toks);
 	if (out->argc <= 0)
 		return (PARSE_EMPTY);
 	out->bin_idx = find_builtin_idx(toks[0]);
@@ -116,7 +116,7 @@ t_parse_err	ms_parse_line(const char *line, t_cmdline *out)
 	if (!out)
 		return (PARSE_EMPTY);
 	ft_bzero(out, sizeof(*out));
-	tokens = ms_lex_line(line);
+	tokens = lex_line(line);
 	if (!tokens)
 		return (PARSE_EMPTY);
 	out->argv = tokens;
@@ -129,6 +129,6 @@ void	ms_cmdline_free(t_cmdline *cmd)
 {
 	if (!cmd)
 		return ;
-	ms_free_tokens(cmd->argv);
+	free_tokens(cmd->argv);
 	ft_bzero(cmd, sizeof(*cmd));
 }

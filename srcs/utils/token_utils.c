@@ -1,20 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   lexer.h                                            :+:      :+:    :+:   */
+/*   token_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/19 12:42:49 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 12:46:56 by syzygy           ###   ########.fr       */
+/*   Created: 2025/08/19 12:54:10 by syzygy            #+#    #+#             */
+/*   Updated: 2025/08/19 12:55:44 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LEXER_H
-# define LEXER_H
 
-char	**lex_line(const char *line);
-int		count_tokens(char **tokens);
-void	free_tokens(char **tokens);
+int	count_tokens(char **tokens)
+{
+	int	i;
 
-# endif
+	if (!tokens || !*tokens)
+		return (0);
+	i = 0;
+	while (tokens[i])
+		i++;
+	return (i);
+}

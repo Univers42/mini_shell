@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 15:44:51 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 18:02:01 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 12:42:40 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,4 +40,4 @@ extern int          g_last_status;
 
 char *build_prompt(void);
 
-#endif /* RENDER_H */
+#endif

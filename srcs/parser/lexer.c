@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:28 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/13 10:43:43 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 12:54:24 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,22 @@
 #include "ft_stdlib.h"
 #include "libft.h"
 
-static char *ms_trim_copy(const char *line)
+static char	*trim_copy(const char *line);
+
+char	**lex_line(const char *line)
+{
+	char	*trimmed;
+	char	**tokens;
+
+	trimmed = trim_copy(line);
+	if (!trimmed || !*trimmed)
+		return (free(trimmed), NULL);
+	tokens = ft_split(trimmed, ' ');
+	free(trimmed);
+	return (tokens);
+}
+
+static char *trim_copy(const char *line)
 {
 	t_addr	ptr;
 	char	*copy;
@@ -30,41 +45,4 @@ static char *ms_trim_copy(const char *line)
 	ptr = (t_addr)copy;
 	ft_super_trim(&ptr, TRIM_SPACES);
 	return ((char *)ptr);
-}
-
-char	**ms_lex_line(const char *line)
-{
-	char	*trimmed;
-	char	**tokens;
-
-	trimmed = ms_trim_copy(line);
-	if (!trimmed || !*trimmed)
-		return (free(trimmed), NULL);
-	tokens = ft_split(trimmed, ' ');
-	free(trimmed);
-	return (tokens);
-}
-
-int	ms_count_tokens(char **tokens)
-{
-	int	i;
-
-	if (!tokens)
-		return (0);
-	i = 0;
-	while (tokens[i])
-		i++;
-	return (i);
-}
-
-void	ms_free_tokens(char **tokens)
-{
-	int	i;
-
-	if (!tokens)
-		return ;
-	i = 0;
-	while (tokens[i])
-		free(tokens[i++]);
-	free(tokens);
 }
