@@ -76,15 +76,15 @@ typedef struct s_core_atomic
 /* =================================================================== */
 
 int		signal_configure(int signal_mask, int mode_mask, int context_mask);
-int		signal_get_state(int signal_mask, t_core_atomic *sig_struct);
-int		signal_set_state(int signal_mask, int state_mask, t_core_atomic *sig_struct);
-int		signal_clear_state(int signal_mask, int state_mask, t_core_atomic *sig_struct);
-int		signal_check_pending(int signal_mask, t_core_atomic *sig_struct);
+int		signal_get_state(int signal_mask);
+int		signal_set_state(int signal_mask, int state_mask);
+int		signal_clear_state(int signal_mask, int state_mask);
+int		signal_check_pending(int signal_mask);
 
 int		signal_install_dynamic(int signal_mask, int mode_mask, int context_mask);
 
-int		signal_set_context(int context_mask, t_core_atomic *sig_struct);
-int		signal_get_context(t_core_atomic *sig_struct);
+int		signal_set_context(int context_mask);
+int		signal_get_context(void);
 int		signal_context_configure(int context_mask);
 
 int		signal_execute_op(const t_signal_op *op);
@@ -160,9 +160,6 @@ int		sigquit_get_exit_code(void);
 /*                      SIGNAL API UTILITIES                          */
 /* =================================================================== */
 
-void	signal_api_init(t_core_atomic *sig_struct);
-void	signal_api_cleanup(t_core_atomic *sig_struct);
-
 int		signal_mask_to_signo(int signal_mask);
 int		signo_to_signal_mask(int signo);
 int		signal_get_exit_code(int signal_mask);
@@ -174,8 +171,10 @@ extern const t_signal_op	g_signal_ops_readline[];
 extern const t_signal_op	g_signal_ops_exec[];
 
 /* Low-level install helpers */
-int				signal_install(int signo, void (*handler)(int, t_core_atomic *));
+int				signal_install(int signo, void (*handler)(int, siginfo_t *, void *));
 int				signal_set_disposition(int signo, void (*disposition)(int));
-void			signal_clear_all_pending(t_core_atomic *sig_struct);
-t_core_atomic	*access_sig_struct(t_core_atomic *set);
+void			signal_api_init(void);
+void			signal_api_cleanup(void);
+void			signal_clear_all_pending(void);
+
 #endif

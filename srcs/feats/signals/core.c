@@ -6,7 +6,7 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 15:30:00 by danielm3          #+#    #+#             */
-/*   Updated: 2025/08/19 20:43:57 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/19 22:36:39 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,46 +25,50 @@
 
 /* Predefined handlers */
 
-t_core_atomic *access_sig_struct(t_core_atomic *set)
+static t_core_atomic *get_sigcore(t_core_atomic *set)
 {
-	t_core_atomic	sig_struct;
+	static t_core_atomic sig_struct = {0};
 
-	sig_struct = (t_core_atomic){0};
 	if (set)
 		sig_struct = *set;
-	return (&sig_struct);
+	return &sig_struct;
 }
 
-static void	sigint_interactive_handler(int sig, siginfo_t *info, void *ucontext)
+static void sigint_interactive_handler(int sig, siginfo_t *info, void *ucontext)
 {
-	t_core_atomic *sig_struct = access_sig_struct(NULL);
+	t_core_atomic *sig_struct = get_sigcore(NULL);
 	(void)sig;
+	(void)info;
 	(void)ucontext;
 	sig_struct->g_signal_state |= (SIG_MASK_INT << 16) | STATE_MASK_PENDING;
 	if (write(STDOUT_FILENO, "\n", 1) == -1)
-		return ;
+		return;
 	rl_done = 1;
 }
 
-static void	sigint_monitor_handler(int sig, t_core_atomic *sig_struct)
+static void sigint_monitor_handler(int sig, siginfo_t *info, void *ucontext)
 {
-	t_core_atomic *singleton = sg_struct();
+	t_core_atomic *sig_struct = get_sigcore(NULL);
 	(void)sig;
+	(void)info;
+	(void)ucontext;
 	sig_struct->g_signal_state |= (SIG_MASK_INT << 16) | STATE_MASK_PENDING;
 }
 
-static void	sigquit_monitor_handler(int sig, t_core_atomic *sig_struct)
+static void sigquit_monitor_handler(int sig, siginfo_t *info, void *ucontext)
 {
+	t_core_atomic *sig_struct = get_sigcore(NULL);
 	(void)sig;
+	(void)info;
+	(void)ucontext;
 	sig_struct->g_signal_state |= (SIG_MASK_QUIT << 16) | STATE_MASK_PENDING;
 }
 
 /* Core signal operations */
-int	signal_configure(int signal_mask, int mode_mask, int context_mask)
+int signal_configure(int signal_mask, int mode_mask, int context_mask)
 {
-	int	result = 0;
-	(void)context_mask; /* Context influences handler selection */
-	
+	int result = 0;
+	(void)context_mask;
 	if (signal_mask & SIG_MASK_INT)
 	{
 		if (mode_mask & MODE_MASK_DEFAULT)
@@ -85,75 +89,77 @@ int	signal_configure(int signal_mask, int mode_mask, int context_mask)
 		else if (mode_mask & MODE_MASK_MONITOR)
 			result |= signal_install(SIGQUIT, sigquit_monitor_handler);
 	}
-	return (result);
+	return result;
 }
 
-int	signal_get_state(int signal_mask, t_core_atomic *sig_struct)
+int signal_get_state(int signal_mask)
 {
-	int	state = 0;
-	
+	t_core_atomic *sig_struct = get_sigcore(NULL);
+	int state = 0;
 	if (signal_mask & SIG_MASK_INT)
 		state |= (sig_struct->g_signal_state & ((SIG_MASK_INT << 16) | 0xFFFF));
 	if (signal_mask & SIG_MASK_QUIT)
 		state |= (sig_struct->g_signal_state & ((SIG_MASK_QUIT << 16) | 0xFFFF));
-	
-	return (state);
+	return state;
 }
 
-int	signal_set_state(int signal_mask, int state_mask, t_core_atomic *sig_struct)
+int signal_set_state(int signal_mask, int state_mask)
 {
+	t_core_atomic *sig_struct = get_sigcore(NULL);
 	if (signal_mask & SIG_MASK_INT)
 		sig_struct->g_signal_state |= (SIG_MASK_INT << 16) | state_mask;
 	if (signal_mask & SIG_MASK_QUIT)
 		sig_struct->g_signal_state |= (SIG_MASK_QUIT << 16) | state_mask;
-	
-	return (0);
+	return 0;
 }
 
-int	signal_clear_state(int signal_mask, int state_mask, t_core_atomic *sig_struct)
+int signal_clear_state(int signal_mask, int state_mask)
 {
+	t_core_atomic *sig_struct = get_sigcore(NULL);
 	if (signal_mask & SIG_MASK_INT)
 		sig_struct->g_signal_state &= ~((SIG_MASK_INT << 16) | state_mask);
 	if (signal_mask & SIG_MASK_QUIT)
 		sig_struct->g_signal_state &= ~((SIG_MASK_QUIT << 16) | state_mask);
-	
-	return (0);
+	return 0;
 }
 
-int	signal_check_pending(int signal_mask, t_core_atomic *sig_struct)
+int signal_check_pending(int signal_mask)
 {
-	int	pending = 0;
-	
+	t_core_atomic *sig_struct = get_sigcore(NULL);
+	int pending = 0;
 	if (signal_mask & SIG_MASK_INT)
 		pending |= (sig_struct->g_signal_state & (SIG_MASK_INT << 16) & STATE_MASK_PENDING) ? SIG_MASK_INT : 0;
 	if (signal_mask & SIG_MASK_QUIT)
 		pending |= (sig_struct->g_signal_state & (SIG_MASK_QUIT << 16) & STATE_MASK_PENDING) ? SIG_MASK_QUIT : 0;
-	
-	return (pending);
+	return pending;
 }
 
-int	signal_set_context(int context_mask, t_core_atomic *sig_struct)
+int signal_set_context(int context_mask)
 {
+	t_core_atomic *sig_struct = get_sigcore(NULL);
 	sig_struct->g_signal_context = context_mask;
-	return (0);
+	return 0;
 }
 
-int	signal_get_context(t_core_atomic *sig_struct)
+int signal_get_context(void)
 {
-	return (sig_struct->g_signal_context);
+	t_core_atomic *sig_struct = get_sigcore(NULL);
+	return sig_struct->g_signal_context;
 }
 
 /*
 ** Signal API Initialization
 */
-void	signal_api_init(t_core_atomic *sig_struct)
+void signal_api_init(void)
 {
+	t_core_atomic *sig_struct = get_sigcore(NULL);
 	sig_struct->g_signal_state = 0;
 	sig_struct->g_signal_context = CONTEXT_MASK_SHELL;
 }
 
-void	signal_api_cleanup(t_core_atomic *sig_struct)
+void signal_api_cleanup(void)
 {
+	t_core_atomic *sig_struct = get_sigcore(NULL);
 	signal_configure(SIG_MASK_ALL, MODE_MASK_DEFAULT, CONTEXT_MASK_SHELL);
 	sig_struct->g_signal_state = 0;
 }
@@ -161,18 +167,24 @@ void	signal_api_cleanup(t_core_atomic *sig_struct)
 /*
 ** Generic Signal Operations
 */
-int	signal_install(int signo, void (*handler)(int, t_core_atomic *))
+void signal_clear_all_pending(void)
 {
-	struct sigaction	sa;
+	t_core_atomic *sig_struct = get_sigcore(NULL);
+	sig_struct->g_signal_state &= ~(((SIG_MASK_INT << 16) | STATE_MASK_PENDING));
+	sig_struct->g_signal_state &= ~(((SIG_MASK_QUIT << 16) | STATE_MASK_PENDING));
+}
 
+int signal_install(int signo, void (*handler)(int, siginfo_t *, void *))
+{
+	struct sigaction sa;
 	memset(&sa, 0, sizeof(sa));
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_SIGINFO;
-	sa.sa_handler = handler;
-	return (sigaction(signo, &sa, NULL));
+	sa.sa_sigaction = handler;
+	return sigaction(signo, &sa, NULL);
 }
 
-int	signal_set_disposition(int signo, void (*disposition)(int))
+int signal_set_disposition(int signo, void (*disposition)(int))
 {
 	struct sigaction	sa;
 
@@ -183,12 +195,17 @@ int	signal_set_disposition(int signo, void (*disposition)(int))
 	return (sigaction(signo, &sa, NULL));
 }
 
-/*
-** Signal State Management
-*/
-void	signal_clear_all_pending(t_core_atomic *sig_struct)
+int sigint_is_pending(void)
 {
-	/* clear pending bit for both signals in our compact state */
-	sig_struct->g_signal_state &= ~(((SIG_MASK_INT << 16) | STATE_MASK_PENDING));
-	sig_struct->g_signal_state &= ~(((SIG_MASK_QUIT << 16) | STATE_MASK_PENDING));
+	return SIGNAL_IS_PENDING(SIG_MASK_INT) != 0;
+}
+
+void sigint_clear_pending(void)
+{
+	signal_clear_state(SIG_MASK_INT, STATE_MASK_PENDING);
+}
+
+int sigint_get_exit_code(void)
+{
+	return EXIT_SIGINT;
 }
