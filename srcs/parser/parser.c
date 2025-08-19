@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:31 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 15:35:04 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 15:45:04 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ int	parse_bare_as_flags(const char *tok, int valid, int *flags)
  * tok is non-NULL and non-empty.
  * bare token: if it parses as flags, keep flags state; otherwise this is an arg.
  */
-static t_parse_state	handle_token(const char *tok, int valid, int *flags)
+t_parse_state	handle_token(const char *tok, int valid, int *flags)
 {
 	if (tok[0] == '-' && tok[1] != '\0')
 	{

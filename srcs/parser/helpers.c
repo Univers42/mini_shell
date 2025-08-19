@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 14:42:19 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 15:35:47 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 15:45:21 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,23 +35,6 @@ void	cmdline_free(t_cmdline *cmd)
 		return ;
 	free_tokens(cmd->argv);
 	ft_bzero(cmd, sizeof(*cmd));
-}
-
-/**
- * tok is non-NULL and non-empty.
- * bare token: if it parses as flags, keep flags state; otherwise this is an arg.
- */
-t_parse_state	handle_token(const char *tok, int valid, int *flags)
-{
-	if (tok[0] == '-' && tok[1] != '\0')
-	{
-		if (!parse_dash_flags(tok, valid, flags))
-			return (ST_ERROR);
-		return (ST_FLAGS);
-	}
-	if (!parse_bare_as_flags(tok, valid, flags))
-		return (ST_ARGS);
-	return (ST_FLAGS);
 }
 
 int	find_builtin_idx(const char *cmd)
