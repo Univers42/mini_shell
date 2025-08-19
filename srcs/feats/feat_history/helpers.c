@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 16:51:50 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/19 14:04:37 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 16:14:47 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ const char	*expand_hist_path(const char *name, char *out, size_t outsz)
 	size_t		len;
 
 	if (!name || !out || outsz == 0)
-		return NULL;
+		return (NULL);
 	home = getenv("HOME");
 	if (name[0] == '~' && home && *home)
 	{
@@ -37,7 +37,7 @@ const char	*expand_hist_path(const char *name, char *out, size_t outsz)
 	return (out);
 }
 
-void    dll_push_tail_line(const char *line)
+void	dll_push_tail_line(const char *line)
 {
 	t_history_state	*st;
 	char			*dup;
@@ -63,21 +63,21 @@ void    dll_push_tail_line(const char *line)
 		old = (char *)ft_dll_pop_front(st->list);
 		free(old);
 	}
-	update_history_length(); /* updates g_custom_history_length */
+	update_history_length();
 }
 
-void    dll_clear_all(void)
+void	dll_clear_all(void)
 {
 	t_history_state		*st;
 	char				*s;
 
 	st = S();
 	if (!st || !st->list)
-		return;
+		return ;
 	while (!ft_dll_is_empty(st->list))
 	{
 		s = (char *)ft_dll_pop_front(st->list);
 		free(s);
 	}
-	update_history_length(); /* updates g_custom_history_length */
+	update_history_length();
 }
