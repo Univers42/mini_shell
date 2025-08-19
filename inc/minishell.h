@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:55 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/18 21:12:31 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/19 12:36:55 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 # include "libft.h"
 # include "builtins.h"
-
+# include "signals.h"
 /* Parsing state machine */
 typedef enum e_parse_state
 {
@@ -36,17 +36,8 @@ typedef enum e_parse_err
 	PARSE_INVALID_FLAG
 }	t_parse_err;
 
-/* Signal action codes for singleton pattern */
-typedef enum e_signal_action
-{
-	GET_SIGNAL = 0,
-	SET_SIGNAL,
-	RESET_SIGNAL
-}	t_signal_action;
 
-/* Shell exit status codes for signals */
-# define EXIT_SIGINT	130		/* Ctrl+C (SIGINT) */
-# define EXIT_SIGQUIT	131		/* Ctrl+\ (SIGQUIT) */
+
 
 /* Parsed command line */
 typedef struct s_cmdline
@@ -67,23 +58,10 @@ void	ms_free_tokens(char **tokens);
 t_parse_err	ms_parse_line(const char *line, t_cmdline *out);
 void		ms_cmdline_free(t_cmdline *cmd);
 
-/* Debug/Signals */
-void		ms_install_segv_handler(void);
 
-/* Signal handling for Ctrl+C (SIGINT) and Ctrl+\ (SIGQUIT) */
-void		ms_setup_signals(void);
-void		ms_handle_sigint_interactive(int sig);
-void		ms_handle_sigint_child(int sig);
-void		ms_handle_sigquit_child(int sig);
-void		ms_setup_child_monitor_signals(void);
-void		ms_ignore_signals(void);
-void		ms_restore_signals(void);
 
-/* Signal state checking functions */
-int			ms_sigint_received(void);
-int			ms_sigquit_received(void);
 
-/* Singleton pattern for signal state management */
-int			signal_flag(t_signal_action action, int value);
+
+
 int exec_internal(int argc, char **argv, char **envp);
 #endif

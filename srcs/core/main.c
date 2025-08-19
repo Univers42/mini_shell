@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 19:17:14 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/18 21:25:05 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/19 12:28:32 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -252,7 +252,7 @@ int	main(int argc, char **argv, char **envp)
 	(void)argc;
 	(void)argv;
 	bool	run;
-	char	**g_env;
+	char	**clone_envp;
 
 	/* make Readline aware of the current locale (UTF-8 widths, etc.) */
 	setlocale(LC_ALL, "");
@@ -266,8 +266,8 @@ int	main(int argc, char **argv, char **envp)
 	/* Set up event hook to check for our signal flag */
 	rl_event_hook = check_signal_flag;
 	
-	g_env = ms_dup_env(envp);
-	if (!g_env)
+	clone_envp = ms_dup_env(envp);
+	if (!clone_envp)
 		return (1);
 
 	/* History singleton: constructor + load */
@@ -282,6 +282,6 @@ int	main(int argc, char **argv, char **envp)
 	}
 
 	run = true;
-	run_minishell(run, (t_env *)&g_env, argc, argv);
+	run_minishell(run, (t_env *)&clone_envp, argc, argv);
 	return (0);
 }
