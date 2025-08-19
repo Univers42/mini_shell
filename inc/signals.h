@@ -2,11 +2,6 @@
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   signals.h                                          :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/19 12:32:44 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 15:24:31 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,105 +11,121 @@
 # include <signal.h>
 # include <sys/types.h>
 
-/* Need to define _POSIX_C_SOURCE for full sigaction support */
 # ifndef _POSIX_C_SOURCE
 #  define _POSIX_C_SOURCE 200809L
 # endif
 
-/* Standard shell exit codes for signal termination */
-# define EXIT_SIGINT	130		/* 128 + 2 (SIGINT) */
-# define EXIT_SIGQUIT	131		/* 128 + 3 (SIGQUIT) */
+# define EXIT_SIGINT	130
+# define EXIT_SIGQUIT	131
 
-/* Signal API - Independent Signal Management System */
+/* =================================================================== */
+/*                        BIT MASK DEFINITIONS                        */
+/* =================================================================== */
 
-/* Signal types for independent handling */
-typedef enum e_signal_type
+/* Signal type masks */
+# define SIG_MASK_INT		(1 << 0)	/* SIGINT */
+# define SIG_MASK_QUIT		(1 << 1)	/* SIGQUIT */
+# define SIG_MASK_ALL		(SIG_MASK_INT | SIG_MASK_QUIT)
+
+/* Signal mode masks */
+# define MODE_MASK_DEFAULT		(1 << 0)
+# define MODE_MASK_IGNORE		(1 << 1)
+# define MODE_MASK_INTERACTIVE	(1 << 2)
+# define MODE_MASK_MONITOR		(1 << 3)
+
+/* Signal state masks */
+# define STATE_MASK_PENDING		(1 << 0)
+# define STATE_MASK_PROCESSED	(1 << 1)
+# define STATE_MASK_BLOCKED		(1 << 2)
+
+/* Context masks */
+# define CONTEXT_MASK_SHELL		(1 << 0)
+# define CONTEXT_MASK_CHILD		(1 << 1)
+# define CONTEXT_MASK_READLINE	(1 << 2)
+# define CONTEXT_MASK_EXEC		(1 << 3)
+
+/* =================================================================== */
+/*                     PATTERN-BASED PROTOTYPES                       */
+/* =================================================================== */
+
+typedef void	(*t_signal_handler)(int sig);
+typedef int		(*t_signal_config_fn)(int signal_mask, int mode_mask);
+typedef int		(*t_signal_state_fn)(int signal_mask, int state_mask);
+typedef int		(*t_signal_context_fn)(int signal_mask, int context_mask);
+
+typedef struct s_signal_op
 {
-	SIG_TYPE_INT = 0,
-	SIG_TYPE_QUIT,
-	SIG_TYPE_COUNT
-}	t_signal_type;
-
-/* Signal operation modes */
-typedef enum e_signal_mode
-{
-	SIG_MODE_DEFAULT,
-	SIG_MODE_IGNORE,
-	SIG_MODE_INTERACTIVE,
-	SIG_MODE_MONITOR
-}	t_signal_mode;
+	int					signal_mask;
+	int					mode_mask;
+	int					state_mask;
+	int					context_mask;
+	t_signal_handler	handler;
+	t_signal_config_fn	config_fn;
+	t_signal_state_fn	state_fn;
+	t_signal_context_fn	context_fn;
+}	t_signal_op;
 
 /* =================================================================== */
-/*                    GLOBAL STATE DECLARATIONS                       */
+/*                      DYNAMIC SIGNAL API                            */
 /* =================================================================== */
 
-/* External declarations for async-signal-safe global state */
-extern volatile sig_atomic_t	g_sigint_pending;
-extern volatile sig_atomic_t	g_sigquit_pending;
+int		signal_configure(int signal_mask, int mode_mask, int context_mask);
+int		signal_get_state(int signal_mask);
+int		signal_set_state(int signal_mask, int state_mask);
+int		signal_clear_state(int signal_mask, int state_mask);
+int		signal_check_pending(int signal_mask);
+
+int		signal_install_dynamic(int signal_mask, int mode_mask, int context_mask);
+
+int		signal_set_context(int context_mask);
+int		signal_get_context(void);
+int		signal_context_configure(int context_mask);
+
+int		signal_execute_op(const t_signal_op *op);
+int		signal_batch_configure(const t_signal_op *ops, int count);
 
 /* =================================================================== */
-/*                    INDEPENDENT SIGINT API                          */
+/*                    EFFICIENT UTILITY MACROS                        */
 /* =================================================================== */
 
-/* SIGINT Configuration */
-int			sigint_set_mode(t_signal_mode mode);
-int			sigint_install_handler(void (*handler)(int));
-int			sigint_set_default(void);
-int			sigint_set_ignore(void);
+# define SIGNAL_IS_PENDING(sig_mask)	(signal_check_pending(sig_mask))
+# define SIGNAL_SET_MODE(sig_mask, mode_mask) \
+	signal_configure(sig_mask, mode_mask, signal_get_context())
 
-/* SIGINT State Management */
-int			sigint_is_pending(void);
-void		sigint_clear_pending(void);
-int			sigint_get_exit_code(void);
+# define SIGNAL_ENTER_SHELL()		signal_set_context(CONTEXT_MASK_SHELL)
+# define SIGNAL_ENTER_CHILD()		signal_set_context(CONTEXT_MASK_CHILD)
+# define SIGNAL_ENTER_READLINE()	signal_set_context(CONTEXT_MASK_READLINE)
+# define SIGNAL_ENTER_EXEC()		signal_set_context(CONTEXT_MASK_EXEC)
 
-/* SIGINT Predefined Handlers */
-void		sigint_handler_interactive(int sig);
-void		sigint_handler_monitor(int sig);
+# define SIGNAL_CONFIGURE_ALL(mode_mask) \
+	signal_configure(SIG_MASK_ALL, mode_mask, signal_get_context())
 
-/* =================================================================== */
-/*                    INDEPENDENT SIGQUIT API                         */
-/* =================================================================== */
-
-/* SIGQUIT Configuration */
-int			sigquit_set_mode(t_signal_mode mode);
-int			sigquit_install_handler(void (*handler)(int));
-int			sigquit_set_default(void);
-int			sigquit_set_ignore(void);
-
-/* SIGQUIT State Management */
-int			sigquit_is_pending(void);
-void		sigquit_clear_pending(void);
-int			sigquit_get_exit_code(void);
-
-/* SIGQUIT Predefined Handlers */
-void		sigquit_handler_monitor(int sig);
-
-/* =================================================================== */
-/*                      SIGNAL API UTILITIES                          */
-/* =================================================================== */
-
-/* Signal API Initialization */
-void		signal_api_init(void);
-void		signal_api_cleanup(void);
-
-/* Generic Signal Operations */
-int			signal_install(int signo, void (*handler)(int));
-int			signal_set_disposition(int signo, void (*disposition)(int));
-
-/* Signal State Management */
-void		signal_clear_all_pending(void);
+# define SIGNAL_CLEAR_ALL_PENDING() \
+	signal_clear_state(SIG_MASK_ALL, STATE_MASK_PENDING)
 
 /* =================================================================== */
 /*                   BACKWARD COMPATIBILITY LAYER                     */
 /* =================================================================== */
 
-/* Legacy API for existing minishell code */
-void		setup_signals(void);
-void		ignore_signals(void);
-void		restore_signals(void);
-void		setup_child_monitor_signals(void);
-int			sigint_received(void);
-int			sigquit_received(void);
+# define setup_signals() \
+	signal_configure(SIG_MASK_INT, MODE_MASK_INTERACTIVE, CONTEXT_MASK_SHELL); \
+	signal_configure(SIG_MASK_QUIT, MODE_MASK_IGNORE, CONTEXT_MASK_SHELL)
+
+# define ignore_signals() \
+	SIGNAL_CONFIGURE_ALL(MODE_MASK_IGNORE)
+
+# define restore_signals() \
+	SIGNAL_CONFIGURE_ALL(MODE_MASK_DEFAULT)
+
+# define setup_child_monitor_signals() \
+	signal_set_context(CONTEXT_MASK_CHILD); \
+	SIGNAL_CONFIGURE_ALL(MODE_MASK_MONITOR)
+
+# define sigint_received() \
+	SIGNAL_IS_PENDING(SIG_MASK_INT)
+
+# define sigquit_received() \
+	SIGNAL_IS_PENDING(SIG_MASK_QUIT)
 
 /* Legacy signal_flag function */
 typedef enum e_signal_action
@@ -124,6 +135,40 @@ typedef enum e_signal_action
 	RESET_SIGNAL
 }	t_signal_action;
 
-int			signal_flag(t_signal_action action, int value);
+int		signal_flag(t_signal_action action, int value);
 
+/* Legacy-style helpers kept as wrappers so existing code compiles */
+int		sigint_set_default(void);
+int		sigint_set_ignore(void);
+int		sigint_is_pending(void);
+void	sigint_clear_pending(void);
+int		sigint_get_exit_code(void);
+
+int		sigquit_set_default(void);
+int		sigquit_set_ignore(void);
+int		sigquit_is_pending(void);
+void	sigquit_clear_pending(void);
+int		sigquit_get_exit_code(void);
+
+/* =================================================================== */
+/*                      SIGNAL API UTILITIES                          */
+/* =================================================================== */
+
+void	signal_api_init(void);
+void	signal_api_cleanup(void);
+
+int		signal_mask_to_signo(int signal_mask);
+int		signo_to_signal_mask(int signo);
+int		signal_get_exit_code(int signal_mask);
+
+/* Predefined op configs (optional) */
+extern const t_signal_op	g_signal_ops_shell[];
+extern const t_signal_op	g_signal_ops_child[];
+extern const t_signal_op	g_signal_ops_readline[];
+extern const t_signal_op	g_signal_ops_exec[];
+
+/* Low-level install helpers */
+int		signal_install(int signo, void (*handler)(int));
+int		signal_set_disposition(int signo, void (*disposition)(int));
+void	signal_clear_all_pending(void);
 #endif

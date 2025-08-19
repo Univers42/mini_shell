@@ -1,46 +1,156 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signals_core.c                                     :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/19 15:30:00 by danielm3          #+#    #+#             */
-/*   Updated: 2025/08/19 15:30:00 by danielm3         ###   ########.fr       */
+/*   core.c                                             :+:      :+:    :+:   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #define _POSIX_C_SOURCE 200809L
 
 #include "signals.h"
-#include "minishell.h"
 #include <unistd.h>
 #include <string.h>
 #include <signal.h>
 #include <readline/readline.h>
 
-/*
-** Global signal state storage (async-signal-safe)
-** These globals are necessary for signal handlers which must access
-** shared state across signal calls in a thread-safe manner.
-*/
-volatile sig_atomic_t	g_sigint_pending = 0;
-volatile sig_atomic_t	g_sigquit_pending = 0;
+/* Internal pending bits (private to this TU) */
+#define PEND_INT   (1u << 0)
+#define PEND_QUIT  (1u << 1)
+
+/* Private singleton: no global symbols exported */
+typedef struct s_sigcore {
+	volatile sig_atomic_t	state;    /* pending flags (PEND_*) */
+	volatile sig_atomic_t	context;  /* CONTEXT_MASK_* */
+} t_sigcore;
+
+static inline t_sigcore *ss(void)
+{
+	static t_sigcore inst = { 0, CONTEXT_MASK_SHELL };
+	return &inst;
+}
+
+/* Predefined handlers (use singleton) */
+static void	sigint_interactive_handler(int sig)
+{
+	(void)sig;
+	ss()->state |= PEND_INT;
+	if (write(STDOUT_FILENO, "\n", 1) == -1)
+		return;
+	rl_done = 1;
+}
+
+static void	sigint_monitor_handler(int sig)
+{
+	(void)sig;
+	ss()->state |= PEND_INT;
+}
+
+static void	sigquit_monitor_handler(int sig)
+{
+	(void)sig;
+	ss()->state |= PEND_QUIT;
+}
+
+/* Core signal operations */
+int	signal_configure(int signal_mask, int mode_mask, int context_mask)
+{
+	int	result = 0;
+
+	(void)context_mask; /* reserved for future handler selection by context */
+
+	if (signal_mask & SIG_MASK_INT)
+	{
+		if (mode_mask & MODE_MASK_DEFAULT)
+			result |= signal_set_disposition(SIGINT, SIG_DFL);
+		else if (mode_mask & MODE_MASK_IGNORE)
+			result |= signal_set_disposition(SIGINT, SIG_IGN);
+		else if (mode_mask & MODE_MASK_INTERACTIVE)
+			result |= signal_install(SIGINT, sigint_interactive_handler);
+		else if (mode_mask & MODE_MASK_MONITOR)
+			result |= signal_install(SIGINT, sigint_monitor_handler);
+	}
+	if (signal_mask & SIG_MASK_QUIT)
+	{
+		if (mode_mask & MODE_MASK_DEFAULT)
+			result |= signal_set_disposition(SIGQUIT, SIG_DFL);
+		else if (mode_mask & MODE_MASK_IGNORE)
+			result |= signal_set_disposition(SIGQUIT, SIG_IGN);
+		else if (mode_mask & MODE_MASK_MONITOR)
+			result |= signal_install(SIGQUIT, sigquit_monitor_handler);
+	}
+	return (result);
+}
+
+int	signal_get_state(int signal_mask)
+{
+	int state = 0;
+
+	if ((signal_mask & SIG_MASK_INT) && (ss()->state & PEND_INT))
+		state |= STATE_MASK_PENDING;
+	if ((signal_mask & SIG_MASK_QUIT) && (ss()->state & PEND_QUIT))
+		state |= STATE_MASK_PENDING;
+	return (state);
+}
+
+int	signal_set_state(int signal_mask, int state_mask)
+{
+	if (state_mask & STATE_MASK_PENDING)
+	{
+		if (signal_mask & SIG_MASK_INT)
+			ss()->state |= PEND_INT;
+		if (signal_mask & SIG_MASK_QUIT)
+			ss()->state |= PEND_QUIT;
+	}
+	return (0);
+}
+
+int	signal_clear_state(int signal_mask, int state_mask)
+{
+	if (state_mask & STATE_MASK_PENDING)
+	{
+		if (signal_mask & SIG_MASK_INT)
+			ss()->state &= ~PEND_INT;
+		if (signal_mask & SIG_MASK_QUIT)
+			ss()->state &= ~PEND_QUIT;
+	}
+	return (0);
+}
+
+int	signal_check_pending(int signal_mask)
+{
+	int pending = 0;
+
+	if ((signal_mask & SIG_MASK_INT) && (ss()->state & PEND_INT))
+		pending |= SIG_MASK_INT;
+	if ((signal_mask & SIG_MASK_QUIT) && (ss()->state & PEND_QUIT))
+		pending |= SIG_MASK_QUIT;
+	return (pending);
+}
+
+int	signal_set_context(int context_mask)
+{
+	ss()->context = context_mask;
+	return (0);
+}
+
+int	signal_get_context(void)
+{
+	return (int)ss()->context;
+}
 
 /*
 ** Signal API Initialization
 */
 void	signal_api_init(void)
 {
-	g_sigint_pending = 0;
-	g_sigquit_pending = 0;
+	ss()->state = 0;
+	ss()->context = CONTEXT_MASK_SHELL;
 }
 
 void	signal_api_cleanup(void)
 {
-	sigint_set_default();
-	sigquit_set_default();
-	signal_clear_all_pending();
+	signal_configure(SIG_MASK_ALL, MODE_MASK_DEFAULT, CONTEXT_MASK_SHELL);
+	ss()->state = 0;
 }
 
 /*
@@ -69,10 +179,9 @@ int	signal_set_disposition(int signo, void (*disposition)(int))
 }
 
 /*
-** Signal State Management
+** Convenience: clear all pendings
 */
 void	signal_clear_all_pending(void)
 {
-	sigint_clear_pending();
-	sigquit_clear_pending();
+	ss()->state &= ~(PEND_INT | PEND_QUIT);
 }
