@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:55 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/18 21:12:31 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/19 12:10:53 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 # define MINISHELL_H
 
 # include "libft.h"
+# include <readline/history.h>
+# include <readline/readline.h>
 # include "builtins.h"
 
 /* Parsing state machine */
@@ -85,5 +87,24 @@ int			ms_sigquit_received(void);
 
 /* Singleton pattern for signal state management */
 int			signal_flag(t_signal_action action, int value);
-int exec_internal(int argc, char **argv, char **envp);
+int			exec_internal(int argc, char **argv, char **envp);
+void		print_parse_error(const char *cmd, t_parse_err err, t_env *env);
+char		*expand_basic(const char *in);
+
+typedef struct s_signal_info
+{
+	volatile int	sigint_received;   /* Flag for SIGINT */
+	volatile int	sigquit_received;  /* Flag for SIGQUIT */
+}t_signal_info;
+
+typedef struct s_minishell
+{
+	int				argc;			/* Argument count */
+	char			**argv;			/* Argument vector */
+	char			**envp;        /* Environment variables */
+	int				last_status;   /* Last command status */
+	t_cmdline		cmd;            /* Current command line */
+	t_signal_info	state;          /* Signal state management */
+	
+}					t_minishell;
 #endif
