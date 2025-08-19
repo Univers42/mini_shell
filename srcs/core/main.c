@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 19:17:14 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/19 11:46:20 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 12:24:09 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,8 +166,10 @@ int	main(int argc, char **argv, char **envp)
 	(void)argc;
 	(void)argv;
 	bool	run;
-	char	**g_env;
+	char	**clone_env;
+	t_minishell	shell;
 
+	shell = (t_minishell){0};
 	/* make Readline aware of the current locale (UTF-8 widths, etc.) */
 	setlocale(LC_ALL, "");
 
@@ -178,10 +180,10 @@ int	main(int argc, char **argv, char **envp)
 	rl_catch_sigwinch = 0;
 	
 	/* Set up event hook to check for our signal flag */
-	rl_event_hook = check_signal_flag;
+	/rl_event_hook = check_signal_flag;
 	
-	g_env = ms_dup_env(envp);
-	if (!g_env)
+	clone_env = ms_dup_env(envp);
+	if (!clone_env)
 		return (1);
 
 	/* History singleton: constructor + load */
@@ -194,8 +196,7 @@ int	main(int argc, char **argv, char **envp)
 		if (hs()->init(&hopts, envp) == 0)
 			hs()->load();
 	}
-
 	run = true;
-	run_minishell(run, (t_env *)&g_env, argc, argv);
-	return (0);
+	run_minishell(run, (t_env *)&clone_env, argc, argv);
+	return (shell.last_status);
 }

@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:55 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 12:10:53 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 12:17:26 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ typedef struct s_cmdline
 {
 	char		**argv;
 	int			argc;
+	char		**envp;
 	int			flags;
 	int			bin_idx;    /* index in access_builtins() or BIN_NOT_FOUND */
 	t_parse_err	err;
@@ -99,12 +100,8 @@ typedef struct s_signal_info
 
 typedef struct s_minishell
 {
-	int				argc;			/* Argument count */
-	char			**argv;			/* Argument vector */
-	char			**envp;        /* Environment variables */
 	int				last_status;   /* Last command status */
 	t_cmdline		cmd;            /* Current command line */
 	t_signal_info	state;          /* Signal state management */
-	
 }					t_minishell;
 #endif
