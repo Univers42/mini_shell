@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 12:32:44 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 13:05:41 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 14:16:00 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,10 @@
 # define EXIT_SIGINT	130		/* Ctrl+C (SIGINT) */
 # define EXIT_SIGQUIT	131		/* Ctrl+\ (SIGQUIT) */
 
-
-void    signal_init(void);
-void    signal_reset(void);
-void    signal_ignore(void);
-void    signal_default(void);
+void		signal_init(void);
+void		signal_reset(void);
+void		signal_ignore(void);
+void		signal_default(void);
 /* Signal handling for Ctrl+C (SIGINT) and Ctrl+\ (SIGQUIT) */
 void		setup_signals(void);
 void		handle_sigint_interactive(int sig);
@@ -35,11 +34,13 @@ void		install_segv_handler(void);
 /* Signal state checking functions */
 int			sigint_received(void);
 int			sigquit_received(void);
+
 /* Singleton pattern for signal state management */
 /* Signal action codes for singleton pattern */
+
 typedef enum e_signal_action
 {
-    GET_SIGNAL = 0,
+	GET_SIGNAL = 0,
 	SET_SIGNAL,
 	RESET_SIGNAL
 }	t_signal_action;
