@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 15:50:41 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 23:09:20 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 14:13:59 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 
 extern char **environ;
 
-extern render_mode_t g_render_mode; /* declared in render.h */
+extern t_render_mode g_render_mode; /* declared in render.h */
 extern int           g_last_status; /* last command exit status */
 
 /* ANSI colors (use macros so symbols are available at compile-time) */
