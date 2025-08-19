@@ -6,38 +6,19 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:31 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 13:03:17 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 15:45:04 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 // Force-link reference to ensure the TU rebuilds with updated builtins
-static void	force_link_history_ref(void)
+void	force_link_history_ref(void)
 {
 	(void)&bin_history;
 }
 
-int	find_builtin_idx(const char *cmd)
-{
-	int			i;
-	t_builtins	*bins;
-
-	force_link_history_ref();
-	if (!cmd || !*cmd)
-		return (BIN_NOT_FOUND);
-	bins = access_builtins();
-	i = 0;
-	while (bins[i].name)
-	{
-		if (ft_strcmp(cmd, bins[i].name) == 0)
-			return (i);
-		i++;
-	}
-	return (BIN_NOT_FOUND);
-}
-
-static int	parse_dash_flags(const char *tok, int valid, int *flags)
+int	parse_dash_flags(const char *tok, int valid, int *flags)
 {
 	int	j;
 	int	bit;
@@ -54,7 +35,7 @@ static int	parse_dash_flags(const char *tok, int valid, int *flags)
 	return (1);
 }
 
-static int	parse_bare_as_flags(const char *tok, int valid, int *flags)
+int	parse_bare_as_flags(const char *tok, int valid, int *flags)
 {
 	int	j;
 	int	bit;
@@ -74,7 +55,24 @@ static int	parse_bare_as_flags(const char *tok, int valid, int *flags)
 	return (1);
 }
 
-static t_parse_err	parse_tokens(char **toks, t_cmdline *out)
+/**
+ * tok is non-NULL and non-empty.
+ * bare token: if it parses as flags, keep flags state; otherwise this is an arg.
+ */
+t_parse_state	handle_token(const char *tok, int valid, int *flags)
+{
+	if (tok[0] == '-' && tok[1] != '\0')
+	{
+		if (!parse_dash_flags(tok, valid, flags))
+			return (ST_ERROR);
+		return (ST_FLAGS);
+	}
+	if (!parse_bare_as_flags(tok, valid, flags))
+		return (ST_ARGS);
+	return (ST_FLAGS);
+}
+
+t_parse_err	parse_tokens(char **toks, t_cmdline *out)
 {
 	int				i;
 	int				valid;
@@ -90,45 +88,14 @@ static t_parse_err	parse_tokens(char **toks, t_cmdline *out)
 	st = ST_CMD;
 	valid = access_builtins()[out->bin_idx].valid_flags;
 	i = 1;
-	while (st != ST_DONE && st != ST_ERROR && i < out->argc)
+	while (i < out->argc && st != ST_ERROR)
 	{
-		if (toks[i][0] == '-' && toks[i][1] != '\0')
-		{
-			if (!parse_dash_flags(toks[i], valid, &out->flags))
-				st = ST_ERROR;
-			else
-				st = ST_FLAGS;
-		}
-		else if (!parse_bare_as_flags(toks[i], valid, &out->flags))
-			st = ST_ARGS;
+		st = handle_token(toks[i], valid, &out->flags);
+		if (st == ST_ARGS)
+			break ;
 		i++;
 	}
 	if (st == ST_ERROR)
 		return (PARSE_INVALID_FLAG);
 	return (PARSE_OK);
-}
-
-t_parse_err	parse_line(const char *line, t_cmdline *out)
-{
-	char	**tokens;
-	t_parse_err err;
-
-	if (!out)
-		return (PARSE_EMPTY);
-	ft_bzero(out, sizeof(*out));
-	tokens = lex_line(line);
-	if (!tokens)
-		return (PARSE_EMPTY);
-	out->argv = tokens;
-	err = parse_tokens(tokens, out);
-	out->err = err;
-	return (err);
-}
-
-void	cmdline_free(t_cmdline *cmd)
-{
-	if (!cmd)
-		return ;
-	free_tokens(cmd->argv);
-	ft_bzero(cmd, sizeof(*cmd));
 }
