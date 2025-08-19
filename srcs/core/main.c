@@ -6,7 +6,7 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 19:17:14 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/19 15:15:03 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/19 17:49:08 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,13 +136,13 @@ static int	run_minishell(bool run, t_env *env, int argc, char **argv)
 {
 	(void)argc;
 	(void)argv;
-	t_string	input;
-	char		*exp_input;
-	t_cmdline	cmd;
-	t_parse_err	err;
-
+	t_string		input;
+	char			*exp_input;
+	t_cmdline		cmd;
+	t_parse_err		err;
+	t_core_atomic	sig_struct;
 	/* Initialize the modular signal API */
-	signal_api_init();
+	signal_api_init(&sig_struct);
 	/* Setup signal handling for interactive mode */
 	setup_signals();
 

@@ -65,6 +65,11 @@ typedef struct s_signal_op
 	t_signal_context_fn	context_fn;
 }	t_signal_op;
 
+typedef struct s_core_atomic
+{
+	volatile sig_atomic_t 	g_signal_state;
+	volatile sig_atomic_t 	g_signal_context;
+}							t_core_atomic;
 /* =================================================================== */
 /*                      DYNAMIC SIGNAL API                            */
 /* =================================================================== */
@@ -154,7 +159,7 @@ int		sigquit_get_exit_code(void);
 /*                      SIGNAL API UTILITIES                          */
 /* =================================================================== */
 
-void	signal_api_init(void);
+void	signal_api_init(t_core_atomic *sig_struct);
 void	signal_api_cleanup(void);
 
 int		signal_mask_to_signo(int signal_mask);
