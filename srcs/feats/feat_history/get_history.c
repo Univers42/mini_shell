@@ -3,42 +3,42 @@
 /*                                                        :::      ::::::::   */
 /*   get_history.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 21:59:01 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 23:45:58 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/19 14:04:37 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "history.h"
 
 // Convert from 1-based to 0-based indexing [REPAIR THE ERROR]
-HIST_ENTRY *custom_history_get(int offset)
+t_hist_entry *custom_history_get(int offset)
 {
-    HIST_ENTRY **list;
+    t_hist_entry **list;
 
     if (offset <= 0)
         return (NULL);
 
     list = custom_history_list();
-    if (!list || offset > custom_history_length)
+    if (!list || offset > g_custom_history_length)
         return (NULL);
 
     return (list[offset - 1]);
 }
 
-HIST_ENTRY *custom_current_history(void)
+t_hist_entry *custom_current_history(void)
 {
-    if (custom_history_length <= 0)
+    if (g_custom_history_length <= 0)
         return (NULL);
-    return (custom_history_get(custom_history_length));
+    return (custom_history_get(g_custom_history_length));
 }
 
-HIST_ENTRY *custom_previous_history(void)
+t_hist_entry *custom_previous_history(void)
 {
-    if (custom_history_length <= 1)
+    if (g_custom_history_length <= 1)
         return (NULL);
-    return (custom_history_get(custom_history_length - 1));
+    return (custom_history_get(g_custom_history_length - 1));
 }
 
 int custom_history_total_bytes(void)
@@ -62,12 +62,12 @@ int custom_history_total_bytes(void)
 
 int custom_where_history(void)
 {
-    return (custom_history_length > 0 ? custom_history_length - 1 : 0);
+    return (g_custom_history_length > 0 ? g_custom_history_length - 1 : 0);
 }
 
 int custom_history_set_pos(int pos)
 {
-    if (pos < 0 || pos >= custom_history_length)
+    if (pos < 0 || pos >= g_custom_history_length)
         return (0);
     return (1);
 }

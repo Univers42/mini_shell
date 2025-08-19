@@ -6,7 +6,7 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 19:17:14 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/19 13:08:59 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/19 14:37:18 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,12 @@
 #include "render.h"
 #include "history.h"
 
-void	ms_setup_signals(void);
+void install_segv_handler(void);
+void	setup_signals(void);
 /* Function to check signal flag during readline processing */
 static int check_signal_flag(void)
 {
-	if (ms_sigint_received())
+	if (sigint_received())
 	{
 		/* Signal was received, tell readline to abort current line */
 		rl_done = 1;
@@ -141,7 +142,7 @@ static int	run_minishell(bool run, t_env *env, int argc, char **argv)
 	t_parse_err	err;
 
 	/* Setup signal handling for interactive mode */
-	ms_setup_signals();
+	setup_signals();
 
 	while (run)
 	{
@@ -151,7 +152,7 @@ static int	run_minishell(bool run, t_env *env, int argc, char **argv)
 		input = readline(build_prompt());
 		
 		/* Handle Ctrl+C that occurred during readline */
-		if (ms_sigint_received())
+		if (sigint_received())
 		{
 			signal_flag(RESET_SIGNAL, 0); 
 			g_last_status = EXIT_SIGINT; /* Set exit status for SIGINT */
@@ -177,7 +178,7 @@ static int	run_minishell(bool run, t_env *env, int argc, char **argv)
 			/* light expansion before parsing */
 			exp_input = expand_basic(input);
 
-			err = ms_parse_line(exp_input, &cmd);
+			err = parse_line(exp_input, &cmd);
 			if (err == PARSE_OK)
 			{
 				/* Clear only the metadata (first) line; keep the input line visible. */
@@ -208,7 +209,7 @@ static int	run_minishell(bool run, t_env *env, int argc, char **argv)
 					print_parse_error(exp_input, err, env);
 				}
 			}
-			ms_cmdline_free(&cmd);
+			cmdline_free(&cmd);
 			free(exp_input);
 		}
 		free(input);
@@ -218,7 +219,7 @@ static int	run_minishell(bool run, t_env *env, int argc, char **argv)
 	return (0);
 }
 
-static char	**ms_dup_env(char **envp)
+static char	**dup_env(char **envp)
 {
 	size_t	n;
 	size_t	i;
@@ -257,7 +258,7 @@ int	main(int argc, char **argv, char **envp)
 	/* make Readline aware of the current locale (UTF-8 widths, etc.) */
 	setlocale(LC_ALL, "");
 
-	ms_install_segv_handler();
+	install_segv_handler();
 	
 	/* Disable readline's signal handling so we can control it ourselves */
 	rl_catch_signals = 0;
@@ -266,7 +267,7 @@ int	main(int argc, char **argv, char **envp)
 	/* Set up event hook to check for our signal flag */
 	rl_event_hook = check_signal_flag;
 	
-	clone_envp = ms_dup_env(envp);
+	clone_envp = dup_env(envp);
 	if (!clone_envp)
 		return (1);
 

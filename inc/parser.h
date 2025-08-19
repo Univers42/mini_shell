@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 12:29:26 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 12:42:25 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 14:12:51 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define PARSER_H
 
 //to avoid circular dependencies
-typedef struct s_cmdline t_cmdline;
+typedef struct s_cmdline	t_cmdline;
 
 /* Parsing state machine */
 typedef enum e_parse_state
@@ -36,7 +36,7 @@ typedef enum e_parse_err
 	PARSE_INVALID_FLAG
 }	t_parse_err;
 
-t_parse_err ms_parse_line(const char *line, t_cmdline *out);
-void        ms_cmdline_free(t_cmdline *cmd);
+t_parse_err	parse_line(const char *line, t_cmdline *out);
+void		cmdline_free(t_cmdline *cmd);
 
 #endif

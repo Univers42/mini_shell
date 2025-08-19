@@ -6,7 +6,7 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/15 00:00:00 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 13:30:30 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/19 14:37:14 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ int	signal_flag(t_signal_action action, int value)
 ** SIGINT handler (interactive prompt): just mark and newline.
 ** No readline calls here (not async-signal-safe).
 */
-void	ms_handle_sigint_interactive(int sig)
+void	handle_sigint_interactive(int sig)
 {
 	(void)sig;
 	signal_flag(SET_SIGNAL, signal_flag(GET_SIGNAL, 0) | 1);
@@ -49,7 +49,7 @@ void	ms_handle_sigint_interactive(int sig)
 ** SIGQUIT handler (for child process monitoring in parent).
 ** Sets bit 1 in the signal flags to indicate SIGQUIT received.
 */
-void	ms_handle_sigquit_child(int sig)
+void	handle_sigquit_child(int sig)
 {
 	(void)sig;
 	signal_flag(SET_SIGNAL, signal_flag(GET_SIGNAL, 0) | 2);
@@ -58,7 +58,7 @@ void	ms_handle_sigquit_child(int sig)
 /*
 ** Helper to install one handler/disp via sigaction with SA_RESTART.
 */
-static void	ms_install_sa(int signo, void (*handler)(int))
+static void	install_sa(int signo, void (*handler)(int))
 {
 	struct sigaction	sa;
 
@@ -72,7 +72,7 @@ static void	ms_install_sa(int signo, void (*handler)(int))
 /*
 ** Helper to set a disposition (SIG_IGN or SIG_DFL).
 */
-static void	ms_install_disp(int signo, void (*disp)(int))
+static void	install_disp(int signo, void (*disp)(int))
 {
 	struct sigaction	sa;
 
@@ -86,35 +86,35 @@ static void	ms_install_disp(int signo, void (*disp)(int))
 /*
 ** Interactive shell: INT handled -> newline+flag, QUIT ignored.
 */
-void	ms_setup_signals(void)
+void	setup_signals(void)
 {
-	ms_install_sa(SIGINT, ms_handle_sigint_interactive);
-	ms_install_disp(SIGQUIT, SIG_IGN);
+	install_sa(SIGINT, handle_sigint_interactive);
+	install_disp(SIGQUIT, SIG_IGN);
 }
 
 /*
 ** Parent ignores while a foreground child runs (child will get default).
 ** Call before waiting the child; restore afterwards.
 */
-void	ms_ignore_signals(void)
+void	ignore_signals(void)
 {
-	ms_install_disp(SIGINT, SIG_IGN);
-	ms_install_disp(SIGQUIT, SIG_IGN);
+	install_disp(SIGINT, SIG_IGN);
+	install_disp(SIGQUIT, SIG_IGN);
 }
 
 /*
 ** Restore defaults (use in child just before execve, or parent after wait).
 */
-void	ms_restore_signals(void)
+void	restore_signals(void)
 {
-	ms_install_disp(SIGINT, SIG_DFL);
-	ms_install_disp(SIGQUIT, SIG_DFL);
+	install_disp(SIGINT, SIG_DFL);
+	install_disp(SIGQUIT, SIG_DFL);
 }
 
 /*
 ** Check if SIGINT was received (bit 0).
 */
-int	ms_sigint_received(void)
+int	sigint_received(void)
 {
 	return (signal_flag(GET_SIGNAL, 0) & 1);
 }
@@ -122,7 +122,7 @@ int	ms_sigint_received(void)
 /*
 ** Check if SIGQUIT was received (bit 1).
 */
-int	ms_sigquit_received(void)
+int	sigquit_received(void)
 {
 	return (signal_flag(GET_SIGNAL, 0) & 2);
 }
@@ -131,8 +131,8 @@ int	ms_sigquit_received(void)
 ** Setup signals for monitoring child process execution.
 ** Parent catches both SIGINT and SIGQUIT to detect when child should terminate.
 */
-void	ms_setup_child_monitor_signals(void)
+void	setup_child_monitor_signals(void)
 {
-	ms_install_sa(SIGINT, ms_handle_sigint_interactive);
-	ms_install_sa(SIGQUIT, ms_handle_sigquit_child);
+	install_sa(SIGINT, handle_sigint_interactive);
+	install_sa(SIGQUIT, handle_sigquit_child);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   setters.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 16:54:23 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 23:43:37 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/19 14:04:37 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ const char	*api_file(void)
 void	api_add(const char *line)
 {
 	t_history_state	*st;
-	HIST_ENTRY		*last;
+	t_hist_entry		*last;
 	const char		*p;
 	int				n;
 
@@ -85,7 +85,7 @@ void	api_add(const char *line)
 		return ;
 
 	/* Prevent consecutive duplicates using our own accessors */
-	n = custom_history_length;
+	n = g_custom_history_length;
 	if (n > 0)
 	{
 		last = custom_history_get(n);
