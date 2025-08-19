@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   history.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 21:16:14 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/17 23:45:20 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/19 13:57:09 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,17 +18,17 @@
 # include <limits.h>
 # include <readline/history.h>
 # include "libft.h"
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <stdio.h>
-#include <readline/readline.h>
-#include <readline/history.h>
-# include "libft/data_structures/doubly_linked_list/ft_doubly_list.h"
+# include <stdlib.h>
+# include <string.h>
+# include <unistd.h>
+# include <errno.h>
+# include <stdio.h>
+# include <readline/readline.h>
+# include <readline/history.h>
 
 # define DEFAULT_HISTFILE ".minishell_history"
 # define DEFAULT_HISTSIZE 500
+# define PERSISTENCE true
 
 /* Constructor-like options */
 typedef struct s_history_opts
@@ -62,8 +62,6 @@ typedef struct s_history_api
 	void        (*set_size)(int n);
 }				t_history_api;
 
-const t_history_api	*hs(void);
-
 typedef struct s_history_state
 {
 	t_doubly_list	*list;
@@ -75,42 +73,40 @@ typedef struct s_history_state
 
 typedef struct s_history_list_state
 {
-    HIST_ENTRY ***hist_array_ptr;
-    size_t *array_size_ptr;
-} t_history_list_state;
+    HIST_ENTRY	***hist_array_ptr;
+    size_t		*array_size_ptr;
+}				t_history_list_state;
 
 /* Global singleton accessor (one definition in historic.c) */
-t_history_state	*S(void);
-
-/* Utility: expand "~" using $HOME into out buffer; returns out or NULL on error */
-const char	*expand_hist_path(const char *name, char *out, size_t outsz);
-void		dll_push_tail_line(const char *line);
-void		dll_clear_all(void);
-int			api_size(void);
-void		api_set_persist(bool on);
-void		api_set_size(int n);
-const char	*api_file(void);
-void		api_add(const char *line);
-void		api_save(void);
-void		api_load(void);
-int			api_init(const t_history_opts *opts, char **envp);
-void		api_shutdown(void);
-char		**api_dump(void);
-int			custom_stifle_history(int max);
-int			custom_unstifle_history(void);
-
-/* Custom history helpers (our own, not from readline) */
-void		cleanup_history_list(void);
-void		update_history_length(void);
-
 /* Private, non-conflicting history accessors (avoid clashing with libreadline) */
-extern int	custom_history_length;                 /* our length mirror */
-typedef struct _hist_entry HIST_ENTRY;         /* forward from readline */
-HIST_ENTRY	**custom_history_list(void);
-HIST_ENTRY	*custom_history_get(int offset);
-HIST_ENTRY	*custom_current_history(void);
-HIST_ENTRY	*custom_previous_history(void);
-int			custom_history_total_bytes(void);
-int			custom_where_history(void);
-int			custom_history_set_pos(int pos);
+extern int custom_history_length;                 /* our length mirror */
+typedef struct _hist_entry	HIST_ENTRY;         /* forward from readline */
+
+const t_history_api	*hs(void);
+t_history_state		*S(void);
+const char			*expand_hist_path(const char *name,
+						char *out, size_t outsz);
+void				dll_push_tail_line(const char *line);
+void				dll_clear_all(void);
+int					api_size(void);
+void				api_set_persist(bool on);
+void				api_set_size(int n);
+const char			*api_file(void);
+void				api_add(const char *line);
+void				api_save(void);
+void				api_load(void);
+int					api_init(const t_history_opts *opts, char **envp);
+void				api_shutdown(void);
+char				**api_dump(void);
+int					custom_stifle_history(int max);
+int					custom_unstifle_history(void);
+void				cleanup_history_list(void);
+void				update_history_length(void);
+HIST_ENTRY			**custom_history_list(void);
+HIST_ENTRY			*custom_history_get(int offset);
+HIST_ENTRY			*custom_current_history(void);
+HIST_ENTRY			*custom_previous_history(void);
+int					custom_history_total_bytes(void);
+int					custom_where_history(void);
+int					custom_history_set_pos(int pos);
 #endif

@@ -6,7 +6,7 @@
 /*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 19:17:14 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/19 13:05:58 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 13:32:42 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 #include "render.h"
 #include "history.h"
 
+void install_segv_handler(void);
 void	setup_signals(void);
 /* Function to check signal flag during readline processing */
 static int check_signal_flag(void)
