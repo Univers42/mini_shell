@@ -6,7 +6,7 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 19:17:14 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/19 14:37:18 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/19 15:15:03 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,13 +24,13 @@
 #include "minishell.h"
 #include "render.h"
 #include "history.h"
+#include "signals.h"
+#include "ft_debug.h"
 
-void install_segv_handler(void);
-void	setup_signals(void);
 /* Function to check signal flag during readline processing */
 static int check_signal_flag(void)
 {
-	if (sigint_received())
+	if (sigint_is_pending())
 	{
 		/* Signal was received, tell readline to abort current line */
 		rl_done = 1;
@@ -141,21 +141,23 @@ static int	run_minishell(bool run, t_env *env, int argc, char **argv)
 	t_cmdline	cmd;
 	t_parse_err	err;
 
+	/* Initialize the modular signal API */
+	signal_api_init();
 	/* Setup signal handling for interactive mode */
 	setup_signals();
 
 	while (run)
 	{
-		/* Reset signal flags before each prompt using singleton pattern */
-		signal_flag(RESET_SIGNAL, 0);
+		/* Clear all pending signals before each prompt */
+		signal_clear_all_pending();
 		
 		input = readline(build_prompt());
 		
 		/* Handle Ctrl+C that occurred during readline */
-		if (sigint_received())
+		if (sigint_is_pending())
 		{
-			signal_flag(RESET_SIGNAL, 0); 
-			g_last_status = EXIT_SIGINT; /* Set exit status for SIGINT */
+			sigint_clear_pending();
+			g_last_status = sigint_get_exit_code();
 			if (input)
 			{
 				rl_replace_line("", 0);
@@ -258,7 +260,7 @@ int	main(int argc, char **argv, char **envp)
 	/* make Readline aware of the current locale (UTF-8 widths, etc.) */
 	setlocale(LC_ALL, "");
 
-	install_segv_handler();
+	ms_install_segv_handler();
 	
 	/* Disable readline's signal handling so we can control it ourselves */
 	rl_catch_signals = 0;
