@@ -181,14 +181,7 @@ void	sigint_interactive_handler(int sig, siginfo_t *info, void *ucontext);
 void	sigint_monitor_handler(int sig, siginfo_t *info, void *ucontext);
 void	sigquit_monitor_handler(int sig, siginfo_t *info, void *ucontext);
 
-
-inline static	t_core_atomic	*get_sigcore(t_core_atomic *set)
-{
-	static t_core_atomic	sig_struct = {0};
-
-	if (set)
-		sig_struct = *set;
-	return (&sig_struct);
-}
+/* provide a single, shared signal core across the program */
+t_core_atomic	*get_sigcore(t_core_atomic *set);
 
 #endif

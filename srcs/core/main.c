@@ -2,11 +2,6 @@
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/17 19:17:14 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/19 22:41:08 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,76 +22,95 @@
 #include "signals.h"
 #include "ft_debug.h"
 
+/* singleton storage */
+static t_ms	**ms_slot(void)
+{
+	static t_ms	*slot = NULL;
+
+	return (&slot);
+}
+
+t_ms	*ms(void)
+{
+	return (*ms_slot());
+}
+
+void	ms_install(t_ms *ptr)
+{
+	*ms_slot() = ptr;
+}
+
 /* Function to check signal flag during readline processing */
-static int check_signal_flag(void)
+static int	check_signal_flag(void)
 {
 	if (sigint_is_pending())
 	{
-		/* Signal was received, tell readline to abort current line */
 		rl_done = 1;
 		return (0);
 	}
 	return (0);
 }
 
-char    *build_prompt(void);
-
-/* very small expansion: replace all "$?" with last status, and a leading "~" or "~/"
-   with $HOME. Returns malloc'ed string (caller frees). */
-static char *expand_basic(const char *in)
+/* very small expansion: replace $?, and leading ~ */
+static char	*expand_basic(const char *in)
 {
-	const char *home = getenv("HOME");
-	size_t in_len = strlen(in);
-	size_t extra = 0;
-	size_t i;
+	const char	*home;
+	size_t		in_len;
+	size_t		extra;
+	size_t		i;
+	char		*out;
+	size_t		o;
 
-	/* size pass */
-	for (i = 0; i < in_len; ++i)
+	home = getenv("HOME");
+	in_len = strlen(in);
+	extra = 0;
+	i = 0;
+	while (i < in_len)
 	{
 		if (in[i] == '$' && in[i + 1] == '?')
 		{
 			extra += 16;
-			++i;
+			i++;
 		}
+		i++;
 	}
-	if (home && (in[0] == '~') && (in[1] == '\0' || in[1] == '/'))
-		extra += strlen(home) + 1; /* replace '~' */
-
-	char *out = (char *)malloc(in_len + extra + 1);
+	if (home && in[0] == '~' && (in[1] == '\0' || in[1] == '/'))
+		extra += strlen(home) + 1;
+	out = (char *)malloc(in_len + extra + 1);
 	if (!out)
-		return ft_strdup(in);
-
-	size_t o = 0;
+		return (ft_strdup(in));
+	o = 0;
 	i = 0;
-
-	/* handle leading ~ */
 	if (home && in[0] == '~' && (in[1] == '\0' || in[1] == '/'))
 	{
-		size_t hl = strlen(home);
+		size_t	hl;
+
+		hl = strlen(home);
 		memcpy(out + o, home, hl);
 		o += hl;
-		i = 1; /* skip '~' */
+		i = 1;
 	}
-	for (; i < in_len; ++i)
+	while (i < in_len)
 	{
 		if (in[i] == '$' && in[i + 1] == '?')
 		{
-			char num[32];
-			int n = snprintf(num, sizeof(num), "%d", g_last_status);
+			char	num[32];
+			int		n;
+
+			n = snprintf(num, sizeof(num), "%d", ms()->last_status);
 			if (n > 0)
 			{
 				memcpy(out + o, num, (size_t)n);
 				o += (size_t)n;
 			}
-			++i; /* skip '?' */
+			i++;
 		}
 		else
-		{
 			out[o++] = in[i];
-		}
+		i++;
 	}
 	out[o] = '\0';
-	return out;
+	return (out);
 }
 
 // change signature to receive shell env (t_env*), not argc/argv/envp
@@ -126,21 +140,19 @@ static void	dispatch_command(t_cmdline *cmd, t_env *env)
 	t_builtins	*bins;
 
 	bins = access_builtins();
-	/* Call the builtin. If it doesn't set status, we'll assume success. */
 	bins[cmd->bin_idx].builtin(cmd->argv, cmd->flags, env);
-	/* Default to success for builtins unless they changed it explicitly. */
-	g_last_status = 0;
+	ms()->last_status = 0;
 }
 
 static int	run_minishell(bool run, t_env *env, int argc, char **argv)
 {
-	(void)argc;
-	(void)argv;
 	t_string		input;
 	char			*exp_input;
 	t_cmdline		cmd;
 	t_parse_err		err;
 
+	(void)argc;
+	(void)argv;
 	/* Initialize the modular signal API */
 	signal_api_init();
 	/* Setup signal handling for interactive mode */
@@ -157,7 +169,7 @@ static int	run_minishell(bool run, t_env *env, int argc, char **argv)
 		if (sigint_is_pending())
 		{
 			sigint_clear_pending();
-			g_last_status = sigint_get_exit_code();
+			ms()->last_status = sigint_get_exit_code();
 			if (input)
 			{
 				rl_replace_line("", 0);
@@ -184,10 +196,13 @@ static int	run_minishell(bool run, t_env *env, int argc, char **argv)
 			if (err == PARSE_OK)
 			{
 				/* Clear only the metadata (first) line; keep the input line visible. */
-				if (g_render_mode == RENDER_FANCY)
+				if (ms()->render_mode == RENDER_FANCY)
 				{
-					const char *clr_seq = "\x1b[2A\x1b[2K\x1b[2B";
-					ssize_t wr = write(STDOUT_FILENO, clr_seq, sizeof("\x1b[2A\x1b[2K\x1b[2B") - 1);
+					const char	*clr_seq = "\x1b[2A\x1b[2K\x1b[2B";
+					ssize_t		wr;
+
+					wr = write(STDOUT_FILENO, clr_seq,
+							sizeof("\x1b[2A\x1b[2K\x1b[2B") - 1);
 					(void)wr;
 				}
 				dispatch_command(&cmd, env);
@@ -195,19 +210,20 @@ static int	run_minishell(bool run, t_env *env, int argc, char **argv)
 			else
 			{
 				/* Clear metadata line also on errors so it disappears */
-				if (g_render_mode == RENDER_FANCY)
+				if (ms()->render_mode == RENDER_FANCY)
 				{
-					const char *clr_seq = "\x1b[2A\x1b[2K\x1b[2B";
-					ssize_t wr = write(STDOUT_FILENO, clr_seq, sizeof("\x1b[2A\x1b[2K\x1b[2B") - 1);
+					const char	*clr_seq = "\x1b[2A\x1b[2K\x1b[2B";
+					ssize_t		wr;
+
+					wr = write(STDOUT_FILENO, clr_seq,
+							sizeof("\x1b[2A\x1b[2K\x1b[2B") - 1);
 					(void)wr;
 				}
 				if (err == PARSE_NOT_BUILTIN && ft_strcmp(exp_input, "quit") == 0)
 					run = false;
 				else
 				{
-					/* Standard shell-like statuses */
-					g_last_status = (err == PARSE_INVALID_FLAG) ? 2 : 127;
-					// pass env (t_env*) instead of argc/argv/envp
+					ms()->last_status = (err == PARSE_INVALID_FLAG) ? 2 : 127;
 					print_parse_error(exp_input, err, env);
 				}
 			}
@@ -252,38 +268,34 @@ static char	**dup_env(char **envp)
 
 int	main(int argc, char **argv, char **envp)
 {
-	(void)argc;
-	(void)argv;
 	bool	run;
 	char	**clone_envp;
+	t_ms	app;
 
-	/* make Readline aware of the current locale (UTF-8 widths, etc.) */
+	(void)argc;
+	(void)argv;
 	setlocale(LC_ALL, "");
-
 	ms_install_segv_handler();
-	
-	/* Disable readline's signal handling so we can control it ourselves */
 	rl_catch_signals = 0;
 	rl_catch_sigwinch = 0;
-	
-	/* Set up event hook to check for our signal flag */
 	rl_event_hook = check_signal_flag;
-	
 	clone_envp = dup_env(envp);
 	if (!clone_envp)
 		return (1);
-
-	/* History singleton: constructor + load */
 	{
-		t_history_opts hopts = {
-			.persist  = true,           /* let user switch via hs()->set_persist later if needed */
-			.histfile = NULL,           /* default ~/.minishell_history or $MS_HISTORY */
-			.histsize = DEFAULT_HISTSIZE /* or $MS_HISTSIZE */
-		};
+		t_history_opts	hopts;
+
+		hopts.persist = true;
+		hopts.histfile = NULL;
+		hopts.histsize = DEFAULT_HISTSIZE;
 		if (hs()->init(&hopts, envp) == 0)
 			hs()->load();
 	}
-
+	/* initialize app singleton */
+	ft_bzero(&app, sizeof(app));
+	app.last_status = 0;
+	app.render_mode = RENDER_FANCY;
+	ms_install(&app);
 	run = true;
 	run_minishell(run, (t_env *)&clone_envp, argc, argv);
 	return (0);

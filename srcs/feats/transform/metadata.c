@@ -2,387 +2,304 @@
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   metadata.c                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/14 15:50:41 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 21:57:28 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "render.h"
-#include <sys/stat.h>
-#include <limits.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include "libft.h"
-#include <time.h>
-#include <sys/ioctl.h>
+#include "minishell.h"
 
-extern char **environ;
-
-extern t_render_mode g_render_mode; /* declared in render.h */
-extern int           g_last_status; /* last command exit status */
-
-/* ANSI colors (use macros so symbols are available at compile-time) */
-#ifndef C_RESET
-# define C_RESET  "\x1b[0m"
-#endif
-#ifndef C_BLUE
-# define C_BLUE   "\x1b[34m"
-#endif
-#ifndef C_CYAN
-# define C_CYAN   "\x1b[36m"
-#endif
-#ifndef C_GREEN
-# define C_GREEN  "\x1b[32m"
-#endif
-#ifndef C_YELLOW
-# define C_YELLOW "\x1b[33m"
-#endif
-#ifndef C_MAG
-# define C_MAG    "\x1b[35m"
-#endif
-#ifndef C_RED
-# define C_RED    "\x1b[31m"
-#endif
-
-/* Readline ignore markers for non-printing sequences */
-#ifndef RL_IGN_START
-# define RL_IGN_START "\001"
-#endif
-#ifndef RL_IGN_END
-# define RL_IGN_END   "\002"
-#endif
-
-static int term_cols(void)
+/* small helpers */
+static void	maybe_clear_output(void)
 {
-	struct winsize ws;
-	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 && ws.ws_col > 0)
-		return (int)ws.ws_col;
-	return 0;
+	const char	*v;
+
+	v = getenv("MS_CLEAR_OUTPUT");
+	if (v && strcmp(v, "1") == 0)
+	{
+		ssize_t	wr;
+
+		wr = write(STDOUT_FILENO, "\x1b[2J\x1b[H",
+				sizeof("\x1b[2J\x1b[H") - 1);
+		(void)wr;
+	}
+}
+
+static void	get_time_string(char *dst, size_t sz)
+{
+	time_t		now;
+	struct tm	*tmv;
+
+	time(&now);
+	tmv = localtime(&now);
+	if (tmv)
+		strftime(dst, sz, "%H:%M:%S", tmv);
+	else
+		ft_snprintf(dst, sz, "--:--:--");
+}
+
+static int	is_ansi_start(const char *s)
+{
+	if (!s)
+		return (0);
+	if ((unsigned char)s[0] != 0x1b)
+		return (0);
+	if (s[1] != '[')
+		return (0);
+	return (1);
+}
+
+static const char	*skip_ansi(const char *s)
+{
+	if (!is_ansi_start(s))
+		return (s);
+	s += 2;
+	while (*s && *s != 'm')
+		s++;
+	if (*s == 'm')
+		s++;
+	return (s);
+}
+
+static int	is_rl_marker(char c)
+{
+	return (c == '\001' || c == '\002');
 }
 
 /* compute visible length ignoring ANSI escape sequences and RL markers */
-static size_t visible_len(const char *s)
+static size_t	visible_len(const char *s)
 {
-	size_t n = 0;
+	size_t	n;
+
+	n = 0;
 	while (*s)
 	{
-		if ((unsigned char)*s == 0x1b) {
-			/* skip CSI: ESC '[' ... 'm' */
-			s++;
-			if (*s == '[') {
-				s++;
-				while (*s && *s != 'm')
-					s++;
-				if (*s == 'm')
-					s++;
-			}
-			continue;
+		if (is_ansi_start(s))
+		{
+			s = skip_ansi(s);
+			continue ;
 		}
-		/* skip Readline ignore markers */
-		if (*s == '\001' || *s == '\002') {
+		if (is_rl_marker(*s))
+		{
 			s++;
-			continue;
+			continue ;
 		}
 		n++;
 		s++;
 	}
-	return n;
+	return (n);
 }
 
-static void pretty_cwd_str(const char *cwd, char *out, size_t outsz)
+static int	term_cols(void)
 {
-	const char *home = getenv("HOME");
+	struct winsize	ws;
+
+	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 && ws.ws_col > 0)
+		return ((int)ws.ws_col);
+	return (0);
+}
+
+static void	pretty_cwd_str(const char *cwd, char *out, size_t outsz)
+{
+	const char	*home;
+
+	home = getenv("HOME");
 	if (home && *home && strncmp(cwd, home, strlen(home)) == 0)
 		ft_snprintf(out, outsz, "~%s", cwd + strlen(home));
 	else
 		ft_snprintf(out, outsz, "%s", cwd);
 }
 
-static char *get_git_branch(void)
+static void	get_git_info(char **branch_out, int *changes_out)
 {
-	int		pipefd[2];
-	pid_t	pid;
-	char	buf[256];
-	ssize_t	n;
-	char	*out;
-	const char *cmd = "git branch --show-current 2>/dev/null";
-	char *const argv[] = { (char *)"sh", (char *)"-c", (char *)cmd, NULL };
-
-	if (pipe(pipefd) == -1)
-		return NULL;
-	pid = fork();
-	if (pid == -1)
-	{
-		close(pipefd[0]);
-		close(pipefd[1]);
-		return NULL;
-	}
-	if (pid == 0)
-	{
-		/* child */
-		dup2(pipefd[1], STDOUT_FILENO);
-		close(pipefd[0]);
-		close(pipefd[1]);
-		execve("/bin/sh", argv, environ);
-		_exit(EXIT_FAILURE);
-	}
-	/* parent */
-	close(pipefd[1]);
-	n = read(pipefd[0], buf, sizeof(buf) - 1);
-	close(pipefd[0]);
-	waitpid(pid, NULL, 0);
-	if (n <= 0)
-		return NULL;
-	buf[n] = '\0';
-	{
-		char *nl = strchr(buf, '\n');
-		if (nl)
-			*nl = '\0';
-	}
-	if (buf[0] == '\0')
-		return NULL;
-	out = strdup(buf);
-	return out;
+	if (branch_out)
+		*branch_out = get_git_branch();
+	if (changes_out)
+		*changes_out = get_git_status();
 }
 
-static int get_git_status(void)
+static void	format_line2buf(char *out, size_t outsz)
 {
-	int		pipefd[2];
-	pid_t	pid;
-	char	buf[64];
-	ssize_t	n;
-	long	changes = -1;
-	const char *cmd = "git status --porcelain 2>/dev/null | wc -l";
-	char *const argv[] = { (char *)"sh", (char *)"-c", (char *)cmd, NULL };
-
-	if (pipe(pipefd) == -1)
-		return -1;
-	pid = fork();
-	if (pid == -1)
-	{
-		close(pipefd[0]);
-		close(pipefd[1]);
-		return -1;
-	}
-	if (pid == 0)
-	{
-		dup2(pipefd[1], STDOUT_FILENO);
-		close(pipefd[0]);
-		close(pipefd[1]);
-		execve("/bin/sh", argv, environ);
-		_exit(EXIT_FAILURE);
-	}
-	close(pipefd[1]);
-	n = read(pipefd[0], buf, sizeof(buf) - 1);
-	close(pipefd[0]);
-	waitpid(pid, NULL, 0);
-	if (n > 0)
-	{
-		char *endptr;
-		buf[n] = '\0';
-		changes = strtol(buf, &endptr, 10);
-		if (endptr == buf)
-			changes = -1;
-	}
-	return (int)changes;
+	if (ms()->last_status == 0)
+		ft_snprintf(out, outsz, "%s",
+			RL_IGN_START C_GREEN RL_IGN_END "> "
+			RL_IGN_START C_RESET RL_IGN_END);
+	else
+		ft_snprintf(out, outsz, "%s",
+			RL_IGN_START C_RED RL_IGN_END "> "
+			RL_IGN_START C_RESET RL_IGN_END);
 }
 
-/* powerline segment helpers with 256-color ANSI for higher contrast */
-static void append_pl_seg(char *dst, size_t dstsz, size_t *off,
-                          int prev_bg, int bg, int fg, const char *text)
+static void	change_suffix(int changes, char *out, size_t outsz)
 {
-	int w;
-	if (*off >= dstsz) return;
+	if (changes > 0)
+		ft_snprintf(out, outsz, " *%d", changes);
+	else if (outsz)
+		out[0] = '\0';
+}
 
-	if (prev_bg >= 0)
+static int	format_status_text(char *txt, size_t tsz)
+{
+	int	bg;
+
+	bg = (ms()->last_status == 0) ? 34 : 160;
+	if (ms()->last_status == 0)
+		ft_snprintf(txt, tsz, "✔ OK");
+	else if (ms()->last_status >= 128)
+		ft_snprintf(txt, tsz, "✘ SIG(%d)", ms()->last_status - 128);
+	else
+		ft_snprintf(txt, tsz, "✘ %d", ms()->last_status);
+	return (bg);
+}
+
+/* returns last_bg used */
+static int	build_leftbuf(char *out, size_t outsz,
+				const char *user, const char *pcwd,
+				const char *branch, int changes)
+{
+	enum {
+		CLR_USER_BG = 25, CLR_USER_FG = 231,
+		CLR_CWD_BG = 31, CLR_CWD_FG = 16,
+		CLR_GIT_BG = 90, CLR_GIT_FG = 231,
+		CLR_STAT_FG = 231
+	};
+	size_t	loff;
+	int		last_bg;
+	int		w;
+
+	loff = 0;
+	last_bg = -1;
+	w = ft_snprintf(out + loff, outsz - loff, "╭─ ");
+	if (w > 0)
+		loff += (size_t)w;
+	append_pl_seg(out, outsz, &loff, last_bg, CLR_USER_BG,
+		CLR_USER_FG, user ? user : "user");
+	last_bg = CLR_USER_BG;
+	append_pl_seg(out, outsz, &loff, last_bg, CLR_CWD_BG,
+		CLR_CWD_FG, pcwd);
+	last_bg = CLR_CWD_BG;
+	if (branch)
 	{
-		/* separator colored with prev_bg -> new bg */
-		w = ft_snprintf(dst + *off, dstsz - *off,
-		                RL_IGN_START "\x1b[38;5;%dm" RL_IGN_END
-		                RL_IGN_START "\x1b[48;5;%dm" RL_IGN_END
-		                "",
-		                prev_bg, bg);
-		if (w > 0) *off += (size_t)w;
+		char	brtxt[256];
+		char	cs[32];
+
+		cs[0] = '\0';
+		change_suffix(changes, cs, sizeof(cs));
+		ft_snprintf(brtxt, sizeof(brtxt), "%s%s", branch, cs);
+		append_pl_seg(out, outsz, &loff, last_bg,
+			CLR_GIT_BG, CLR_GIT_FG, brtxt);
+		last_bg = CLR_GIT_BG;
+	}
+	{
+		char	stat_text[32];
+		int		stat_bg;
+
+		stat_bg = format_status_text(stat_text, sizeof(stat_text));
+		append_pl_seg(out, outsz, &loff, last_bg, stat_bg,
+			CLR_STAT_FG, stat_text);
+		last_bg = stat_bg;
+	}
+	return (last_bg);
+}
+
+static void	build_rseg(char *out, size_t outsz, int last_bg,
+				const char *timebuf)
+{
+	enum { CLR_TIME_BG = 236, CLR_TIME_FG = 250 };
+	size_t	off;
+	int		w;
+
+	off = 0;
+	append_pl_seg(out, outsz, &off, last_bg, CLR_TIME_BG, CLR_TIME_FG, "at");
+	w = ft_snprintf(out + off, outsz - off, " %s ", timebuf);
+	if (w > 0)
+		off += (size_t)w;
+	append_pl_end_to_default(out, outsz, &off, CLR_TIME_BG);
+}
+
+static size_t	compute_padding(const char *left, const char *right, int cols)
+{
+	size_t	lvis;
+	size_t	rvis;
+
+	lvis = visible_len(left);
+	rvis = visible_len(right);
+	if (cols > 0 && (size_t)cols > lvis + rvis)
+		return ((size_t)cols - lvis - rvis);
+	return (1);
+}
+
+static char	*build_simple_prompt(const char *cwd, char *branch, int changes)
+{
+	char	tmp[1024];
+
+	if (branch)
+	{
+		if (changes > 0)
+			ft_snprintf(tmp, sizeof(tmp), "%s on %s *%d $ ",
+				cwd, branch, changes);
+		else
+			ft_snprintf(tmp, sizeof(tmp), "%s on %s $ ", cwd, branch);
+		free(branch);
 	}
 	else
-	{
-		/* first segment: just set bg */
-		w = ft_snprintf(dst + *off, dstsz - *off,
-		                RL_IGN_START "\x1b[48;5;%dm" RL_IGN_END, bg);
-		if (w > 0) *off += (size_t)w;
-	}
-	/* segment foreground + padded text */
-	w = ft_snprintf(dst + *off, dstsz - *off,
-	                RL_IGN_START "\x1b[38;5;%dm" RL_IGN_END " %s ", fg, text);
-	if (w > 0) *off += (size_t)w;
+		ft_snprintf(tmp, sizeof(tmp), "%s $ ", cwd);
+	return (strdup(tmp));
 }
 
-/* Transition from last_bg to terminal default background with a separator. */
-static void append_pl_end_to_default(char *dst, size_t dstsz, size_t *off, int last_bg)
+static char	*build_fancy_prompt(const char *cwd, const char *user,
+				char *branch, int changes, const char *timebuf)
 {
-	int w = ft_snprintf(dst + *off, dstsz - *off,
-	                    RL_IGN_START "\x1b[38;5;%dm" RL_IGN_END
-	                    RL_IGN_START "\x1b[49m" RL_IGN_END
-	                    ""
-	                    RL_IGN_START "\x1b[0m" RL_IGN_END,
-	                    last_bg);
-	if (w > 0) *off += (size_t)w;
+	char	line2buf[64];
+	char	pcwd[PATH_MAX];
+	char	leftbuf[1024];
+	char	rseg[256];
+	char	padbuf[256];
+	char	tmp[1024];
+	int		last_bg;
+	int		cols;
+	size_t	pad;
+	size_t	i;
+	size_t	maxp;
+
+	format_line2buf(line2buf, sizeof(line2buf));
+	pretty_cwd_str(cwd, pcwd, sizeof(pcwd));
+	last_bg = build_leftbuf(leftbuf, sizeof(leftbuf), user, pcwd, branch,
+			changes);
+	if (branch)
+		free(branch);
+	build_rseg(rseg, sizeof(rseg), last_bg, timebuf);
+	cols = term_cols();
+	pad = compute_padding(leftbuf, rseg, cols);
+	maxp = sizeof(padbuf) - 1;
+	i = 0;
+	while (i < pad && i < maxp)
+	{
+		padbuf[i] = ' ';
+		i++;
+	}
+	padbuf[i] = '\0';
+	ft_snprintf(tmp, sizeof(tmp), "%s%s%s\n%s", leftbuf, padbuf, rseg,
+		line2buf);
+	return (strdup(tmp));
 }
 
-char *build_prompt(void)
+char	*build_prompt(void)
 {
-	char cwd[PATH_MAX];
-	char tmp[1024];
-	char timebuf[64];
-	char *branch = NULL;
-	int changes = -1;
-	const char *user = getenv("USER");
-	time_t now;
-	struct tm *tm;
+	char		cwd[PATH_MAX];
+	char		timebuf[64];
+	char		*branch;
+	int			changes;
+	const char	*user;
 
-	if (getenv("MS_CLEAR_OUTPUT") && strcmp(getenv("MS_CLEAR_OUTPUT"), "1") == 0)
-	{
-		ssize_t wr = write(STDOUT_FILENO, "\x1b[2J\x1b[H", sizeof("\x1b[2J\x1b[H") - 1);
-		(void)wr;
-	}
-
-	branch = get_git_branch();
-	changes = get_git_status();
+	branch = NULL;
+	changes = -1;
+	user = getenv("USER");
+	maybe_clear_output();
+	get_git_info(&branch, &changes);
 	if (!getcwd(cwd, sizeof(cwd)))
 		ft_snprintf(cwd, sizeof(cwd), "?");
-
-	time(&now);
-	tm = localtime(&now);
-	if (tm)
-		strftime(timebuf, sizeof(timebuf), "%H:%M:%access_hist_state", tm);
-	else
-		ft_snprintf(timebuf, sizeof(timebuf), "--:--:--");
-	if (g_render_mode != RENDER_FANCY)
-	{
-		if (branch)
-		{
-			if (changes > 0)
-				ft_snprintf(tmp, sizeof(tmp), "%s on %s *%d $ ", cwd, branch, changes);
-			else
-				ft_snprintf(tmp, sizeof(tmp), "%s on %s $ ", cwd, branch);
-			free(branch);
-		}
-		else
-			ft_snprintf(tmp, sizeof(tmp), "%s $ ", cwd);
-		return strdup(tmp);
-	}
-
-	/* Fancy two-line prompt with high-contrast powerline segments and colored input prefix */
-	{
-		/* colored input line (use ASCII to avoid ambiguous width) */
-		char line2buf[64];
-		if (g_last_status == 0)
-			ft_snprintf(line2buf, sizeof(line2buf),
-			            "%s", RL_IGN_START C_GREEN RL_IGN_END "> " RL_IGN_START C_RESET RL_IGN_END);
-		else
-			ft_snprintf(line2buf, sizeof(line2buf),
-			            "%s", RL_IGN_START C_RED RL_IGN_END "> " RL_IGN_START C_RESET RL_IGN_END);
-
-		/* git change count (plain, merged in branch text) */
-		char change_s[32] = "";
-		if (changes > 0)
-			ft_snprintf(change_s, sizeof(change_s), " *%d", changes);
-
-		/* pretty cwd (with ~) */
-		char pcwd[PATH_MAX];
-		pretty_cwd_str(cwd, pcwd, sizeof(pcwd));
-
-		/* Choose vivid 256-color palette */
-		enum {
-			CLR_USER_BG = 25,   /* deep blue */
-			CLR_USER_FG = 231,  /* bright white */
-			CLR_CWD_BG  = 31,   /* cyan */
-			CLR_CWD_FG  = 16,   /* black */
-			CLR_GIT_BG  = 90,   /* magenta */
-			CLR_GIT_FG  = 231,  /* bright white */
-			CLR_OK_BG   = 34,   /* green */
-			CLR_ERR_BG  = 160,  /* red */
-			CLR_STAT_FG = 231,  /* bright white */
-			CLR_TIME_BG = 236,  /* dark gray */
-			CLR_TIME_FG = 250   /* light gray */
-		};
-
-		/* Left side: username, cwd, [git], status */
-		char leftbuf[1024];
-		size_t loff = 0;
-		int last_bg = -1;
-
-		/* small zsh-like opener */
-		int w = ft_snprintf(leftbuf + loff, sizeof(leftbuf) - loff, "╭─ ");
-		if (w > 0) loff += (size_t)w;
-
-		/* user */
-		append_pl_seg(leftbuf, sizeof(leftbuf), &loff, last_bg, CLR_USER_BG, CLR_USER_FG,
-		              user ? user : "user");
-		last_bg = CLR_USER_BG;
-
-		/* cwd */
-		append_pl_seg(leftbuf, sizeof(leftbuf), &loff, last_bg, CLR_CWD_BG, CLR_CWD_FG, pcwd);
-		last_bg = CLR_CWD_BG;
-
-		/* git (if any) */
-		if (branch)
-		{
-			char brtxt[256];
-			ft_snprintf(brtxt, sizeof(brtxt), "%s%s", branch, change_s);
-			append_pl_seg(leftbuf, sizeof(leftbuf), &loff, last_bg, CLR_GIT_BG, CLR_GIT_FG, brtxt);
-			last_bg = CLR_GIT_BG;
-			free(branch);
-		}
-
-		/* status (reflect actual exit code) */
-		char stat_text[32];
-		int  stat_bg = (g_last_status == 0) ? CLR_OK_BG : CLR_ERR_BG;
-		if (g_last_status == 0)
-			ft_snprintf(stat_text, sizeof(stat_text), "✔ OK");
-		else if (g_last_status >= 128)
-			ft_snprintf(stat_text, sizeof(stat_text), "✘ SIG(%d)", g_last_status - 128);
-		else
-			ft_snprintf(stat_text, sizeof(stat_text), "✘ %d", g_last_status);
-		append_pl_seg(leftbuf, sizeof(leftbuf), &loff, last_bg, stat_bg, CLR_STAT_FG, stat_text);
-		last_bg = stat_bg;
-
-		/* Right side: time segment (right-aligned) */
-		char rseg[256];
-		size_t roff = 0;
-		int r_last_bg = last_bg;
-
-		append_pl_seg(rseg, sizeof(rseg), &roff, r_last_bg, CLR_TIME_BG, CLR_TIME_FG, "at");
-		/* add HH:MM:SS inside same time segment */
-		w = ft_snprintf(rseg + roff, sizeof(rseg) - roff, "%s %s ", "", timebuf);
-		if (w > 0) roff += (size_t)w;
-
-		/* finish time with transition to default background */
-		append_pl_end_to_default(rseg, sizeof(rseg), &roff, CLR_TIME_BG);
-
-		/* pad with spaces so time sticks to the right edge */
-		int cols = term_cols();
-		size_t lvis = visible_len(leftbuf);
-		size_t rvis = visible_len(rseg);
-		size_t pad = 1;
-		if (cols > 0 && (size_t)cols > lvis + rvis)
-			pad = (size_t)cols - lvis - rvis;
-
-		char padbuf[256];
-		size_t i = 0, maxp = sizeof(padbuf) - 1;
-		while (i < pad && i < maxp) { padbuf[i++] = ' '; }
-		padbuf[i] = '\0';
-
-		/* compose final two-line prompt */
-		ft_snprintf(tmp, sizeof(tmp), "%s%s%s\n%s", leftbuf, padbuf, rseg, line2buf);
-	}
-
-	return strdup(tmp);
+	get_time_string(timebuf, sizeof(timebuf));
+	if (ms()->render_mode != RENDER_FANCY)
+		return (build_simple_prompt(cwd, branch, changes));
+	return (build_fancy_prompt(cwd, user, branch, changes, timebuf));
 }

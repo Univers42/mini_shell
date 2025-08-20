@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 22:07:57 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/20 22:11:51 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/20 22:47:33 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <sys/wait.h>
 #include "render.h"
 #include "builtins.h"
+#include "minishell.h"
 
 // ------------------- main entry ---------------------
 /** 
@@ -38,7 +39,7 @@ int	exec_internal(int argc, char **argv, char **envp)
 	if (!path)
 	{
 		ft_fprintf(2, "Unknown command: %s\n", argv[0]);
-		g_last_status = 127;
+		ms()->last_status = 127;
 		return (0);
 	}
 	pid = fork();
@@ -46,7 +47,7 @@ int	exec_internal(int argc, char **argv, char **envp)
 	{
 		perror("fork");
 		free(path);
-		g_last_status = 1;
+		ms()->last_status = 1;
 		return (0);
 	}
 	if (pid == 0)
@@ -59,14 +60,14 @@ int	exec_internal(int argc, char **argv, char **envp)
 	if (waitpid(pid, &status, 0) < 0)
 	{
 		perror("waitpid");
-		g_last_status = 1;
+		ms()->last_status = 1;
 		return (0);
 	}
 	if (WIFEXITED(status))
-		g_last_status = WEXITSTATUS(status);
+		ms()->last_status = WEXITSTATUS(status);
 	else if (WIFSIGNALED(status))
-		g_last_status = 128 + WTERMSIG(status);
+		ms()->last_status = 128 + WTERMSIG(status);
 	else
-		g_last_status = 1;
+		ms()->last_status = 1;
 	return (1);
 }
