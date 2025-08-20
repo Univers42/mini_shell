@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   setters.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 16:54:23 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/19 16:09:22 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/20 15:36:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,20 +37,6 @@ static int	is_blank_line(const char *line)
 	return (*p == '\0');
 }
 
-static int	is_duplicate_last(const char *line)
-{
-	int				n;
-	t_hist_entry	*last;
-
-	n = g_custom_history_length;
-	if (n <= 0)
-		return (0);
-	last = custom_history_get(n);
-	if (last && last->line && ft_strcmp(last->line, line) == 0)
-		return (1);
-	return (0);
-}
-
 /**
  * lazy init to ensure we always record 
  * skip whitespace only
@@ -60,7 +46,7 @@ void	api_add(const char *line)
 {
 	t_history_state	*st;
 
-	st = S();
+	st = access_hist_state();
 	if (!st || !line || !*line)
 		return ;
 	if (!ensure_initialized(st))
@@ -71,5 +57,5 @@ void	api_add(const char *line)
 		return ;
 	(dll_push_tail_line(line), add_history(line));
 	if (st->histsize > 0)
-		custom_stifle_history(st->histsize);
+		ft_stifle_history(st->histsize);
 }

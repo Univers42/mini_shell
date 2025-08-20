@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   history.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 21:16:14 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/19 14:08:17 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/20 15:36:52 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ typedef struct s_history_state
 	int				histsize;
 	char			histfile[PATH_MAX];
 	bool			initialized;
+	int				hist_length;
 }					t_history_state;
 
 /* Global singleton accessor (one definition in historic.c) */
@@ -84,7 +85,7 @@ typedef struct s_history_list_state
 }					t_history_list_state;
 
 const t_history_api	*hs(void);
-t_history_state		*S(void);
+t_history_state		*access_hist_state(void);
 const char			*expand_hist_path(const char *name,
 						char *out, size_t outsz);
 void				dll_push_tail_line(const char *line);
@@ -99,15 +100,43 @@ void				api_load(void);
 int					api_init(const t_history_opts *opts, char **envp);
 void				api_shutdown(void);
 char				**api_dump(void);
-int					custom_stifle_history(int max);
-int					custom_unstifle_history(void);
+int					ft_stifle_history(int max);
+int					ft_unstifle_history(void);
 void				cleanup_history_list(void);
 void				update_history_length(void);
-t_hist_entry		**custom_history_list(void);
-t_hist_entry		*custom_history_get(int offset);
-t_hist_entry		*custom_current_history(void);
-t_hist_entry		*custom_previous_history(void);
-int					custom_history_total_bytes(void);
-int					custom_where_history(void);
-int					custom_history_set_pos(int pos);
+t_hist_entry		**ft_history_list(void);
+t_hist_entry		*ft_history_get(int offset);
+t_hist_entry		*ft_current_history(void);
+t_hist_entry		*ft_previous_history(void);
+int					ft_history_total_bytes(void);
+int					ft_where_history(void);
+int					ft_history_set_pos(int pos);
+char				**api_dump(void);
+//FREES
+void				free_partial(char **out, size_t j);
+char				**dup_list_to_array(t_dll_node *node, size_t m);
+char				**dup_history_entries(t_hist_entry **harr, int n);
+int					reset_and_alloc_array(t_history_list_state *stt,
+											size_t need,
+											t_hist_entry ***out);
+int					alloc_hist_array(size_t need, t_hist_entry ***out);
+t_history_list_state	*get_history_list_state(void);
+void				free_hist_array(t_hist_entry **arr, size_t asz);
+int					fill_hist_entry(t_doubly_list *list, t_hist_entry **arr, size_t cap);
+int	ensure_capacity(t_history_list_state *stt, size_t need,
+								t_hist_entry ***out);
+//SAVE
+void	write_all(int fd, const char *buf, size_t len);
+void	save_node_line(int fd, const char *s);
+void	save_list_to_fd(int fd, t_dll_node *node);
+void	api_save(void);
+
+//CONFIG
+void	set_default_state(t_history_state *st);
+void	apply_options(t_history_state *st, const t_history_opts *opts);
+void	apply_env_histfile(t_history_state *st, const char *env_hist);
+void	apply_env_histsize(t_history_state *st, const char *env_size);
+void	apply_env_histsize(t_history_state *st, const char *env_size);
+int		is_duplicate_last(const char *line);
+
 #endif

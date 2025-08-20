@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   custom.c                                           :+:      :+:    :+:   */
+/*   hist_limit.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 21:37:36 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/19 16:12:46 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/20 15:17:55 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,12 @@
  * Returns: 0 on success, -1 on error
  */
 
-int	custom_stifle_history(int max)
+int	ft_stifle_history(int max)
 {
 	t_history_state	*st;
 	char			*old_entry;
 
-	st = S();
+	st = access_hist_state();
 	if (!st || !st->list)
 		return (-1);
 	if (max < 0)
@@ -50,12 +50,18 @@ int	custom_stifle_history(int max)
 	return (0);
 }
 
-int	custom_unstifle_history(void)
+/**
+ * @brief The purpose of `ft_unstifle_history` is to remove any 
+ * limit on the number of history entries, allowing the history to
+ * grow without restriction. it sets the limit to zero
+ * *(unlimited)
+ */
+int	ft_unstifle_history(void)
 {
 	t_history_state	*st;
 	int				prev_size;
 
-	st = S();
+	st = access_hist_state();
 	if (!st)
 		return (-1);
 	prev_size = st->histsize;

@@ -3,15 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   helpers.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 16:51:50 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/19 16:14:47 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/20 14:43:14 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "history.h"
 
+/**
+ * @brief in order to correctly hanndle history file path that use
+ * shortcuts like `~`, it expands paths such as  `~/myhist` to the full
+ * absolute path `/home/user/mmyhist`, ensuring the history file
+ * is saved annd loaded fromm the intended location regardless of the user's 
+ * ennvironment
+ * 
+ */
 const char	*expand_hist_path(const char *name, char *out, size_t outsz)
 {
 	const char	*home;
@@ -35,49 +43,4 @@ const char	*expand_hist_path(const char *name, char *out, size_t outsz)
 	ft_strlcpy(out, name, outsz);
 	out[len] = '\0';
 	return (out);
-}
-
-void	dll_push_tail_line(const char *line)
-{
-	t_history_state	*st;
-	char			*dup;
-	char			*last;
-	char			*old;
-
-	st = S();
-	if (!st || !st->list || !line || !*line)
-		return ;
-	if (st->list->size > 0)
-	{
-		last = (char *)ft_dll_back(st->list);
-		if (last && ft_strcmp(last, line) == 0)
-			return ;
-	}
-	dup = ft_strdup(line);
-	if (!dup)
-		return ;
-	if (!ft_dll_push_back(st->list, dup))
-		free(dup);
-	else if (st->histsize > 0 && st->list->size > (size_t)st->histsize)
-	{
-		old = (char *)ft_dll_pop_front(st->list);
-		free(old);
-	}
-	update_history_length();
-}
-
-void	dll_clear_all(void)
-{
-	t_history_state		*st;
-	char				*s;
-
-	st = S();
-	if (!st || !st->list)
-		return ;
-	while (!ft_dll_is_empty(st->list))
-	{
-		s = (char *)ft_dll_pop_front(st->list);
-		free(s);
-	}
-	update_history_length();
 }
