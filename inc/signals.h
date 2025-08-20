@@ -177,4 +177,18 @@ void			signal_api_init(void);
 void			signal_api_cleanup(void);
 void			signal_clear_all_pending(void);
 
+void	sigint_interactive_handler(int sig, siginfo_t *info, void *ucontext);
+void	sigint_monitor_handler(int sig, siginfo_t *info, void *ucontext);
+void	sigquit_monitor_handler(int sig, siginfo_t *info, void *ucontext);
+
+
+inline static	t_core_atomic	*get_sigcore(t_core_atomic *set)
+{
+	static t_core_atomic	sig_struct = {0};
+
+	if (set)
+		sig_struct = *set;
+	return (&sig_struct);
+}
+
 #endif
