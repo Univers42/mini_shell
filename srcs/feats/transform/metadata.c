@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   metadata.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 15:50:41 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 14:13:59 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/19 21:57:28 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -261,7 +261,7 @@ char *build_prompt(void)
 	time(&now);
 	tm = localtime(&now);
 	if (tm)
-		strftime(timebuf, sizeof(timebuf), "%H:%M:%S", tm);
+		strftime(timebuf, sizeof(timebuf), "%H:%M:%access_hist_state", tm);
 	else
 		ft_snprintf(timebuf, sizeof(timebuf), "--:--:--");
 	if (g_render_mode != RENDER_FANCY)
