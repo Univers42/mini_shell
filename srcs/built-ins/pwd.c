@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pwd.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 19:45:30 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 16:45:06 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/21 00:03:46 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,9 +53,9 @@ char	*get_cwd_pretty(void)
 	return (cwd);
 }
 
-char *get_cwd(void)
+char	*get_cwd(void)
 {
-	char 	*cwd;
+	char	*cwd;
 
 	cwd = getcwd(NULL, 0);
 	if (!cwd)

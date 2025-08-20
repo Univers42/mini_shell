@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   helpers.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:56:32 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 13:03:17 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/20 23:54:54 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 #include <stdlib.h>
 #include "builtins.h"
 
-int is_flag_set(int flags, int bit)
+int	is_flag_set(int flags, int bit)
 {
-    return ((flags & bit) != 0);
+	return ((flags & bit) != 0);
 }
 
 int	flag_bit(char ch)

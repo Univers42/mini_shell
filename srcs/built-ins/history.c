@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   history.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/20 23:56:10 by danielm3          #+#    #+#             */
+/*   Updated: 2025/08/21 00:03:15 by danielm3         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdlib.h>
 #include "builtins.h"
 #include "history.h"
@@ -5,19 +17,17 @@
 /* trim-leading check for 'history' followed by end or spaces */
 static int	is_history_cmd(const char *s)
 {
-	const char *p;
+	const char	*p;
 
 	if (!s)
 		return (0);
 	p = s;
 	while (*p && ft_isspace((unsigned char)*p))
 		p++;
-	/* match exact "history" prefix */
 	if (p[0] != 'h' || p[1] != 'i' || p[2] != 's' || p[3] != 't'
 		|| p[4] != 'o' || p[5] != 'r' || p[6] != 'y')
 		return (0);
 	p += 7;
-	/* allow only trailing spaces after keyword */
 	while (*p && ft_isspace((unsigned char)*p))
 		p++;
 	return (*p == '\0');
@@ -40,26 +50,18 @@ int	bin_history(char **args, int flags, t_env *env)
 	arr = hs()->dump();
 	if (!arr)
 		return (0);
-
-	/* count entries */
 	n = 0;
 	while (arr[n])
 		n++;
-
-	/* hide trailing "history" entries (current invocation and repeated presses) */
 	cutoff = n;
 	while (cutoff > 0 && is_history_cmd(arr[cutoff - 1]))
 		cutoff--;
-
-	/* print up to cutoff, free all */
-	i = 0;
-	while (i < n)
+	i = -1;
+	while (++i < n)
 	{
 		if (i < cutoff)
 			ft_printf("%5u  %s\n", (unsigned)(i + 1), arr[i]);
 		free(arr[i]);
-		i++;
 	}
-	free(arr);
-	return (0);
+	return (free(arr), 0);
 }

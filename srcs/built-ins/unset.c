@@ -1,5 +1,3 @@
-#include "builtins.h"
-
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -7,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/11 18:48:38 by danielm3          #+#    #+#             */
-/*   Updated: 2025/08/14 10:40:22 by danielm3         ###   ########.fr       */
+/*   Created: 2025/08/21 00:04:14 by danielm3          #+#    #+#             */
+/*   Updated: 2025/08/21 00:09:09 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,50 +127,30 @@ static int	remove_env_var(char ***penv, int idx)
 	return (0);
 }
 
-/*
-** bin_unset
-** ---------
-** Purpose:
-**   Minishell builtin implementation for `unset` (subject: “unset with no
-**   options”). Removes variables from the shell environment. Silent on
-**   success, prints errors for invalid identifiers, and returns a status
-**   code compatible with Bash:
-**     - 0 if all provided names were valid (regardless of existence).
-**     - 1 if at least one provided name was an invalid identifier.
-**
-** Behavior:
-**   - Ignores `flags` (subject requires no options).
-**   - For each arg:
-**       * If invalid identifier -> print error to STDERR and continue.
-**       * Else find exact "NAME=" entry -> if found, remove it.
-**   - Environment is updated in the parent process (no fork) so changes
-**     persist for subsequent commands.
-**
-** Params:
-**   args  -> Arg vector: ["unset", "NAME1", "NAME2", ... , NULL]
-**   flags -> Ignored (kept for builtin signature consistency).
-**   env   -> Shell state holding the modifiable `char **envp`.
-**
-** Returns:
-**   0 or 1 as described above.
-**
-** Complexity:
-**   O(k * (m + s)) roughly, where:
-**     k = number of names to unset,
-**     m = current env entries,
-**     s = avg string length duplicated during rebuilds.
-**   (Each removal rebuilds once; still fine given typical env sizes.)
-**
-** Notes:
-**   - No output on successful removals (Bash parity).
-**   - If a name doesn’t exist, that’s not an error.
-**   - Error message format follows common minishell style.
-*/
+/* ...existing code... */
+static int	unset_one_var(char *name, char ***env)
+{
+	int		idx;
+	char	**envp;
+
+	envp = *env;
+	if (!is_valid_identifier(name))
+	{
+		ft_putstr_fd("minishell: unset: `", 2);
+		ft_putstr_fd(name, 2);
+		ft_putendl_fd("': not a valid identifier", 2);
+		return (1);
+	}
+	idx = find_var_index(envp, name, ft_strlen(name));
+	if (idx >= 0)
+		remove_env_var(env, idx);
+	return (0);
+}
+
 int	bin_unset(char **args, int flags, t_env *env)
 {
-	int	status;
-	int	idx;
-	int	i;
+	int		status;
+	int		i;
 	char	**envp;
 
 	(void)flags;
@@ -181,24 +159,10 @@ int	bin_unset(char **args, int flags, t_env *env)
 	envp = *(char ***)env;
 	while (args[i])
 	{
-		if (!is_valid_identifier(args[i]))
-		{
-			ft_putstr_fd("minishell: unset: `", 2);
-			ft_putstr_fd(args[i], 2);
-			ft_putendl_fd("': not a valid identifier", 2);
+		if (unset_one_var(args[i], (char ***)env))
 			status = 1;
-		}
-		else
-		{
-			idx = find_var_index(envp, args[i], ft_strlen(args[i]));
-			if (idx >= 0)
-			{
-				remove_env_var((char ***)env, idx);
-				envp = *(char ***)env;
-			}
-		}
+		envp = *(char ***)env;
 		i++;
 	}
 	return (status);
 }
-
