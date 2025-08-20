@@ -163,7 +163,7 @@ static int	run_minishell(bool run, t_env *env, int argc, char **argv)
 		/* Clear all pending signals before each prompt */
 		signal_clear_all_pending();
 		
-		input = readline(build_prompt());
+		input = readline("minishell > ");
 		
 		/* Handle Ctrl+C that occurred during readline */
 		if (sigint_is_pending())
