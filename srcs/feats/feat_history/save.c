@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 14:21:02 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/20 15:35:50 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/20 21:34:25 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ void	save_list_to_fd(int fd, t_dll_node *node)
 		node = node->next;
 	}
 }
+
 /**
  * Whenn we use our  minnishell program, every command entered by the user
  * is added to
