@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 16:18:43 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 13:49:01 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/20 22:09:57 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,7 @@ void				apply_handlers(char **args, char **processed, int flags);
 int					flag_bit(char ch);
 int					is_flag_set(int flags, int bit);
 void				handle_uppercase(char **args, char **processed_args);
+char				*resolve_exec_path(const char *cmd, char **envp);
 
 // Builtins global accessor
 static inline t_builtins	*access_builtins(void)
