@@ -8,6 +8,7 @@
 #ifndef RENDER_H
 # define RENDER_H
 
+# include <limits.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
@@ -29,8 +30,33 @@ typedef enum e_render_mode
 	RENDER_HACKER,
 }	t_render_mode;
 
+/* Prompt color palette for powerline segments */
+typedef enum e_prompt_color
+{
+	CLR_USER_BG = 25,
+	CLR_USER_FG = 231,
+	CLR_CWD_BG  = 31,
+	CLR_CWD_FG  = 16,
+	CLR_GIT_BG  = 90,
+	CLR_GIT_FG  = 231,
+	CLR_STAT_FG = 231,
+	CLR_OK_BG   = 34,
+	CLR_ERR_BG  = 160,
+	CLR_TIME_BG = 236,
+	CLR_TIME_FG = 250
+}	t_prompt_color;
+
+/* Buffers for prompt formatting */
+typedef struct s_prompt_bufs
+{
+	char	cwd[PATH_MAX];
+	char	timebuf[32];
+	char	user[64];
+	char	branch[128];
+	int		changes;
+}	t_prompt_bufs;
+
 #include <sys/stat.h>
-#include <limits.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -73,6 +99,12 @@ extern char **environ;
 #ifndef RL_IGN_END
 # define RL_IGN_END   "\002"
 #endif
+
+/* Prompt helper function prototypes */
+int		get_term_cols(void);
+void	get_time_str(char *dst, size_t sz);
+void	get_user_str(char *dst, size_t sz);
+void	get_cwd_str(char *dst, size_t sz);
 
 /* run a shell command and capture stdout into buf (NUL-terminated); returns bytes read or -1 */
 int   sh_capture(const char *cmd, char *buf, size_t bufsz);
