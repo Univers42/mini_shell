@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   clear.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 21:57:14 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 22:13:18 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/20 22:09:55 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,15 +17,16 @@
 // \033[2J clears entire screen
 // \033[H moves cursor to top-left (1,1)
 // \033[3J clears scrollback buffer (on supported terminals)
-int bin_clear(char **args, int flags, t_env *env)
+int	bin_clear(char **args, int flags, t_env *env)
 {
-    (void)args;
-    (void)flags;
-    (void)env;
-    const char *seq = "\033[2J\033[H\033[3J";
-    ssize_t wr;
+	const char	*seq;
+	ssize_t		wr;
 
-    wr = write(STDOUT_FILENO, seq, sizeof("\033[2J\033[H\033[3J") - 1);
-    (void)wr;
-    return (0);
+	(void)args;
+	(void)flags;
+	(void)env;
+	seq = "\033[2J\033[H\033[3J";
+	wr = write(STDOUT_FILENO, seq, sizeof("\033[2J\033[H\033[3J") - 1);
+	(void)wr;
+	return (0);
 }
