@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 02:35:08 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/21 02:37:01 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/21 03:18:34 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,11 @@
 #include "history.h"
 #include "signals.h"
 
-void	dispatch_command(t_cmdline *cmd, t_env *env);
-char	*expand_basic(const char *in);
-void	print_parse_error(const char *cmd, t_parse_err err, t_env *env);
+void		dispatch_command(t_cmdline *cmd, t_env *env);
+char		*expand_basic(const char *in);
+void		print_parse_error(const char *cmd, t_parse_err err, t_env *env);
+t_parse_err	parse_line(const char *line, t_cmdline *out);
+void		cmdline_free(t_cmdline *cmd);
 
 static void	clear_meta_line(void)
 {

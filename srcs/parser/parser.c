@@ -3,20 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:31 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 15:45:04 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/21 03:08:29 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-// Force-link reference to ensure the TU rebuilds with updated builtins
-void	force_link_history_ref(void)
-{
-	(void)&bin_history;
-}
+int	find_builtin_idx(const char *cmd);
 
 int	parse_dash_flags(const char *tok, int valid, int *flags)
 {

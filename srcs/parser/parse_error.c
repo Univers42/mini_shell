@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 02:24:47 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/21 02:30:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/21 03:08:49 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,8 @@
 
 void	print_parse_error(const char *cmd, t_parse_err err, t_env *env)
 {
-	char    **toks;
-	int     targc;
+	char	**toks;
+	int		targc;
 	char	***penv;
 	char	**envp;
 
@@ -39,7 +39,10 @@ void	print_parse_error(const char *cmd, t_parse_err err, t_env *env)
 		{
 			targc = count_tokens(toks);
 			penv = (char ***)env;
-			envp = (penv && *penv) ? *penv : NULL;
+			if (penv && *penv)
+				envp = *penv;
+			else
+				envp = NULL;
 			(void)exec_internal(targc, toks, envp);
 			free_tokens(toks);
 		}
