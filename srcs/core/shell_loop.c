@@ -2,6 +2,11 @@
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   shell_loop.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/21 02:35:08 by dlesieur          #+#    #+#             */
+/*   Updated: 2025/08/21 02:37:01 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,12 +72,13 @@ static bool	process_input_line(char *input, t_env *env)
 		clear_meta_line();
 		if (err == PARSE_NOT_BUILTIN && ft_strcmp(exp_input, "quit") == 0)
 			return (free(exp_input), cmdline_free(&cmd), false);
-		ms()->last_status = (err == PARSE_INVALID_FLAG) ? 2 : 127;
+		if (err == PARSE_INVALID_FLAG)
+			ms()->last_status = 2;
+		else
+			ms()->last_status = 127;
 		print_parse_error(exp_input, err, env);
 	}
-	cmdline_free(&cmd);
-	free(exp_input);
-	return (true);
+	return (cmdline_free(&cmd), free(exp_input), true);
 }
 
 int	run_minishell(bool run, t_env *env, int argc, char **argv)

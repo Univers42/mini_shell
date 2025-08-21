@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 02:21:37 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/21 02:27:13 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/21 02:37:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,4 +40,3 @@ void	dispatch_command(t_cmdline *cmd, t_env *env)
 	bins[cmd->bin_idx].builtin(cmd->argv, cmd->flags, env);
 	ms()->last_status = 0;
 }
-
