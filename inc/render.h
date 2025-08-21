@@ -35,11 +35,11 @@ typedef enum e_render_mode
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include "libft.h"
-#include <time.h>
-#include <sys/ioctl.h>
+# include <stdio.h>
+# include <string.h>
+# include "libft.h"
+# include <time.h>
+# include <sys/ioctl.h>
 
 extern char **environ;
 
@@ -73,6 +73,11 @@ extern char **environ;
 #ifndef RL_IGN_END
 # define RL_IGN_END   "\002"
 #endif
+
+/* helpers exposed for prompt building */
+int   get_term_cols(void);
+void  get_user_str(char *dst, size_t sz);
+void  get_cwd_str(char *dst, size_t sz);
 
 /* run a shell command and capture stdout into buf (NUL-terminated); returns bytes read or -1 */
 int   sh_capture(const char *cmd, char *buf, size_t bufsz);

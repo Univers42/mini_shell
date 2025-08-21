@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils_env.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 19:45:24 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 11:02:06 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/21 02:18:46 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,4 +142,33 @@ int	is_valid_identifier(const char *s)
 		i++;
 	}
 	return (1);
+}
+
+char	**dup_env(char **envp)
+{
+	size_t	n;
+	size_t	i;
+	char	**copy;
+
+	n = 0;
+	while (envp && envp[n])
+		n++;
+	copy = (char **)malloc((n + 1) * sizeof(char *));
+	if (!copy)
+		return (NULL);
+	i = 0;
+	while (i < n)
+	{
+		copy[i] = ft_strdup(envp[i]);
+		if (!copy[i])
+		{
+			while (i > 0)
+				free(copy[--i]);
+			free(copy);
+			return (NULL);
+		}
+		i++;
+	}
+	copy[n] = NULL;
+	return (copy);
 }

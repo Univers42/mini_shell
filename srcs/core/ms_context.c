@@ -1,26 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   git_branch.c                                       :+:      :+:    :+:   */
+/*   ms_context.c                                       :+:      :+:    :+:   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "render.h"
+#include "minishell.h"
 
-char	*get_git_branch(void)
+/* singleton storage */
+static t_ms	**ms_slot(void)
 {
-	char	buf[256];
-	int		n;
-	char	*nl;
+	static t_ms	*slot = NULL;
 
-	n = sh_capture("git branch --show-current 2>/dev/null",
-			buf, sizeof(buf));
-	if (n <= 0)
-		return (NULL);
-	nl = strchr(buf, '\n');
-	if (nl)
-		*nl = '\0';
-	if (buf[0] == '\0')
-		return (NULL);
-	return (strdup(buf));
+	return (&slot);
+}
+
+t_ms	*ms(void)
+{
+	return (*ms_slot());
+}
+
+void	ms_install(t_ms *ptr)
+{
+	*ms_slot() = ptr;
 }
