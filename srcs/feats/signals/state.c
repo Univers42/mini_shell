@@ -6,13 +6,21 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 20:04:22 by danielm3          #+#    #+#             */
-/*   Updated: 2025/08/20 20:05:36 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/21 21:26:39 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 #include "signals.h"
 
+/**
+ * @brief Get the current state of selected signals.
+ *
+ * Returns the state bits for SIGINT and/or SIGQUIT as specified by the mask.
+ *
+ * @param signal_mask Bitmask selecting signals (SIG_MASK_INT, SIG_MASK_QUIT).
+ * @return int        State bits for selected signals.
+ */
 int	signal_get_state(int signal_mask)
 {
 	t_core_atomic	*sig_struct;
@@ -28,6 +36,15 @@ int	signal_get_state(int signal_mask)
 	return (state);
 }
 
+/**
+ * @brief Set state bits for selected signals.
+ *
+ * Sets the specified state bits for SIGINT and/or SIGQUIT.
+ *
+ * @param signal_mask Bitmask selecting signals.
+ * @param state_mask  State bits to set.
+ * @return int        0 on success.
+ */
 int	signal_set_state(int signal_mask, int state_mask)
 {
 	t_core_atomic	*sig_struct;
@@ -40,6 +57,15 @@ int	signal_set_state(int signal_mask, int state_mask)
 	return (0);
 }
 
+/**
+ * @brief Clear state bits for selected signals.
+ *
+ * Clears the specified state bits for SIGINT and/or SIGQUIT.
+ *
+ * @param signal_mask Bitmask selecting signals.
+ * @param state_mask  State bits to clear.
+ * @return int        0 on success.
+ */
 int	signal_clear_state(int signal_mask, int state_mask)
 {
 	t_core_atomic	*sig_struct;
@@ -52,6 +78,14 @@ int	signal_clear_state(int signal_mask, int state_mask)
 	return (0);
 }
 
+/**
+ * @brief Check if any selected signals are pending.
+ *
+ * Returns non-zero if any of the selected signals are in the pending state.
+ *
+ * @param signal_mask Bitmask selecting signals.
+ * @return int        Non-zero if any are pending, zero otherwise.
+ */
 int	signal_check_pending(int signal_mask)
 {
 	t_core_atomic	*sig_struct;

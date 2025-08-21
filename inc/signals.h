@@ -42,7 +42,7 @@
 # define CONTEXT_MASK_SHELL		(1 << 0)
 # define CONTEXT_MASK_CHILD		(1 << 1)
 # define CONTEXT_MASK_READLINE	(1 << 2)
-# define CONTEXT_MASK_EXEC		(1 << 3)
+# define CONTEXT_MASK_EXEC		(1 << 3)z
 
 /* =================================================================== */
 /*                     PATTERN-BASED PROTOTYPES                       */

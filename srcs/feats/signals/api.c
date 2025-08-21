@@ -6,7 +6,7 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 20:06:39 by danielm3          #+#    #+#             */
-/*   Updated: 2025/08/20 20:15:32 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/21 21:26:37 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,11 @@
 /*
 ** Signal API Initialization
 */
+/**
+ * @brief Initialize the signal API state and context.
+ *
+ * Resets signal state and sets default context for shell operation.
+ */
 void	signal_api_init(void)
 {
 	t_core_atomic	*sig_struct;
@@ -25,6 +30,11 @@ void	signal_api_init(void)
 	sig_struct->g_signal_context = CONTEXT_MASK_SHELL;
 }
 
+/**
+ * @brief Cleanup the signal API state.
+ *
+ * Performs any necessary cleanup of signal state before exit.
+ */
 void	signal_api_cleanup(void)
 {
 	t_core_atomic	*sig_struct;
