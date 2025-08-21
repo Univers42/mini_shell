@@ -2,18 +2,13 @@
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   parser.h                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/19 12:29:26 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 15:36:14 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PARSER_H
 # define PARSER_H
 
-//to avoid circular dependencies
+/* forward to avoid circular deps */
 typedef struct s_cmdline	t_cmdline;
 
 /* Parsing state machine */
@@ -36,14 +31,11 @@ typedef enum e_parse_err
 	PARSE_INVALID_FLAG
 }	t_parse_err;
 
-t_parse_err	parse_line(const char *line, t_cmdline *out);
-void		cmdline_free(t_cmdline *cmd);
+/* public API */
+t_parse_err	ms_parse_line(const char *line, t_cmdline *out);
+void		ms_cmdline_free(t_cmdline *cmd);
 
-t_parse_err		parse_tokens(char **toks, t_cmdline *out);
-void			force_link_history_ref(void);
-int				parse_dash_flags(const char *tok, int valid, int *flags);
-int				parse_bare_as_flags(const char *tok, int valid, int *flags);
-int				find_builtin_idx(const char *cmd);
-t_parse_state	handle_token(const char *tok, int valid, int *flags);
+/* tokens -> cmdline parse (implemented in parse_core.c) */
+t_parse_err	ms_parse_tokens(char **toks, t_cmdline *out);
 
 #endif
