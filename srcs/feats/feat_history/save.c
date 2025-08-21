@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   save.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 14:21:02 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/20 21:34:25 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/21 21:45:14 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,10 +47,13 @@ void	write_all(int fd, const char *buf, size_t len)
  */
 void	save_node_line(int fd, const char *s)
 {
+	size_t	wr;
+
 	if (!s || !*s)
 		return ;
 	write_all(fd, s, ft_strlen(s));
-	(void)write(fd, "\n", 1);
+	wr = write(fd, "\n", 1);
+	(void)wr;
 }
 
 void	save_list_to_fd(int fd, t_dll_node *node)

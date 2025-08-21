@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 02:34:10 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/21 02:34:18 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/21 21:45:48 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ int	main(int argc, char **argv, char **envp)
 
 	(void)argc;
 	(void)argv;
-	ms_install_segv_handler();
+	install_segv_handler();
 	setup_readline_hooks();
 	clone_envp = dup_env(envp);
 	if (!clone_envp)

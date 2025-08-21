@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   unset.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 00:04:14 by danielm3          #+#    #+#             */
-/*   Updated: 2025/08/21 00:09:09 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/21 21:46:03 by syzygy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,6 +153,7 @@ int	bin_unset(char **args, int flags, t_env *env)
 	int		i;
 	char	**envp;
 
+	(void)envp;
 	(void)flags;
 	status = 0;
 	i = 1;
