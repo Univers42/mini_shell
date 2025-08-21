@@ -3,14 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   helpers.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 14:42:19 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 15:45:21 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/21 03:07:36 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+t_parse_err	parse_tokens(char **toks, t_cmdline *out);
+
+// Force-link reference to ensure the TU rebuilds with updated builtins
+void	force_link_history_ref(void)
+{
+	(void)&bin_history;
+}
 
 t_parse_err	parse_line(const char *line, t_cmdline *out)
 {
@@ -35,23 +43,4 @@ void	cmdline_free(t_cmdline *cmd)
 		return ;
 	free_tokens(cmd->argv);
 	ft_bzero(cmd, sizeof(*cmd));
-}
-
-int	find_builtin_idx(const char *cmd)
-{
-	int			i;
-	t_builtins	*bins;
-
-	force_link_history_ref();
-	if (!cmd || !*cmd)
-		return (BIN_NOT_FOUND);
-	bins = access_builtins();
-	i = 0;
-	while (bins[i].name)
-	{
-		if (ft_strcmp(cmd, bins[i].name) == 0)
-			return (i);
-		i++;
-	}
-	return (BIN_NOT_FOUND);
 }

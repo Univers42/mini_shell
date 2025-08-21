@@ -6,7 +6,7 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:55:11 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/18 21:28:39 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/21 13:53:31 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@
                Prints with tabs/newlines accordingly
 */
 
-int bin_echo(char **args, int flags, t_env *env)
+int	bin_echo(char **args, int flags, t_env *env)
 {
 	char	**processed;
 	size_t	start;
@@ -77,7 +77,8 @@ void	apply_handlers(char **args, char **processed, int flags)
 	{
 		if (rules[i].flag == FLAG_E)
 		{
-			if (is_flag_set(flags, FLAG_E) && !is_flag_set(flags, FLAG_E_DISABLE))
+			if (is_flag_set(flags, FLAG_E)
+				&& !is_flag_set(flags, FLAG_E_DISABLE))
 				rules[i].handler(args, processed);
 		}
 		else if (is_flag_set(flags, rules[i].flag))

@@ -6,7 +6,7 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 20:54:37 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/18 21:27:22 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/21 17:00:10 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 #include <stdlib.h>
 #include "builtins.h"
 #include "ft_stdlib.h"
+
+int		cd_do_chdir(const char *target, char **oldcwd);
+void	cd_update_pwd(char ***penv, char *oldcwd);
 
 /* Resolve target directory: HOME if no arg, OLDPWD if "-", else args[1].
    Sets *print_old when "-" was used (to print the destination). */
@@ -38,42 +41,12 @@ static const char	*cd_resolve_target(char **args, char **envp, int *print_old)
 	return (arg);
 }
 
-/* Capture oldcwd, try chdir; on failure, free oldcwd and report. */
-static int	cd_do_chdir(const char *target, char **oldcwd)
-{
-	*oldcwd = getcwd(NULL, 0);
-	if (chdir(target) != 0)
-	{
-		free(*oldcwd);
-		*oldcwd = NULL;
-		perror("cd");
-		return (1);
-	}
-	return (0);
-}
-
-/* After chdir, compute new PWD from kernel and update env. */
-static void	cd_update_pwd(char ***penv, char *oldcwd)
-{
-	char	*newcwd;
-
-	newcwd = getcwd(NULL, 0);
-	if (newcwd)
-	{
-		if (oldcwd)
-			set_env_var(penv, "OLDPWD", oldcwd);
-		set_env_var(penv, "PWD", newcwd);
-		free(newcwd);
-	}
-	free(oldcwd);
-}
-
 /* Count non-empty / non-whitespace args and return first meaningful arg.
    Returns the count. first_arg is set to the pointer inside args. */
 static int	count_meaningful_args(char **args, char **first_arg)
 {
-	int		i;
-	int		count;
+	int			i;
+	int			count;
 	const char	*p;
 
 	if (first_arg)
@@ -101,14 +74,17 @@ static int	count_meaningful_args(char **args, char **first_arg)
 /* Build temporary argv and resolve target using cd_resolve_target.
    args: original argv; envp: env array; print_old: out param. */
 static const char	*prepare_target_from_args(char **args, char **envp,
-											 int *print_old)
+											int *print_old)
 {
 	char	*tmp_argv[3];
 	char	*first;
 
 	first = NULL;
 	(void)count_meaningful_args(args, &first);
-	tmp_argv[0] = args ? args[0] : NULL;
+	if (args)
+		tmp_argv[0] = args[0];
+	else
+		tmp_argv[0] = NULL;
 	tmp_argv[1] = first;
 	tmp_argv[2] = NULL;
 	return (cd_resolve_target(tmp_argv, envp, print_old));
@@ -117,9 +93,9 @@ static const char	*prepare_target_from_args(char **args, char **envp,
 /* Perform chdir, optionally print OLDPWD target and update PWD/OLDPWD.
    Returns 0 on success, 1 on failure. */
 static int	perform_chdir_and_update(const char *target, char ***penv,
-									 int print_old)
+									int print_old)
 {
-	char *oldcwd;
+	char	*oldcwd;
 
 	if (cd_do_chdir(target, &oldcwd))
 		return (1);

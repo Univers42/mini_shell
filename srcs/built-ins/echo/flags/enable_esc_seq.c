@@ -3,60 +3,81 @@
 /*                                                        :::      ::::::::   */
 /*   enable_esc_seq.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 15:03:42 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 15:26:46 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/21 14:17:35 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "builtins.h"
 
-/* Transform C-like escapes in processed_args[i], in place via replace buffer **/
+static char	handle_single_escape(const char *src, size_t *j)
+{
+	char	c;
+
+	c = src[*j];
+	if (c == 'n')
+		return ('\n');
+	if (c == 't')
+		return ('\t');
+	if (c == 'r')
+		return ('\r');
+	if (c == 'v')
+		return ('\v');
+	if (c == 'f')
+		return ('\f');
+	if (c == 'a')
+		return ('\a');
+	if (c == 'b')
+		return ('\b');
+	return (c);
+}
+
+static void	process_escape(char *src, char **dst)
+{
+	size_t	j;
+	size_t	out_len;
+	char	*out;
+
+	j = 0;
+	out_len = 0;
+	out = (char *)malloc(ft_strlen(src) + 1);
+	if (!out)
+		return ;
+	while (src[j])
+	{
+		if (src[j] == '\\' && src[j + 1])
+		{
+			j++;
+			out[out_len++] = handle_single_escape(src, &j);
+			j++;
+		}
+		else
+		{
+			out[out_len++] = src[j++];
+		}
+	}
+	out[out_len] = '\0';
+	*dst = out;
+}
+
 void	handle_escapes(char **args, char **processed_args)
 {
 	size_t	i;
+	char	*out;
 
 	(void)args;
 	i = 1;
 	while (processed_args && processed_args[i])
 	{
-		const char	*src = processed_args[i];
-		size_t		j = 0;
-		size_t		out_len = 0;
-		char		*out;
-
-		/* worst-case size == len(src) */
-		out = (char *)malloc(ft_strlen(src) + 1);
-		if (!out)
-			return;
-		while (src[j])
+		out = NULL;
+		process_escape(processed_args[i], &out);
+		if (out)
 		{
-			if (src[j] == '\\' && src[j + 1])
-			{
-				j++;
-				if (src[j] == 'n') out[out_len++] = '\n';
-				else if (src[j] == 't')
-					out[out_len++] = '\t';
-				else if (src[j] == 'r')
-					out[out_len++] = '\r';
-				else if (src[j] == 'v')
-					out[out_len++] = '\v';
-				else if (src[j] == 'f')
-					out[out_len++] = '\f';
-				else if (src[j] == 'a')
-					out[out_len++] = '\a';
-				else if (src[j] == 'b')
-					out[out_len++] = '\b';
-				else out[out_len++] = src[j];
-				j++;
-				continue;
-			}
-			out[out_len++] = src[j++];
+			free(processed_args[i]);
+			processed_args[i] = out;
 		}
-		out[out_len] = '\0';
-		free(processed_args[i]);
-		processed_args[i] = out;
 		i++;
 	}
 }

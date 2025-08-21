@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 16:18:43 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/20 22:09:57 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/21 00:01:03 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ int					bin_unset(char **args, int flags, t_env *env);
 int					bin_env(char **args, int flags, t_env *env);
 int					bin_exit(char **args, int flags, t_env *env);
 int					bin_clear(char **args, int flags, t_env *env);
-int					bin_history(char **args, int flags, t_env *env); /* new */
+int					bin_history(char **args, int flags, t_env *env);
 /* Env utils already provided elsewhere */
 char				*fetch_env_value(char **envp, const char *key);
 int					find_var_index(char **envp, const char *key, size_t klen);

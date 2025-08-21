@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 21:41:39 by danielm3          #+#    #+#             */
-/*   Updated: 2025/08/13 20:55:59 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/21 16:57:46 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	free_env_partial(char **env, size_t count)
 	free(env);
 }
 
-static char	**dup_env(char **envp)
+char	**dup_env(char **envp)
 {
 	char	**env_copy;
 	size_t	n;

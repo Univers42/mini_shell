@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:28 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/19 15:41:24 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/21 03:17:11 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,28 @@
 #include "libft.h"
 
 static char	*trim_copy(const char *line);
+size_t		count_qmark_extra(const char *in);
+int			needs_home(const char *in, const char *home);
+
+void	copy_until_qmark(const char *in, size_t *pi, char *out, size_t *po)
+{
+	while (in[*pi] && !(in[*pi] == '$' && in[*pi + 1] == '?'))
+	{
+		out[*po] = in[*pi];
+		(*po)++;
+		(*pi)++;
+	}
+}
+
+size_t	calc_extra(const char *in, const char *home)
+{
+	size_t	extra;
+
+	extra = count_qmark_extra(in);
+	if (needs_home(in, home))
+		extra += ft_strlen(home) + 1;
+	return (extra);
+}
 
 char	**lex_line(const char *line)
 {

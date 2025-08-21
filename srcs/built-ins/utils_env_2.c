@@ -6,12 +6,11 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 00:15:06 by danielm3          #+#    #+#             */
-/*   Updated: 2025/08/21 00:18:06 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/21 16:57:11 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-#include "builtins.h"
 
 /*
 ** is_valid_identifier
