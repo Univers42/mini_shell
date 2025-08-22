@@ -15,6 +15,6 @@ void	setup_readline_hooks(void);
 char	**dup_env(char **envp);
 
 /* main loop */
-int		run_minishell(bool run, t_env *env, int argc, char **argv);
+int		run_minishell(bool run, t_env *env, t_ms *app);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:55 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/20 22:47:34 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/22 18:44:44 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,15 +33,17 @@ typedef struct s_cmdline
 
 typedef struct s_ms
 {
+	int					argc;
+	char				**argv;
 	int					last_status;
 	t_render_mode		render_mode;
 	void				*content;
-	t_cmdline			builtins;
+	t_cmdline			*builtins;
 	//t_history			api_history;
 	t_parser			*parser;
 	//t_lexer				*lexer;
 	void				*other_feature;
-}			t_ms;
+}						t_ms;
 
 /* process-wide singleton accessor (no global variables exposed) */
 t_ms	*ms(void);

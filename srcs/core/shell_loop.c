@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 02:35:08 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/21 03:18:34 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/22 19:09:34 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,14 +83,61 @@ static bool	process_input_line(char *input, t_env *env)
 	return (cmdline_free(&cmd), free(exp_input), true);
 }
 
-int	run_minishell(bool run, t_env *env, int argc, char **argv)
+// New: run a single command string (for -c), setting last_status and returning it.
+static int	run_dash_c(const char *cmdstr, t_env *env)
+{
+	char		*exp_input;
+	t_cmdline	cmd;
+	t_parse_err	err;
+
+	if (!cmdstr || !*cmdstr)
+		return (0);
+	exp_input = expand_basic(cmdstr);
+	err = parse_line(exp_input, &cmd);
+	if (err == PARSE_OK)
+	{
+		dispatch_command(&cmd, env);
+	}
+	else if (err == PARSE_EMPTY)
+	{
+		ms()->last_status = 0;
+	}
+	else
+	{
+		if (err == PARSE_INVALID_FLAG)
+			ms()->last_status = 2;
+		else
+			ms()->last_status = 127;
+		print_parse_error(exp_input, err, env);
+	}
+	cmdline_free(&cmd);
+	free(exp_input);
+	return (ms()->last_status);
+}
+
+int	run_minishell(bool run, t_env *env, t_ms *app)
 {
 	char	*input;
 
-	(void)argc;
-	(void)argv;
 	signal_api_init();
 	setup_signals();
+
+	// Proper -c handling: minishell -c "<command>"
+	if (app && app->argc >= 2 && app->argv && ft_strcmp(app->argv[1], "-c") == 0)
+	{
+		int	status;
+
+		if (app->argc < 3 || !app->argv[2] || !*app->argv[2])
+		{
+			ft_fprintf(2, "minishell: -c: requires an argument\n");
+			hs()->shutdown();
+			return (2);
+		}
+		status = run_dash_c(app->argv[2], env);
+		hs()->shutdown();
+		return (status);
+	}
+
 	while (run)
 	{
 		signal_clear_all_pending();
