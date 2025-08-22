@@ -1,0 +1,20 @@
+name: minishell bash tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  bash-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build minishell
+        run: make -C /sgoinfre/students/dlesieur/minish
+      - name: Run echo tests
+        run: bash /sgoinfre/students/dlesieur/minish/scripts/CLI/echo.sh
+      - name: Run cd tests
+        run: bash /sgoinfre/students/dlesieur/minish/scripts/CLI/cd.sh
+      # Add more test scripts as needed

@@ -11,16 +11,6 @@ assert_success() {
     fi
 }
 
-assert_hex_equals()
-{
-    local exp="$1";
-    local got="$2";
-    if [ "$exp" != "$got" ]; then
-        echo "Expected hex '$exp', but got '$got'"
-        return 1
-    fi
-}
-
 # --- shared helpers for minishell tests ---
 
 # Ensure TMPDIR exists (idempotent)
@@ -29,58 +19,6 @@ ms_tmpdir_setup() {
     TMPDIR="$(mktemp -d)"
     export TMPDIR
   fi
-}
-
-# Find a real minishell; sets global SUT. Do NOT create any stub.
-ms_find_real() {
-  # prefer existing SUT or SHELL_BIN
-  if [ -n "${SUT:-}" ] && [ -x "$SUT" ]; then
-    export SUT
-    return 0
-  fi
-  if [ -n "${SHELL_BIN:-}" ] && [ -x "$SHELL_BIN" ]; then
-    SUT="$SHELL_BIN"
-    export SUT
-    return 0
-  fi
-  if [ -x "./minishell" ]; then
-    SUT="./minishell"
-    export SUT
-    return 0
-  fi
-
-  # robustly search in the user's home directory; use $HOME (quoted) not ~
-  local found
-  if [ -n "${HOME:-}" ]; then
-    found=$(find "$HOME" -L -type f -name minishell -executable 2>/dev/null | head -n1 || true)
-  else
-    found=""
-  fi
-
-  if [ -n "$found" ]; then
-    SUT="$found"
-    export SUT
-  else
-    unset SUT
-  fi
-
-  # Always return success so bats setup can handle skip/abort logic itself
-  return 0
-}
-
-# Normalize a single line: map ~ and ~/X to home path
-ms_normalize_line() {
-  local line="$1"; local homepath="$2"
-  if [ "$line" = "~" ]; then
-    line="$homepath"
-  elif [[ "$line" == "~/"* ]]; then
-    line="${homepath}/${line#~/}"
-  fi
-  # canonicalize: strip trailing slashes except root
-  if [ "$line" != "/" ]; then
-    while [[ "$line" == */ && "$line" != "/" ]]; do line="${line%/}"; done
-  fi
-  printf '%s\n' "$line"
 }
 
 # Normalize output: keep only path-like lines, strip empties, map ~ to home
