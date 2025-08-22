@@ -35,14 +35,17 @@ ms_tmpdir_setup() {
 ms_find_real() {
   # prefer existing SUT or SHELL_BIN
   if [ -n "${SUT:-}" ] && [ -x "$SUT" ]; then
+    export SUT
     return 0
   fi
   if [ -n "${SHELL_BIN:-}" ] && [ -x "$SHELL_BIN" ]; then
     SUT="$SHELL_BIN"
+    export SUT
     return 0
   fi
   if [ -x "./minishell" ]; then
     SUT="./minishell"
+    export SUT
     return 0
   fi
 
@@ -56,6 +59,7 @@ ms_find_real() {
 
   if [ -n "$found" ]; then
     SUT="$found"
+    export SUT
   else
     unset SUT
   fi

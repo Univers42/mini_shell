@@ -21,26 +21,26 @@ teardown() {
 }
 
 @test "cd to absolute path changes directory" {
-  run bash -c "cd \"$TMPDIR\" && printf 'pwd\ncd %s\npwd\nexit\n' \"$DIR_A\" | \"$SUT\""
+  run bash -c "cd \"$TMPDIR\" && printf 'echo __PWD__\npwd\ncd %s\necho __PWD__\npwd\nexit\n' \"$DIR_A\" | \"${SUT}\""
   assert_success
-  actual_norm=$(ms_normalize_output_lines "$output" "$HOME")
+  actual_norm=$(ms_extract_marked_paths "$output" "$HOME" "__PWD__")
   expected=$(printf '%s\n%s' "$TMPDIR" "$DIR_A")
   [ "$actual_norm" = "$expected" ] || { echo "Mismatch. Expected lines:"; printf '%s\n' "$expected"; echo "Actual lines:"; printf '%s\n' "$actual_norm"; return 1; }
 }
 
 @test "cd to relative path changes directory" {
-  run bash -c "cd \"$TMPDIR\" && printf 'pwd\ncd rel_dir\npwd\nexit\n' | \"$SUT\""
+  run bash -c "cd \"$TMPDIR\" && printf 'echo __PWD__\npwd\ncd rel_dir\necho __PWD__\npwd\nexit\n' | \"${SUT}\""
   assert_success
-  actual_norm=$(ms_normalize_output_lines "$output" "$HOME")
+  actual_norm=$(ms_extract_marked_paths "$output" "$HOME" "__PWD__")
   expected=$(printf '%s\n%s' "$TMPDIR" "$TMPDIR/rel_dir")
   [ "$actual_norm" = "$expected" ] || { echo "Mismatch. Expected lines:"; printf '%s\n' "$expected"; echo "Actual lines:"; printf '%s\n' "$actual_norm"; return 1; }
 }
 
 @test "cd - returns to previous directory" {
-  run bash -c "cd \"$TMPDIR\" && printf 'pwd\ncd %s\npwd\ncd %s\npwd\ncd -\npwd\nexit\n' \"$DIR_A\" \"$DIR_B\" | \"$SUT\""
+  run bash -c "cd \"$TMPDIR\" && printf 'echo __PWD__\npwd\ncd %s\necho __PWD__\npwd\ncd %s\necho __PWD__\npwd\ncd -\necho __PWD__\npwd\nexit\n' \"$DIR_A\" \"$DIR_B\" | \"${SUT}\""
   assert_success
-  actual_norm=$(ms_normalize_output_lines "$output" "$HOME")
-  # Compare only the first 4 path lines: start -> DIR_A -> DIR_B -> DIR_A
+  actual_norm=$(ms_extract_marked_paths "$output" "$HOME" "__PWD__")
+  # Expect strictly the four pwd snapshots: start -> DIR_A -> DIR_B -> DIR_A
   start="$TMPDIR"; a="$DIR_A"; b="$DIR_B"
   ms_assert_first_n_lines_equal "$actual_norm" "$start" "$a" "$b" "$a"
 }
@@ -48,9 +48,9 @@ teardown() {
 @test "cd with no args goes to HOME" {
   HOME_TEST="$TMPDIR/home_dir"
   mkdir -p "$HOME_TEST"
-  run bash -c "cd \"$TMPDIR\" && printf 'pwd\ncd\npwd\nexit\n' | HOME=\"$HOME_TEST\" \"$SUT\""
+  run bash -c "cd \"$TMPDIR\" && printf 'echo __PWD__\npwd\ncd\necho __PWD__\npwd\nexit\n' | HOME=\"$HOME_TEST\" \"${SUT}\""
   assert_success
-  actual_norm=$(ms_normalize_output_lines "$output" "$HOME_TEST")
+  actual_norm=$(ms_extract_marked_paths "$output" "$HOME_TEST" "__PWD__")
   expected=$(printf '%s\n%s' "$TMPDIR" "$HOME_TEST")
   [ "$actual_norm" = "$expected" ] || { echo "Mismatch. Expected lines:"; printf '%s\n' "$expected"; echo "Actual lines:"; printf '%s\n' "$actual_norm"; return 1; }
 }

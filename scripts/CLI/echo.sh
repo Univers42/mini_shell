@@ -16,13 +16,13 @@ teardown() {
 }
 
 @test "echo prints newline by default (binary-safe check)" {
-  run bash -c "printf 'echo hello\n' | ${SUT} | xxd -p -c 256"
+  run bash -c "printf 'echo hello\n' | \"${SUT}\" | xxd -p -c 256"
   assert_success
   assert_hex_equals "68656c6c6f0a" "$output"
 }
 
 @test "echo -n suppresses newline (binary-safe check)" {
-  run bash -c "printf 'echo -n hello\n' | ${SUT} | xxd -p -c 256"
+  run bash -c "printf 'echo -n hello\n' | \"${SUT}\" | xxd -p -c 256"
   assert_success
   assert_hex_equals "68656c6c6f" "$output"
 }
