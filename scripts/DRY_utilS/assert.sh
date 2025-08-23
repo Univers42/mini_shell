@@ -49,3 +49,5 @@ main(){
 }
 
 main
+
+❯ diff -y <(../../minishell -c 'env') <(bash -c 'env')
