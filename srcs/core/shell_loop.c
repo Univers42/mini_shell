@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 02:35:08 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/23 19:25:59 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/23 19:37:05 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,6 @@ static int	run_dash_c(const char *cmdstr, t_env *env)
 	err = parse_line(exp_input, &cmd);
 	if (err == PARSE_OK)
 	{
-		printf("Go dispatch %s %s\n", cmd.argv[0], cmd.argv[1]);
 		dispatch_command(&cmd, env);
 	}
 	else if (err == PARSE_EMPTY)
