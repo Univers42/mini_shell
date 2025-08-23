@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:55 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/22 18:44:44 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/22 19:15:33 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ typedef struct s_cmdline
 	char		**argv;
 	int			argc;
 	int			flags;
-	int			bin_idx;	// index in access_builtins() or BIN_NOT_FOUND
+	int			bin_idx;
 	t_parse_err	err;
 }				t_cmdline;
 
