@@ -42,12 +42,10 @@ main(){
 
   local mini_bin="../../minishell"
   local shell_bin="bash"
-  local cmd="env"
+  local cmd='exit 100'
 
   run_and_compare "$mini_bin" "$shell_bin" "$cmd"
   return $?
 }
 
 main
-
-❯ diff -y <(../../minishell -c 'env') <(bash -c 'env')
