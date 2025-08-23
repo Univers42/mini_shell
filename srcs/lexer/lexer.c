@@ -2,11 +2,6 @@
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/12 13:52:28 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/21 03:17:11 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,35 +13,103 @@ static char	*trim_copy(const char *line);
 size_t		count_qmark_extra(const char *in);
 int			needs_home(const char *in, const char *home);
 
-void	copy_until_qmark(const char *in, size_t *pi, char *out, size_t *po)
+/* forward decl from expand_basic.c */
+char		*expand_basic(const char *in);
+
+/* helpers to recognize chain operators */
+static int	is_op_at(const char *s, size_t i)
 {
-	while (in[*pi] && !(in[*pi] == '$' && in[*pi + 1] == '?'))
-	{
-		out[*po] = in[*pi];
-		(*po)++;
-		(*pi)++;
-	}
+	return ((s[i] == '&' && s[i + 1] == '&')
+		|| (s[i] == '|' && s[i + 1] == '|'));
 }
 
-size_t	calc_extra(const char *in, const char *home)
+static size_t	count_tokens_with_ops(const char *s)
 {
-	size_t	extra;
+	size_t	i = 0, n = 0;
 
-	extra = count_qmark_extra(in);
-	if (needs_home(in, home))
-		extra += ft_strlen(home) + 1;
-	return (extra);
+	while (s[i])
+	{
+		while (s[i] == ' ')
+			i++;
+		if (!s[i])
+			break;
+		if (is_op_at(s, i))
+		{
+			n++;
+			i += 2;
+			continue;
+		}
+		n++;
+		while (s[i] && s[i] != ' ' && !is_op_at(s, i))
+			i++;
+	}
+	return (n);
+}
+
+static char	*dup_token(const char *s, size_t start, size_t end)
+{
+	if (end <= start)
+		return (ft_strdup(""));
+	return (ft_substr(s, (unsigned int)start, end - start));
+}
+
+static void	free_vec(char **v)
+{
+	size_t i = 0;
+	if (!v) return;
+	while (v[i])
+	{
+		free(v[i]);
+		i++;
+	}
+	free(v);
 }
 
 char	**lex_line(const char *line)
 {
 	char	*trimmed;
 	char	**tokens;
+	size_t	tcount, i = 0, k = 0;
 
 	trimmed = trim_copy(line);
 	if (!trimmed || !*trimmed)
 		return (free(trimmed), NULL);
-	tokens = ft_split(trimmed, ' ');
+	tcount = count_tokens_with_ops(trimmed);
+	tokens = (char **)ft_calloc(tcount + 1, sizeof(char *));
+	if (!tokens)
+		return (free(trimmed), NULL);
+	while (trimmed[i])
+	{
+		while (trimmed[i] == ' ')
+			i++;
+		if (!trimmed[i])
+			break;
+		if (is_op_at(trimmed, i))
+		{
+			tokens[k++] = ft_substr(trimmed, (unsigned int)i, 2);
+			i += 2;
+		}
+		else
+		{
+			size_t start = i;
+			while (trimmed[i] && trimmed[i] != ' ' && !is_op_at(trimmed, i))
+				i++;
+			tokens[k] = dup_token(trimmed, start, i);
+			if (!tokens[k])
+				return (free(trimmed), free_vec(tokens), NULL);
+			/* apply basic expansion (~ and $?) per token */
+			{
+				char *expanded = expand_basic(tokens[k]);
+				if (expanded)
+				{
+					free(tokens[k]);
+					tokens[k] = expanded;
+				}
+			}
+			k++;
+		}
+	}
+	tokens[k] = NULL;
 	free(trimmed);
 	return (tokens);
 }

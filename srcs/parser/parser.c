@@ -6,13 +6,20 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:31 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/21 03:08:29 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/23 21:35:25 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+#include "libft.h"
 
 int	find_builtin_idx(const char *cmd);
+
+/* small helper to detect chain operators */
+static int	is_chain_op(const char *tok)
+{
+	return (tok && (ft_strcmp(tok, "&&") == 0 || ft_strcmp(tok, "||") == 0));
+}
 
 int	parse_dash_flags(const char *tok, int valid, int *flags)
 {
@@ -57,6 +64,8 @@ int	parse_bare_as_flags(const char *tok, int valid, int *flags)
  */
 t_parse_state	handle_token(const char *tok, int valid, int *flags)
 {
+	if (is_chain_op(tok))
+		return (ST_ARGS);
 	if (tok[0] == '-' && tok[1] != '\0')
 	{
 		if (!parse_dash_flags(tok, valid, flags))

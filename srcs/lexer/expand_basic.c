@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 02:44:44 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/21 03:17:27 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/23 21:35:28 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,8 @@ char	*expand_basic(const char *in)
 	const char	*home;
 	char		*out;
 
+	if (!in)
+		return (NULL);
 	home = getenv("HOME");
 	out = alloc_expanded(in, home);
 	if (!out)

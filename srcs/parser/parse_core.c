@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 03:04:31 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/21 03:09:09 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/23 21:35:27 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,11 @@ static int	find_builtin_idx(const char *cmd)
 	return (BIN_NOT_FOUND);
 }
 
+static int	is_chain_op(const char *tok)
+{
+	return (tok && (ft_strcmp(tok, "&&") == 0 || ft_strcmp(tok, "||") == 0));
+}
+
 static t_parse_err	scan_tokens(char **toks, t_cmdline *out, int valid)
 {
 	int				i;
@@ -78,6 +83,11 @@ static t_parse_err	scan_tokens(char **toks, t_cmdline *out, int valid)
 	i = 1;
 	while (st != ST_DONE && st != ST_ERROR && i < out->argc)
 	{
+		if (is_chain_op(toks[i]))
+		{
+			st = ST_DONE;
+			break ;
+		}
 		if (toks[i][0] == '-' && toks[i][1] != '\0')
 		{
 			if (!parse_dash_flags(toks[i], valid, &out->flags))

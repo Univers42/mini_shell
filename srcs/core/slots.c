@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 02:21:37 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/21 02:37:06 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/23 21:58:05 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,14 @@
 #include "history.h"
 #include "signals.h"
 
+typedef struct s_env
+{
+	char *key;
+	char *value;
+	int	classment;
+	int	export_status;//exported vs local variables
+}t_info_env;
+
 /**
  * 
  * In this archive we will find all the ports for each API
@@ -35,8 +43,9 @@
 void	dispatch_command(t_cmdline *cmd, t_env *env)
 {
 	t_builtins	*bins;
+	int			rc;
 
 	bins = access_builtins();
-	bins[cmd->bin_idx].builtin(cmd->argv, cmd->flags, env);
-	ms()->last_status = 0;
+	rc = bins[cmd->bin_idx].builtin(cmd->argv, cmd->flags, env);
+	ms()->last_status = rc;
 }

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 02:41:52 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/21 03:16:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/23 21:37:47 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,27 @@ int		needs_home(const char *in, const char *home);
 size_t	expand_home(const char *in, const char *home, char *out);
 size_t	calc_extra(const char *in, const char *home);
 void	copy_until_qmark(const char *in, size_t *pi, char *out, size_t *po);
+size_t		count_qmark_extra(const char *in);
+
+void	copy_until_qmark(const char *in, size_t *pi, char *out, size_t *po)
+{
+	while (in[*pi] && !(in[*pi] == '$' && in[*pi + 1] == '?'))
+	{
+		out[*po] = in[*pi];
+		(*po)++;
+		(*pi)++;
+	}
+}
+
+size_t	calc_extra(const char *in, const char *home)
+{
+	size_t	extra;
+
+	extra = count_qmark_extra(in);
+	if (needs_home(in, home))
+		extra += ft_strlen(home) + 1;
+	return (extra);
+}
 
 void	append_status(char *out, size_t *po)
 {
