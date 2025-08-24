@@ -6,7 +6,7 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 16:18:43 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/24 16:43:36 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/24 17:26:07 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,12 @@ typedef enum e_builtin_flags
 
 typedef void	t_env;
 typedef int		(*t_builtin)(char **args, int flags, t_env *env);
+//struct newly added to handle better env variables in the builtins
+typedef struct	s_info_env {
+	char	*key;
+	char	*value;
+	int	classment;
+} t_info_env;
 
 /* Small helper to map a flag character to its bit */
 static inline int	flag_from_char(char c)
