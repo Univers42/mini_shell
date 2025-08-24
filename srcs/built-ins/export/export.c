@@ -6,12 +6,13 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 19:45:14 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/14 21:51:19 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/24 16:42:53 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "builtins.h"
 #include <stdlib.h>
+#include <string.h>
 
 /*
 ** print_exported_vars
@@ -19,32 +20,33 @@
 ** Print all environment variables in "declare -x" format.
 ** Used when export is called without arguments or with -p flag.
 */
+
 static void	print_exported_vars(char **envp)
 {
 	int		i;
-	char	*eq_pos;
+	int		count;
+	char	**envp_copy;
 
 	if (!envp)
 		return ;
+	count = 0;
+	while (envp[count])
+		count++;
+	envp_copy = (char **)malloc(sizeof(char *) * (count + 1));
+	if (!envp_copy)
+		return ;
 	i = 0;
-	while (envp[i])
+	while (i < count)
 	{
-		eq_pos = ft_strchr(envp[i], '=');
-		if (eq_pos)
-		{
-			ft_putstr_fd("declare -x ", 1);
-			ft_putstr_fd(envp[i], 1);
-			ft_putendl_fd("", 1);
-		}
+		envp_copy[i] = envp[i];
 		i++;
 	}
+	envp_copy[count] = NULL;
+	ft_quick_sort_str(envp_copy, 0, count - 1);
+	print_sorted_env(envp_copy, count);
+	free(envp_copy);
 }
 
-/*
-** export_key_value
-** ---------------
-** Handle export for KEY=VALUE format
-*/
 static int	export_key_value(char ***penv, const char *arg, char *eq_pos)
 {
 	char	*key;
@@ -59,7 +61,8 @@ static int	export_key_value(char ***penv, const char *arg, char *eq_pos)
 		ft_putstr_fd("minishell: export: `", 2);
 		ft_putstr_fd((char *)arg, 2);
 		ft_putendl_fd("': not a valid identifier", 2);
-		return (free(key), 1);
+		free(key);
+		return (1);
 	}
 	value = eq_pos + 1;
 	result = set_env_var(penv, key, value);
@@ -67,11 +70,6 @@ static int	export_key_value(char ***penv, const char *arg, char *eq_pos)
 	return (result);
 }
 
-/*
-** export_variable
-** --------------
-** Export a single variable. Handles both KEY=VALUE and KEY formats.
-*/
 static int	export_variable(char ***penv, const char *arg)
 {
 	char	*eq_pos;
@@ -79,24 +77,16 @@ static int	export_variable(char ***penv, const char *arg)
 	eq_pos = ft_strchr(arg, '=');
 	if (eq_pos)
 		return (export_key_value(penv, arg, eq_pos));
-	else
+	if (!is_valid_identifier(arg))
 	{
-		if (!is_valid_identifier(arg))
-		{
-			ft_putstr_fd("minishell: export: `", 2);
-			ft_putstr_fd((char *)arg, 2);
-			ft_putendl_fd("': not a valid identifier", 2);
-			return (1);
-		}
-		return (set_env_var(penv, arg, ""));
+		ft_putstr_fd("minishell: export: `", 2);
+		ft_putstr_fd((char *)arg, 2);
+		ft_putendl_fd("': not a valid identifier", 2);
+		return (1);
 	}
+	return (set_env_var(penv, arg, ""));
 }
 
-/*
-** count_args
-** ----------
-** Count the number of arguments in args array
-*/
 static int	count_args(char **args)
 {
 	int	argc;
@@ -107,27 +97,6 @@ static int	count_args(char **args)
 	return (argc);
 }
 
-/*
-** bin_export
-** ----------
-** Purpose:
-**   Minishell builtin implementation for `export`.
-**   Exports shell variables to the environment.
-**
-** Behavior:
-**   - No args or -p flag: Print all exported variables
-**   - With args: Export each argument as a variable
-**   - KEY=VALUE format: Set variable to value
-**   - KEY format: Export existing variable or create empty one
-**
-** Params:
-**   args  -> Arg vector: ["export", ...variables]
-**   flags -> FLAG_P for -p option
-**   env   -> Environment variables (cast to char ***)
-**
-** Returns:
-**   0 on success, 1 on error
-*/
 int	bin_export(char **args, int flags, t_env *env)
 {
 	char	***penv;

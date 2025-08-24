@@ -6,41 +6,77 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 20:40:38 by danielm3          #+#    #+#             */
-/*   Updated: 2025/08/23 20:41:33 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/24 16:43:02 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "builtins.h"
 #include "minishell.h"
 
-static int cmp_env(const void *a, const void *b) {
-    const char *sa = *(const char * const *)a;
-    const char *sb = *(const char * const *)b;
+void	print_exported_line(char *env)
+{
+	char	*eq_pos;
 
-    const char *ea = ft_strchr(sa, '=');
-    if (ea == NULL)
-        ea = sa + ft_strlen(sa);
-    const char *eb = ft_strchr(sb, '=');
-    if (eb == NULL)
-        eb = sb + strlen(sb);
+	eq_pos = ft_strchr(env, '=');
+	if (eq_pos)
+	{
+		ft_putstr_fd("declare -x ", 1);
+		ft_putstr_fd(env, 1);
+		ft_putendl_fd("", 1);
+	}
+}
 
-    size_t la = (size_t)(ea - sa);
-    size_t lb = (size_t)(eb - sb);
+void	print_sorted_env(char **envp_copy, int count)
+{
+	int	i;
 
-    size_t minlen;
-    if (la < lb)
-        minlen = la;
-    else
-        minlen = lb;
+	i = 0;
+	while (i < count)
+	{
+		print_exported_line(envp_copy[i]);
+		i++;
+	}
+}
 
-    int cmp = strncmp(sa, sb, minlen);
-    if (cmp != 0)
-        return cmp;
+static void	swap_str(char **a, char **b)
+{
+	char	*tmp;
 
-    if (la < lb)
-        return -1;
-    else if (la > lb)
-        return 1;
-    else
-        return 0;
+	tmp = *a;
+	*a = *b;
+	*b = tmp;
+}
+
+static int	partition_str(char **array, int low, int high)
+{
+	char	*pivot;
+	int		i;
+	int		j;
+
+	pivot = array[high];
+	i = low - 1;
+	j = low;
+	while (j < high)
+	{
+		if (strcmp(array[j], pivot) < 0)
+		{
+			i++;
+			swap_str(&array[i], &array[j]);
+		}
+		j++;
+	}
+	swap_str(&array[i + 1], &array[high]);
+	return (i + 1);
+}
+
+void	ft_quick_sort_str(char **array, int low, int high)
+{
+	int	pivot_index;
+
+	if (low < high)
+	{
+		pivot_index = partition_str(array, low, high);
+		ft_quick_sort_str(array, low, pivot_index - 1);
+		ft_quick_sort_str(array, pivot_index + 1, high);
+	}
 }

@@ -6,7 +6,7 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 16:18:43 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/21 00:01:03 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/24 16:43:36 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,9 @@ int					flag_bit(char ch);
 int					is_flag_set(int flags, int bit);
 void				handle_uppercase(char **args, char **processed_args);
 char				*resolve_exec_path(const char *cmd, char **envp);
+void				ft_quick_sort_str(char **arr, int left, int right);
+void				print_exported_line(char *env);
+void				print_sorted_env(char **envp_copy, int count);
 
 // Builtins global accessor
 static inline t_builtins	*access_builtins(void)
