@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:31 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/21 03:08:29 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/24 21:06:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ t_parse_state	handle_token(const char *tok, int valid, int *flags)
 	return (ST_FLAGS);
 }
 
-t_parse_err	parse_tokens(char **toks, t_cmdline *out)
+t_parse_err	parse_tokenss(char **toks, t_cmdline *out)
 {
 	int				i;
 	int				valid;

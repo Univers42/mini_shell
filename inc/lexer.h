@@ -10,7 +10,7 @@
 typedef struct s_token_array {
     struct s_token*	data;   // Array of tokens
     size_t			count;           // Number of tokens
-    size_t 			apacity;        // Allocated capacity
+    size_t 			capacity;        // Allocated capacity
 } 					t_token_array;
 
 /**
@@ -207,7 +207,7 @@ t_token make_error_token(const char* message);
 t_token_array* scan_tokens(const char* source);
 
 // Token operations with variadic support
-void add_token(t_token_type type, ...);  // Supports both add_token(type) and add_token(type, literal)
+void add_token(t_token_type type, ...);
 
 // Utility functions
 bool is_at_end(void);
@@ -221,9 +221,9 @@ bool is_alpha(char c);
 bool is_alnum(char c);
 
 // Token type helpers
-const char* token_type_name(t_token_type type);
-bool is_keyword(const char* text, int length);
-t_token_type keyword_type(const char* text, int length);
+const char		*token_type_name(t_token_type type);
+bool			is_keyword(const char *text, int length);
+t_token_type	keyword_type(const char* text, int length);
 
 // String and number parsing
 t_token string_token(void);
@@ -254,18 +254,20 @@ void print_token_range(t_token_array* tokens, size_t start, size_t end);
 /**
  * Helper functions for token creation
  */
-t_location token_location(const t_scanner* scanner);
-t_token current_token(const t_scanner* scanner, t_token_type type);
-t_token current_token_with_literal(const t_scanner* scanner, t_token_type type, t_literal literal);
+t_location	token_location(const t_scanner* scanner);
+t_token		current_token(const t_scanner* scanner, t_token_type type);
+t_token		current_token_with_literal(const t_scanner* scanner, t_token_type type, t_literal literal);
 
 /**
  * Convenience functions for accessing tokens by index
  */
-static inline t_token* get_token_at(t_token_array* tokens, size_t index) {
-    return token_array_get(tokens, index);
+static inline t_token* get_token_at(t_token_array* tokens, size_t index)
+{
+    return (token_array_get(tokens, index));
 }
 
-static inline t_token* peek_token_at(t_token_array* tokens, size_t current, size_t lookahead) {
+static inline t_token* peek_token_at(t_token_array* tokens, size_t current, size_t lookahead)
+{
     size_t target = current + lookahead;
     return (target < token_array_size(tokens)) ? token_array_get(tokens, target) : NULL;
 }

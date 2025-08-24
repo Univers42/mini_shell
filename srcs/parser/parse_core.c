@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 03:04:31 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/08/21 03:09:09 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/24 21:07:29 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ static int	find_builtin_idx(const char *cmd)
 	return (BIN_NOT_FOUND);
 }
 
-static t_parse_err	scan_tokens(char **toks, t_cmdline *out, int valid)
+static t_parse_err	scan_tokenss(char **toks, t_cmdline *out, int valid)
 {
 	int				i;
 	t_parse_state	st;
@@ -106,5 +106,5 @@ t_parse_err	ms_parse_tokens(char **toks, t_cmdline *out)
 		return (PARSE_NOT_BUILTIN);
 	out->flags = 0;
 	valid = access_builtins()[out->bin_idx].valid_flags;
-	return (scan_tokens(toks, out, valid));
+	return (scan_tokenss(toks, out, valid));
 }

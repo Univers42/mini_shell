@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 16:18:43 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/24 20:50:46 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/08/24 20:57:20 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,7 @@ static inline t_builtins	*access_builtins(void)
 	{"exit", bin_exit, 0},
 	{"clear", bin_clear, 0},
 	{"history", bin_history, 0},
-	{NULL, NdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddULL, 0}
+	{NULL, NULL, 0}
 	};
 
 	return (bins);

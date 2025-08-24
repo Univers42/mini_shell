@@ -36,6 +36,6 @@ t_parse_err	ms_parse_line(const char *line, t_cmdline *out);
 void		ms_cmdline_free(t_cmdline *cmd);
 
 /* tokens -> cmdline parse (implemented in parse_core.c) */
-t_parse_err	ms_parse_tokens(char **toks, t_cmdline *out);
+t_parse_err	ms_parse_tokenss(char **toks, t_cmdline *out);
 
 #endif
