@@ -6,7 +6,7 @@
 /*   By: danielm3 <danielm3@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 20:40:38 by danielm3          #+#    #+#             */
-/*   Updated: 2025/08/24 16:43:02 by danielm3         ###   ########.fr       */
+/*   Updated: 2025/08/24 17:13:24 by danielm3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ static int	partition_str(char **array, int low, int high)
 	j = low;
 	while (j < high)
 	{
-		if (strcmp(array[j], pivot) < 0)
+		if (ft_strcmp(array[j], pivot) < 0)
 		{
 			i++;
 			swap_str(&array[i], &array[j]);
