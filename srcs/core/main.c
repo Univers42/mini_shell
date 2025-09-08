@@ -3,76 +3,52 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/12 13:47:41 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/12 14:27:49 by syzygy           ###   ########.fr       */
+/*   Created: 2025/08/21 02:34:10 by dlesieur          #+#    #+#             */
+/*   Updated: 2025/08/22 17:48:22 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
 #include <stdbool.h>
 #include <readline/readline.h>
-#include <readline/history.h>
-#include <stdlib.h>
 #include "libft.h"
-#include "builtins.h"
 #include "minishell.h"
+#include "history.h"
+#include "signals.h"
+#include "render.h"
+#include "core_utils.h"
 
-static void	print_parse_error(const char *cmd, t_parse_err err)
+static void	init_history(char **envp)
 {
-	if (err == PARSE_NOT_BUILTIN)
-		printf("Unknown command: %s\n", cmd);
-	else if (err == PARSE_INVALID_FLAG)
-		printf("Unknown command: %s\n", cmd);
-}
+	t_history_opts	hopts;
 
-static void	dispatch_command(t_cmdline *cmd)
-{
-	t_builtins	*bins;
-
-	bins = access_builtins();
-	bins[cmd->bin_idx].builtin(cmd->argv, cmd->flags, NULL);
-}
-
-static int	run_minishell(bool run)
-{
-	t_string	input;
-	t_cmdline	cmd;
-	t_parse_err	err;
-
-	while (run)
-	{
-		input = readline("minishell> ");
-		if (!input)
-			return (printf("exit\n"), rl_clear_history(), 0);
-		if (*input)
-		{
-			err = ms_parse_line(input, &cmd);
-			if (err == PARSE_OK)
-				dispatch_command(&cmd);
-			else if (err == PARSE_NOT_BUILTIN && ft_strcmp(input, "quit") == 0)
-				run = false;
-			else
-				print_parse_error(input, err);
-			ms_cmdline_free(&cmd);
-		}
-		free(input);
-	}
-	rl_clear_history();
-	return (0);
+	hopts.persist = true;
+	hopts.histfile = NULL;
+	hopts.histsize = DEFAULT_HISTSIZE;
+	if (hs()->init(&hopts, envp) == 0)
+		hs()->load();
 }
 
 int	main(int argc, char **argv, char **envp)
 {
+	bool	run;
+	char	**clone_envp;
+	t_ms	app;
+
 	(void)argc;
 	(void)argv;
-	(void)envp;
-	bool	run;
-
+	setup_readline_hooks();
+	clone_envp = dup_env(envp);
+	if (!clone_envp)
+		return (1);
+	init_history(envp);
+	ft_bzero(&app, sizeof(app));
+	app.last_status = 0;
+	app.render_mode = RENDER_FANCY;
+	app.argc = argc;
+	app.argv = argv;
+	ms_install(&app);
 	run = true;
-	run_minishell(run);
-	return (0);
+	return (run_minishell(run, (t_env *)&clone_envp, &app));
 }

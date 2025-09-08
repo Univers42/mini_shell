@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   bin_ctrl.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:15:25 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/12 14:23:16 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/20 22:01:35 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,11 @@ int	builtin_hash(char *cmd)
 		return (BIN_NOT_FOUND);
 	i = 0;
 	bins = access_builtins();
-	while (bins[++i].name != NULL) {
+	while (bins[i].name != NULL)
+	{
 		if (ft_strcmp(cmd, bins[i].name) == 0)
 			return (i);
+		i++;
 	}
 	return (BIN_NOT_FOUND);
 }

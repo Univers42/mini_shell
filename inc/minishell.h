@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: syzygy <syzygy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:52:55 by syzygy            #+#    #+#             */
-/*   Updated: 2025/08/12 14:18:39 by syzygy           ###   ########.fr       */
+/*   Updated: 2025/08/22 18:44:44 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,26 +15,11 @@
 
 # include "libft.h"
 # include "builtins.h"
-
-/* Parsing state machine */
-typedef enum e_parse_state
-{
-	ST_START = 0,
-	ST_CMD,
-	ST_FLAGS,
-	ST_ARGS,
-	ST_DONE,
-	ST_ERROR
-}	t_parse_state;
-
-/* Parsing error codes */
-typedef enum e_parse_err
-{
-	PARSE_OK = 0,
-	PARSE_EMPTY,
-	PARSE_NOT_BUILTIN,
-	PARSE_INVALID_FLAG
-}	t_parse_err;
+# include "signals.h"
+# include "parser.h"
+# include "lexer.h"
+# include "history.h"
+# include "render.h"
 
 /* Parsed command line */
 typedef struct s_cmdline
@@ -42,17 +27,27 @@ typedef struct s_cmdline
 	char		**argv;
 	int			argc;
 	int			flags;
-	int			bin_idx;    /* index in access_builtins() or BIN_NOT_FOUND */
+	int			bin_idx;	// index in access_builtins() or BIN_NOT_FOUND
 	t_parse_err	err;
-}	t_cmdline;
+}				t_cmdline;
 
-/* Lexer API */
-char	**ms_lex_line(const char *line);
-int		ms_count_tokens(char **tokens);
-void	ms_free_tokens(char **tokens);
+typedef struct s_ms
+{
+	int					argc;
+	char				**argv;
+	int					last_status;
+	t_render_mode		render_mode;
+	void				*content;
+	t_cmdline			*builtins;
+	//t_history			api_history;
+	t_parser			*parser;
+	//t_lexer				*lexer;
+	void				*other_feature;
+}						t_ms;
 
-/* Parser API */
-t_parse_err	ms_parse_line(const char *line, t_cmdline *out);
-void		ms_cmdline_free(t_cmdline *cmd);
+/* process-wide singleton accessor (no global variables exposed) */
+t_ms	*ms(void);
+void	ms_install(t_ms *ptr);
 
+int				exec_internal(int argc, char **argv, char **envp);
 #endif
