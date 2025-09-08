@@ -6,7 +6,7 @@
 #    By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/08 13:08:20 by dlesieur          #+#    #+#              #
-#    Updated: 2025/09/08 21:46:15 by dlesieur         ###   ########.fr        #
+#    Updated: 2025/09/09 00:16:04 by dlesieur         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -88,8 +88,8 @@ all: $(NAME)
 $(NAME): $(LIBFT_BIN) $(OBJS)
 	@echo "$(BLUE)Linking objects to create $(NAME)$(RESET)"
 	@echo "$(GREEN)Compilation successful!$(RESET)"
-	@echo "$(YELLOW)./minishell\n./minishell -c ""command1 ; command2 ; ...$(RESET)"
-	@$(CC) $(CFLAGS) $(OBJS) -o $(NAME) $(LIBS)
+	@echo "$(YELLOW)./minishell\n./minishell -c \"command1 ; command2 ; ...$(RESET)"
+	@$(CC) $(CFLAGS) $(OBJS) -o $(NAME) $(LIBS) -lreadline
 
 clean:
 	$(RM) $(OBJS_DIR)
