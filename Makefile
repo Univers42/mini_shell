@@ -6,7 +6,7 @@
 #    By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/08 13:08:20 by dlesieur          #+#    #+#              #
-#    Updated: 2025/09/08 19:44:37 by dlesieur         ###   ########.fr        #
+#    Updated: 2025/09/08 21:46:15 by dlesieur         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,7 +35,7 @@ WHITE		= \033[37m
 # --------------------
 NAME		= minishell
 CC			= cc
-CFLAGS		= -Wall -Wextra -Werror
+CFLAGS		= -Wall -Wextra -Werror -MMD -MP -O3 -pedantic -std=c99
 RM			= rm -rf
 # --------------------
 
@@ -78,6 +78,7 @@ $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c
 	@echo "Compiling $< -> $@"
 	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
+-include $(OBJS:.o=.d)
 # **************************************************************************** #
 #                                    Rules                                     #
 # **************************************************************************** #
@@ -113,6 +114,8 @@ help:
 	@echo "  libft   : Compile the libft library"
 	@echo "  help    : Display this help message"
 	@echo "  norminette : Check code style with norminette"
+	@echo ""
+	@echo "Tip: Use 'make -j' or 'make -jN' to compile in parallel and speed up builds."
 
 norminette:
 	find . -path "./includes/libft/minilibx-linux" -prune -o -name "*.c" -exec norminette {} +
