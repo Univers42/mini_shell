@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/09 00:24:03 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/09/09 01:21:07 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/09/09 01:23:18 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,13 +201,10 @@ char *minishell_examples()
 	char *pwd_short;
 	char prompt_buf[256];
 	char *result = NULL;
-	// Example 1: Get current user for prompt
+
 	current_user = capture_output("whoami");
-	// Example 2: Get hostname for prompt
 	hostname = capture_output("hostname -s");
-	// Example 3: Get git branch if in a git repo
 	git_branch = capture_output("git branch --show-current 2>/dev/null");
-	// Example 4: Create a dynamic prompt
 	if (current_user && hostname)
 	{
 		pwd_short = capture_output("basename $(pwd)");
@@ -221,21 +218,3 @@ char *minishell_examples()
 	free(git_branch);
 	return result;
 }
-
-// int main()
-// {
-// 	printf("Capture Output Function for Minishell\n");
-// 	printf("=====================================\n\n");
-
-// 	minishell_examples();
-
-// 	printf("\n=== How to use in your minishell ===\n");
-// 	printf("1. Include this capture_output function in your project\n");
-// 	printf("2. Use it to get command output for your prompt:\n");
-// 	printf("   char *user = capture_output(\"whoami\");\n");
-// 	printf("   char *host = capture_output(\"hostname\");\n");
-// 	printf("   // Build your prompt string with user and host\n");
-// 	printf("   free(user); free(host);\n\n");
-
-// 	return 0;
-// }
