@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/09 00:24:03 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/09/09 01:23:18 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/09/09 01:24:16 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,13 +134,13 @@ typedef struct s_app
 
 char *capture_output(const char *command)
 {
-	int pipefd[2];
-	pid_t pid;
-	char *output;
-	ssize_t total_read;
-	ssize_t bytes_read;
-	char buffer[1024];
-	int status;
+	int		pipefd[2];
+	pid_t	pid;
+	char	*output;
+	ssize_t	total_read;
+	ssize_t	bytes_read;
+	char	buffer[1024];
+	int		status;
 
 	if (!command)
 		return (NULL);
