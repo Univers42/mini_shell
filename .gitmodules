@@ -1,3 +1,6 @@
 [submodule "inc/libft"]
 	path = inc/libft
 	url = git@github.com:Univers42/libft.git
+[submodule "includes/libft"]
+	path = includes/libft
+	url = git@github.com:Univers42/libft.git
