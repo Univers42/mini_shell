@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/09 00:24:03 by dlesieur          #+#    #+#             */
-/*   Updated: 2025/09/09 01:14:57 by dlesieur         ###   ########.fr       */
+/*   Updated: 2025/09/09 01:21:07 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,8 +211,8 @@ char *minishell_examples()
 	if (current_user && hostname)
 	{
 		pwd_short = capture_output("basename $(pwd)");
-		snprintf(prompt_buf, sizeof(prompt_buf), "[%s@%s:%s]$ ",
-				 current_user, hostname, pwd_short ? pwd_short : "unknown");
+		snprintf(prompt_buf, sizeof(prompt_buf), "[%s@%s:%s]"GREEN_TERM"[%s]"RESET_TERM"$ ",
+				current_user, hostname, pwd_short ? pwd_short : "unknown", git_branch);
 		free(pwd_short);
 		result = ft_strdup(prompt_buf);
 	}
