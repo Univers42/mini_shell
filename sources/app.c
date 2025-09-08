@@ -3,18 +3,18 @@
 #include <readline/readline.h>
 #include <readline/readline.h>
 
+char *minishell_examples();
 void run_shell(char **envp)
 {
     int size;
     (void)envp;
-    char *line = readline("minishell > ");
+    char *line = readline(minishell_examples());
     if (!line)
     {
         size = write(1, "exit\n", 5);
         (void)size;
         exit(0);
     }
-    // process line here if needed
     free(line);
 }
 
