@@ -11,13 +11,9 @@
 # **************************************************************************** #
 
 NAME			= minishell
-LIBFT_DIR		= $(INCLUDES_DIR)/libft
-INCLUDES_DIR	= includes
-
 CC			= cc
 CFLAGS		= -Wall -Wextra -Werror
 RM			= rm -rf
-INCLUDES	= -I $(INCLUDES_DIR) -I $(LIBFT_DIR)
 
 define compile_lib
 	@echo "compiling library"
@@ -28,16 +24,23 @@ endef
 #                                 Source files                                 #
 # **************************************************************************** #
 
-SRCS_DIR	= sources
-# \/ ! Add explicit files before push to main
-SRCS		= $(shell find $(SRCS_DIR) -name *.c)
+SRCS_DIR	:= sources
+SRCS		:= $(shell find $(SRCS_DIR) -name *.c)
+
+LIBFT_DIR	= $(INCLUDES_DIR)/libft
+LIBFT_BIN	:= $(LIBFT_DIR)/libft.a
+
+INCLUDES_DIR = includes
+HEADERS		= $(shell find $(INCLUDES_DIR) -type f -name "*.h" -exec dirname {} \; | sort -u)
+HEADERS		+= .
+INCLUDES	= $(foreach dir,$(HEADERS),-I$(dir))
 
 # **************************************************************************** #
 #                                 Object files                                 #
 # **************************************************************************** #
 
-OBJS_DIR	= obj
-OBJS 		= $(SRCS:$(SRCS_DIR)/%.c=$(OBJS_DIR)/%.o)
+OBJS_DIR	:= obj
+OBJS 		:= $(SRCS:$(SRCS_DIR)/%.c=$(OBJS_DIR)/%.o)
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c
 	@mkdir -p $(@D)
@@ -47,29 +50,25 @@ $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c
 #                                    Rules                                     #
 # **************************************************************************** #
 
-all: clib $(NAME)
-.PHONY: all
+all: $(NAME)
 
-$(NAME): $(OBJS)
+$(NAME): clib $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) $(LIBS) -o $(NAME)
 
 clean:
 	$(RM) $(OBJS_DIR)
-.PHONY: clean
 
 fclean: clean
+	$(call compile_lib,$(LIBFT_DIR),fclean)
 	$(RM) $(NAME)
-.PHONY: fclean
 
 re: fclean all
-.PHONY: re
 
 clib: libft
-.PHONY: clib
 
-LIBFT_BIN	= $(LIBFT_DIR)/libft.a
 libft: $(LIBFT_BIN)
-.PHONY: libft
 
 $(LIBFT_BIN):
 	$(call compile_lib,$(LIBFT_DIR),all MLX_ENABLED=0)
+
+.PHONY: all clean fclean re clib libft 
