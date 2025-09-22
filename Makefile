@@ -44,7 +44,7 @@ RM			= rm -rf
 # --------------------
 define compile_lib
 	@echo "compiling library"
-	$(MAKE) -C $(1) $(2)
+	+$(MAKE) -C $(1) $(2)
 endef
 # --------------------
 
@@ -73,7 +73,7 @@ MAKEFLAGS += --no-print-directory
 OBJS_DIR	= obj
 OBJS 		= $(SRCS:$(SRCS_DIR)/%.c=$(OBJS_DIR)/%.o)
 
-$(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c
+$(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c $(LIBFT_BIN)
 	@mkdir -p $(@D)
 	@echo "Compiling $< -> $@"
 	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
@@ -93,17 +93,20 @@ $(NAME): $(LIBFT_BIN) $(OBJS)
 
 clean:
 	$(RM) $(OBJS_DIR)
+	+$(MAKE) -C $(LIBFT_DIR) clean
 
 fclean: clean
-	$(call compile_lib,$(LIBFT_DIR),fclean)
+	+$(MAKE) -C $(LIBFT_DIR) fclean
 	$(RM) $(NAME)
 
-re: fclean all
+re:
+	+$(MAKE) fclean
+	+$(MAKE) all
 
 libft: $(LIBFT_BIN)
 
 $(LIBFT_BIN):
-	$(call compile_lib,$(LIBFT_DIR),all MLX_ENABLED=0)
+	+$(MAKE) -C $(LIBFT_DIR) all MLX_ENABLED=0
 
 help:
 	@echo "Makefile rules:"
@@ -120,4 +123,4 @@ help:
 norminette:
 	find . -path "./includes/libft/minilibx-linux" -prune -o -name "*.c" -exec norminette {} +
 
-.PHONY: all clean fclean re libft
+.PHONY: all clean fclean re libft help norminette
